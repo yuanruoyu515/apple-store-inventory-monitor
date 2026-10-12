@@ -1,5 +1,8 @@
 # 果到雷达（Apple Store Inventory Monitor）
 
+> [!IMPORTANT]
+> 当前 `us-edition` 分支是面向美国 Apple Store 的修改版，内置美国门店与 iPhone 18 Pro / iPhone 18 Pro Max 的美国 SKU，并使用独立应用配置。安装、使用和构建方法见 [美国版说明](README_US.md)。上游原项目为 [suversal/apple-store-inventory-monitor](https://github.com/suversal/apple-store-inventory-monitor)，本分支继续按 GPL-3.0-or-later 发布。
+
 [![CI](https://github.com/suversal/apple-store-inventory-monitor/actions/workflows/ci.yml/badge.svg)](https://github.com/suversal/apple-store-inventory-monitor/actions/workflows/ci.yml)
 [![源码版本: v1.0.6](https://img.shields.io/badge/source-v1.0.6-blue)](package.json)
 [下载与发布记录](https://github.com/suversal/apple-store-inventory-monitor/releases)

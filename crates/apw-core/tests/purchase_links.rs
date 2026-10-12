@@ -16,6 +16,7 @@ fn target(locale: &str, part: &str) -> Target {
 #[test]
 fn 商品链接保留地区前缀和完整料号() {
     for (locale, base) in [
+        ("en_US", "https://www.apple.com"),
         ("zh_CN", "https://www.apple.com.cn"),
         ("zh_HK", "https://www.apple.com/hk-zh"),
         ("zh_TW", "https://www.apple.com/tw"),

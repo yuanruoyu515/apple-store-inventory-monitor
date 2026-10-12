@@ -283,6 +283,7 @@ impl AppState {
 fn list_regions() -> Vec<RegionDto> {
     REGIONS
         .iter()
+        .filter(|region| region.locale == "en_US")
         .map(|r| RegionDto {
             title: r.title,
             locale: r.locale,
@@ -292,7 +293,7 @@ fn list_regions() -> Vec<RegionDto> {
 
 #[tauri::command]
 fn list_categories() -> Vec<CategoryDto> {
-    Category::ALL
+    [Category::Iphone]
         .iter()
         .map(|c| CategoryDto {
             value: *c,

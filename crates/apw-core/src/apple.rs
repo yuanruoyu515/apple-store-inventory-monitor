@@ -247,6 +247,9 @@ impl AppleClient {
         for (i, part) in parts.iter().enumerate() {
             query.push((format!("parts.{i}"), part.clone()));
         }
+        if region.locale == "en_US" {
+            query.push(("cppart".into(), "UNLOCKED/US".into()));
+        }
         // 与 Apple 当前商品页的请求顺序保持一致：固定参数、parts.*、最后 store。
         query.push(("store".into(), store_number.to_string()));
 

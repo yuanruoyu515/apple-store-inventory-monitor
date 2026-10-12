@@ -368,10 +368,23 @@ const DEFAULT_FAMILIES: &[Family<'static>] = &[
     },
 ];
 
+/// 美国版当前聚焦于 iPhone 18 Pro / Pro Max。单独限制购买页既避免把其他
+/// 地区的零件号误用于美国，也让“刷新型号”只访问用户真正需要的一页。
+const US_FAMILIES: &[Family<'static>] = &[Family {
+    category: Category::Iphone,
+    slug: "iphone-18-pro",
+}];
+
 /// 内置地区表。
 ///
 /// 每个 `base_url` 都对应 Apple 当前在线商店的正式地区入口。
 pub const REGIONS: &[Region] = &[
+    Region {
+        title: "United States",
+        locale: "en_US",
+        base_url: "https://www.apple.com",
+        families: US_FAMILIES,
+    },
     Region {
         title: "中国大陆",
         locale: "zh_CN",
@@ -577,7 +590,11 @@ mod tests {
 
     #[test]
     fn 地区表里每个站点都能拼出接口地址() {
-        assert_eq!(REGIONS.len(), 7);
+        assert_eq!(REGIONS.len(), 8);
+        let us = region_by_locale("en_US").expect("地区表里应当有美国");
+        assert_eq!(us.title, "United States");
+        assert_eq!(us.base_url, "https://www.apple.com");
+        assert_eq!(us.families, US_FAMILIES);
         let cn = region_by_locale("zh_CN").expect("地区表里应当有中国大陆");
         assert_eq!(
             cn.pickup_message_url(),

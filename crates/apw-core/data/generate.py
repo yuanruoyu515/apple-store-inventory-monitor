@@ -33,7 +33,8 @@ UA = (
     "(KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
 )
 
-# 与 crates/apw-core/src/model.rs 的 REGIONS 保持一致。
+# 上游多地区快照。美国版数据由 scripts/generate-us-data.mjs 单独生成，因为美国
+# 分支只内置 iPhone 18 Pro / Pro Max，并且同时维护门店的州/城市搜索标题。
 REGIONS = {
     "zh_CN": ("https://www.apple.com.cn", "zh-CN,zh;q=0.9"),
     "zh_HK": ("https://www.apple.com/hk-zh", "zh-HK,zh;q=0.9"),

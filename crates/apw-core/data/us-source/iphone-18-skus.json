@@ -1,0 +1,290 @@
+[
+  {
+    "sku": "MJWD4",
+    "partNumber": "MJWD4LL/A",
+    "model": "iPhone 18 Pro Max",
+    "storage": "1TB",
+    "color": "Black",
+    "name": "iPhone 18 Pro Max 1TB Black",
+    "price": 1899
+  },
+  {
+    "sku": "MJWF4",
+    "partNumber": "MJWF4LL/A",
+    "model": "iPhone 18 Pro Max",
+    "storage": "1TB",
+    "color": "Burgundy",
+    "name": "iPhone 18 Pro Max 1TB Burgundy",
+    "price": 1899
+  },
+  {
+    "sku": "MJWG4",
+    "partNumber": "MJWG4LL/A",
+    "model": "iPhone 18 Pro Max",
+    "storage": "1TB",
+    "color": "Glacier",
+    "name": "iPhone 18 Pro Max 1TB Glacier",
+    "price": 1899
+  },
+  {
+    "sku": "MJWE4",
+    "partNumber": "MJWE4LL/A",
+    "model": "iPhone 18 Pro Max",
+    "storage": "1TB",
+    "color": "Silver",
+    "name": "iPhone 18 Pro Max 1TB Silver",
+    "price": 1899
+  },
+  {
+    "sku": "MJWH4",
+    "partNumber": "MJWH4LL/A",
+    "model": "iPhone 18 Pro Max",
+    "storage": "2TB",
+    "color": "Black",
+    "name": "iPhone 18 Pro Max 2TB Black",
+    "price": 2499
+  },
+  {
+    "sku": "MJWK4",
+    "partNumber": "MJWK4LL/A",
+    "model": "iPhone 18 Pro Max",
+    "storage": "2TB",
+    "color": "Burgundy",
+    "name": "iPhone 18 Pro Max 2TB Burgundy",
+    "price": 2499
+  },
+  {
+    "sku": "MJWL4",
+    "partNumber": "MJWL4LL/A",
+    "model": "iPhone 18 Pro Max",
+    "storage": "2TB",
+    "color": "Glacier",
+    "name": "iPhone 18 Pro Max 2TB Glacier",
+    "price": 2499
+  },
+  {
+    "sku": "MJWJ4",
+    "partNumber": "MJWJ4LL/A",
+    "model": "iPhone 18 Pro Max",
+    "storage": "2TB",
+    "color": "Silver",
+    "name": "iPhone 18 Pro Max 2TB Silver",
+    "price": 2499
+  },
+  {
+    "sku": "MJW44",
+    "partNumber": "MJW44LL/A",
+    "model": "iPhone 18 Pro Max",
+    "storage": "256GB",
+    "color": "Black",
+    "name": "iPhone 18 Pro Max 256GB Black",
+    "price": 1299
+  },
+  {
+    "sku": "MJW64",
+    "partNumber": "MJW64LL/A",
+    "model": "iPhone 18 Pro Max",
+    "storage": "256GB",
+    "color": "Burgundy",
+    "name": "iPhone 18 Pro Max 256GB Burgundy",
+    "price": 1299
+  },
+  {
+    "sku": "MJW74",
+    "partNumber": "MJW74LL/A",
+    "model": "iPhone 18 Pro Max",
+    "storage": "256GB",
+    "color": "Glacier",
+    "name": "iPhone 18 Pro Max 256GB Glacier",
+    "price": 1299
+  },
+  {
+    "sku": "MJW54",
+    "partNumber": "MJW54LL/A",
+    "model": "iPhone 18 Pro Max",
+    "storage": "256GB",
+    "color": "Silver",
+    "name": "iPhone 18 Pro Max 256GB Silver",
+    "price": 1299
+  },
+  {
+    "sku": "MJW84",
+    "partNumber": "MJW84LL/A",
+    "model": "iPhone 18 Pro Max",
+    "storage": "512GB",
+    "color": "Black",
+    "name": "iPhone 18 Pro Max 512GB Black",
+    "price": 1499
+  },
+  {
+    "sku": "MJWA4",
+    "partNumber": "MJWA4LL/A",
+    "model": "iPhone 18 Pro Max",
+    "storage": "512GB",
+    "color": "Burgundy",
+    "name": "iPhone 18 Pro Max 512GB Burgundy",
+    "price": 1499
+  },
+  {
+    "sku": "MJWC4",
+    "partNumber": "MJWC4LL/A",
+    "model": "iPhone 18 Pro Max",
+    "storage": "512GB",
+    "color": "Glacier",
+    "name": "iPhone 18 Pro Max 512GB Glacier",
+    "price": 1499
+  },
+  {
+    "sku": "MJW94",
+    "partNumber": "MJW94LL/A",
+    "model": "iPhone 18 Pro Max",
+    "storage": "512GB",
+    "color": "Silver",
+    "name": "iPhone 18 Pro Max 512GB Silver",
+    "price": 1499
+  },
+  {
+    "sku": "MJQC4",
+    "partNumber": "MJQC4LL/A",
+    "model": "iPhone 18 Pro",
+    "storage": "1TB",
+    "color": "Black",
+    "name": "iPhone 18 Pro 1TB Black",
+    "price": 1799
+  },
+  {
+    "sku": "MJQE4",
+    "partNumber": "MJQE4LL/A",
+    "model": "iPhone 18 Pro",
+    "storage": "1TB",
+    "color": "Burgundy",
+    "name": "iPhone 18 Pro 1TB Burgundy",
+    "price": 1799
+  },
+  {
+    "sku": "MJQF4",
+    "partNumber": "MJQF4LL/A",
+    "model": "iPhone 18 Pro",
+    "storage": "1TB",
+    "color": "Glacier",
+    "name": "iPhone 18 Pro 1TB Glacier",
+    "price": 1799
+  },
+  {
+    "sku": "MJQD4",
+    "partNumber": "MJQD4LL/A",
+    "model": "iPhone 18 Pro",
+    "storage": "1TB",
+    "color": "Silver",
+    "name": "iPhone 18 Pro 1TB Silver",
+    "price": 1799
+  },
+  {
+    "sku": "MJQG4",
+    "partNumber": "MJQG4LL/A",
+    "model": "iPhone 18 Pro",
+    "storage": "2TB",
+    "color": "Black",
+    "name": "iPhone 18 Pro 2TB Black",
+    "price": 2399
+  },
+  {
+    "sku": "MJQJ4",
+    "partNumber": "MJQJ4LL/A",
+    "model": "iPhone 18 Pro",
+    "storage": "2TB",
+    "color": "Burgundy",
+    "name": "iPhone 18 Pro 2TB Burgundy",
+    "price": 2399
+  },
+  {
+    "sku": "MJQK4",
+    "partNumber": "MJQK4LL/A",
+    "model": "iPhone 18 Pro",
+    "storage": "2TB",
+    "color": "Glacier",
+    "name": "iPhone 18 Pro 2TB Glacier",
+    "price": 2399
+  },
+  {
+    "sku": "MJQH4",
+    "partNumber": "MJQH4LL/A",
+    "model": "iPhone 18 Pro",
+    "storage": "2TB",
+    "color": "Silver",
+    "name": "iPhone 18 Pro 2TB Silver",
+    "price": 2399
+  },
+  {
+    "sku": "MJQ34",
+    "partNumber": "MJQ34LL/A",
+    "model": "iPhone 18 Pro",
+    "storage": "256GB",
+    "color": "Black",
+    "name": "iPhone 18 Pro 256GB Black",
+    "price": 1199
+  },
+  {
+    "sku": "MJQ54",
+    "partNumber": "MJQ54LL/A",
+    "model": "iPhone 18 Pro",
+    "storage": "256GB",
+    "color": "Burgundy",
+    "name": "iPhone 18 Pro 256GB Burgundy",
+    "price": 1199
+  },
+  {
+    "sku": "MJQ64",
+    "partNumber": "MJQ64LL/A",
+    "model": "iPhone 18 Pro",
+    "storage": "256GB",
+    "color": "Glacier",
+    "name": "iPhone 18 Pro 256GB Glacier",
+    "price": 1199
+  },
+  {
+    "sku": "MJQ44",
+    "partNumber": "MJQ44LL/A",
+    "model": "iPhone 18 Pro",
+    "storage": "256GB",
+    "color": "Silver",
+    "name": "iPhone 18 Pro 256GB Silver",
+    "price": 1199
+  },
+  {
+    "sku": "MJQ74",
+    "partNumber": "MJQ74LL/A",
+    "model": "iPhone 18 Pro",
+    "storage": "512GB",
+    "color": "Black",
+    "name": "iPhone 18 Pro 512GB Black",
+    "price": 1399
+  },
+  {
+    "sku": "MJQ94",
+    "partNumber": "MJQ94LL/A",
+    "model": "iPhone 18 Pro",
+    "storage": "512GB",
+    "color": "Burgundy",
+    "name": "iPhone 18 Pro 512GB Burgundy",
+    "price": 1399
+  },
+  {
+    "sku": "MJQA4",
+    "partNumber": "MJQA4LL/A",
+    "model": "iPhone 18 Pro",
+    "storage": "512GB",
+    "color": "Glacier",
+    "name": "iPhone 18 Pro 512GB Glacier",
+    "price": 1399
+  },
+  {
+    "sku": "MJQ84",
+    "partNumber": "MJQ84LL/A",
+    "model": "iPhone 18 Pro",
+    "storage": "512GB",
+    "color": "Silver",
+    "name": "iPhone 18 Pro 512GB Silver",
+    "price": 1399
+  }
+]

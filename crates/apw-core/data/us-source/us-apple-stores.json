@@ -1,0 +1,1885 @@
+[
+  {
+    "state": "Alabama",
+    "city": "Birmingham",
+    "storeNumber": "R225",
+    "storeName": "The Summit",
+    "url": "https://www.apple.com/retail/thesummit/"
+  },
+  {
+    "state": "Alabama",
+    "city": "Huntsville",
+    "storeNumber": "R266",
+    "storeName": "Bridge Street",
+    "url": "https://www.apple.com/retail/bridgestreet/"
+  },
+  {
+    "state": "Alaska",
+    "city": "Anchorage",
+    "storeNumber": "R262",
+    "storeName": "Anchorage 5th Avenue Mall",
+    "url": "https://www.apple.com/retail/anchorage5thavenuemall/"
+  },
+  {
+    "state": "Arizona",
+    "city": "Chandler",
+    "storeNumber": "R026",
+    "storeName": "Chandler Fashion Center",
+    "url": "https://www.apple.com/retail/chandlerfashioncenter/"
+  },
+  {
+    "state": "Arizona",
+    "city": "Gilbert",
+    "storeNumber": "R267",
+    "storeName": "SanTan Village",
+    "url": "https://www.apple.com/retail/santanvillage/"
+  },
+  {
+    "state": "Arizona",
+    "city": "Glendale",
+    "storeNumber": "R247",
+    "storeName": "Arrowhead",
+    "url": "https://www.apple.com/retail/arrowhead/"
+  },
+  {
+    "state": "Arizona",
+    "city": "Scottsdale",
+    "storeNumber": "R031",
+    "storeName": "Scottsdale Fashion Square",
+    "url": "https://www.apple.com/retail/scottsdalefashionsquare/"
+  },
+  {
+    "state": "Arizona",
+    "city": "Scottsdale",
+    "storeNumber": "R292",
+    "storeName": "Scottsdale Quarter",
+    "url": "https://www.apple.com/retail/scottsdalequarter/"
+  },
+  {
+    "state": "Arizona",
+    "city": "Tucson",
+    "storeNumber": "R086",
+    "storeName": "La Encantada",
+    "url": "https://www.apple.com/retail/laencantada/"
+  },
+  {
+    "state": "Arkansas",
+    "city": "Little Rock",
+    "storeNumber": "R286",
+    "storeName": "The Promenade at Chenal",
+    "url": "https://www.apple.com/retail/thepromenadeatchenal/"
+  },
+  {
+    "state": "California",
+    "city": "Bakersfield",
+    "storeNumber": "R550",
+    "storeName": "Valley Plaza",
+    "url": "https://www.apple.com/retail/valleyplaza/"
+  },
+  {
+    "state": "California",
+    "city": "Berkeley",
+    "storeNumber": "R414",
+    "storeName": "4th Street",
+    "url": "https://www.apple.com/retail/4thstreet/"
+  },
+  {
+    "state": "California",
+    "city": "Brea",
+    "storeNumber": "R156",
+    "storeName": "Brea Mall",
+    "url": "https://www.apple.com/retail/breamall/"
+  },
+  {
+    "state": "California",
+    "city": "Burlingame",
+    "storeNumber": "R029",
+    "storeName": "Burlingame",
+    "url": "https://www.apple.com/retail/burlingame/"
+  },
+  {
+    "state": "California",
+    "city": "Canoga Park",
+    "storeNumber": "R189",
+    "storeName": "Topanga",
+    "url": "https://www.apple.com/retail/topanga/"
+  },
+  {
+    "state": "California",
+    "city": "Carlsbad",
+    "storeNumber": "R294",
+    "storeName": "Carlsbad",
+    "url": "https://www.apple.com/retail/carlsbad/"
+  },
+  {
+    "state": "California",
+    "city": "Cerritos",
+    "storeNumber": "R300",
+    "storeName": "Los Cerritos",
+    "url": "https://www.apple.com/retail/loscerritos/"
+  },
+  {
+    "state": "California",
+    "city": "Chula Vista",
+    "storeNumber": "R213",
+    "storeName": "Otay Ranch",
+    "url": "https://www.apple.com/retail/otayranch/"
+  },
+  {
+    "state": "California",
+    "city": "Corte Madera",
+    "storeNumber": "R071",
+    "storeName": "Corte Madera",
+    "url": "https://www.apple.com/retail/cortemadera/"
+  },
+  {
+    "state": "California",
+    "city": "Costa Mesa",
+    "storeNumber": "R004",
+    "storeName": "South Coast Plaza",
+    "url": "https://www.apple.com/retail/southcoastplaza/"
+  },
+  {
+    "state": "California",
+    "city": "Cupertino",
+    "storeNumber": "R824",
+    "storeName": "Apple Park Visitor Center",
+    "url": "https://www.apple.com/retail/appleparkvisitorcenter/"
+  },
+  {
+    "state": "California",
+    "city": "Emeryville",
+    "storeNumber": "R057",
+    "storeName": "Bay Street",
+    "url": "https://www.apple.com/retail/baystreet/"
+  },
+  {
+    "state": "California",
+    "city": "Fresno",
+    "storeNumber": "R236",
+    "storeName": "Fashion Fair",
+    "url": "https://www.apple.com/retail/fashionfair/"
+  },
+  {
+    "state": "California",
+    "city": "Glendale",
+    "storeNumber": "R001",
+    "storeName": "Glendale Galleria",
+    "url": "https://www.apple.com/retail/glendalegalleria/"
+  },
+  {
+    "state": "California",
+    "city": "Glendale",
+    "storeNumber": "R451",
+    "storeName": "The Americana at Brand",
+    "url": "https://www.apple.com/retail/theamericanaatbrand/"
+  },
+  {
+    "state": "California",
+    "city": "Irvine",
+    "storeNumber": "R146",
+    "storeName": "Irvine Spectrum Center",
+    "url": "https://www.apple.com/retail/irvinespectrumcenter/"
+  },
+  {
+    "state": "California",
+    "city": "Los Angeles",
+    "storeNumber": "R050",
+    "storeName": "The Grove",
+    "url": "https://www.apple.com/retail/thegrove/"
+  },
+  {
+    "state": "California",
+    "city": "Los Angeles",
+    "storeNumber": "R124",
+    "storeName": "Beverly Center",
+    "url": "https://www.apple.com/retail/beverlycenter/"
+  },
+  {
+    "state": "California",
+    "city": "Los Angeles",
+    "storeNumber": "R720",
+    "storeName": "Tower Theatre",
+    "url": "https://www.apple.com/retail/towertheatre/"
+  },
+  {
+    "state": "California",
+    "city": "Los Angeles",
+    "storeNumber": "R108",
+    "storeName": "Century City",
+    "url": "https://www.apple.com/retail/centurycity/"
+  },
+  {
+    "state": "California",
+    "city": "Los Gatos",
+    "storeNumber": "R240",
+    "storeName": "Los Gatos",
+    "url": "https://www.apple.com/retail/losgatos/"
+  },
+  {
+    "state": "California",
+    "city": "Manhattan Beach",
+    "storeNumber": "R122",
+    "storeName": "Manhattan Village",
+    "url": "https://www.apple.com/retail/manhattanvillage/"
+  },
+  {
+    "state": "California",
+    "city": "Mission Viejo",
+    "storeNumber": "R069",
+    "storeName": "Mission Viejo",
+    "url": "https://www.apple.com/retail/missionviejo/"
+  },
+  {
+    "state": "California",
+    "city": "Modesto",
+    "storeNumber": "R322",
+    "storeName": "Vintage Faire",
+    "url": "https://www.apple.com/retail/vintagefaire/"
+  },
+  {
+    "state": "California",
+    "city": "Monterey",
+    "storeNumber": "R305",
+    "storeName": "Del Monte",
+    "url": "https://www.apple.com/retail/delmonte/"
+  },
+  {
+    "state": "California",
+    "city": "Newport Beach",
+    "storeNumber": "R015",
+    "storeName": "Fashion Island",
+    "url": "https://www.apple.com/retail/fashionisland/"
+  },
+  {
+    "state": "California",
+    "city": "Northridge",
+    "storeNumber": "R023",
+    "storeName": "Northridge",
+    "url": "https://www.apple.com/retail/northridge/"
+  },
+  {
+    "state": "California",
+    "city": "Palm Desert",
+    "storeNumber": "R297",
+    "storeName": "El Paseo Village",
+    "url": "https://www.apple.com/retail/elpaseovillage/"
+  },
+  {
+    "state": "California",
+    "city": "Palo Alto",
+    "storeNumber": "R002",
+    "storeName": "Palo Alto",
+    "url": "https://www.apple.com/retail/paloalto/"
+  },
+  {
+    "state": "California",
+    "city": "Palo Alto",
+    "storeNumber": "R099",
+    "storeName": "Stanford Shopping Center",
+    "url": "https://www.apple.com/retail/stanfordshoppingcenter/"
+  },
+  {
+    "state": "California",
+    "city": "Pasadena",
+    "storeNumber": "R034",
+    "storeName": "Pasadena",
+    "url": "https://www.apple.com/retail/pasadena/"
+  },
+  {
+    "state": "California",
+    "city": "Pleasanton",
+    "storeNumber": "R101",
+    "storeName": "Stoneridge Mall",
+    "url": "https://www.apple.com/retail/stoneridgemall/"
+  },
+  {
+    "state": "California",
+    "city": "Rancho Cucamonga",
+    "storeNumber": "R094",
+    "storeName": "Victoria Gardens",
+    "url": "https://www.apple.com/retail/victoriagardens/"
+  },
+  {
+    "state": "California",
+    "city": "Roseville",
+    "storeNumber": "R298",
+    "storeName": "Roseville",
+    "url": "https://www.apple.com/retail/roseville/"
+  },
+  {
+    "state": "California",
+    "city": "Sacramento",
+    "storeNumber": "R070",
+    "storeName": "Arden Fair",
+    "url": "https://www.apple.com/retail/ardenfair/"
+  },
+  {
+    "state": "California",
+    "city": "San Diego",
+    "storeNumber": "R040",
+    "storeName": "Fashion Valley",
+    "url": "https://www.apple.com/retail/fashionvalley/"
+  },
+  {
+    "state": "California",
+    "city": "San Diego",
+    "storeNumber": "R082",
+    "storeName": "UTC",
+    "url": "https://www.apple.com/retail/utc/"
+  },
+  {
+    "state": "California",
+    "city": "San Francisco",
+    "storeNumber": "R033",
+    "storeName": "Stonestown",
+    "url": "https://www.apple.com/retail/stonestown/"
+  },
+  {
+    "state": "California",
+    "city": "San Francisco",
+    "storeNumber": "R075",
+    "storeName": "Union Square",
+    "url": "https://www.apple.com/retail/unionsquare/"
+  },
+  {
+    "state": "California",
+    "city": "San Francisco",
+    "storeNumber": "R217",
+    "storeName": "Chestnut Street",
+    "url": "https://www.apple.com/retail/chestnutstreet/"
+  },
+  {
+    "state": "California",
+    "city": "San Jose",
+    "storeNumber": "R105",
+    "storeName": "Oakridge",
+    "url": "https://www.apple.com/retail/oakridge/"
+  },
+  {
+    "state": "California",
+    "city": "San Luis Obispo",
+    "storeNumber": "R199",
+    "storeName": "Higuera Street",
+    "url": "https://www.apple.com/retail/higuerastreet/"
+  },
+  {
+    "state": "California",
+    "city": "San Mateo",
+    "storeNumber": "R231",
+    "storeName": "Hillsdale",
+    "url": "https://www.apple.com/retail/hillsdale/"
+  },
+  {
+    "state": "California",
+    "city": "Santa Barbara",
+    "storeNumber": "R317",
+    "storeName": "State Street",
+    "url": "https://www.apple.com/retail/statestreet/"
+  },
+  {
+    "state": "California",
+    "city": "Santa Clara",
+    "storeNumber": "R039",
+    "storeName": "Valley Fair",
+    "url": "https://www.apple.com/retail/valleyfair/"
+  },
+  {
+    "state": "California",
+    "city": "Santa Monica",
+    "storeNumber": "R051",
+    "storeName": "Third Street Promenade",
+    "url": "https://www.apple.com/retail/thirdstreetpromenade/"
+  },
+  {
+    "state": "California",
+    "city": "Santa Rosa",
+    "storeNumber": "R044",
+    "storeName": "Montgomery Village",
+    "url": "https://www.apple.com/retail/montgomeryvillage/"
+  },
+  {
+    "state": "California",
+    "city": "Sherman Oaks",
+    "storeNumber": "R148",
+    "storeName": "Sherman Oaks",
+    "url": "https://www.apple.com/retail/shermanoaks/"
+  },
+  {
+    "state": "California",
+    "city": "Temecula",
+    "storeNumber": "R345",
+    "storeName": "Promenade Temecula",
+    "url": "https://www.apple.com/retail/promenadetemecula/"
+  },
+  {
+    "state": "California",
+    "city": "Thousand Oaks",
+    "storeNumber": "R154",
+    "storeName": "The Oaks",
+    "url": "https://www.apple.com/retail/theoaks/"
+  },
+  {
+    "state": "California",
+    "city": "Torrance",
+    "storeNumber": "R777",
+    "storeName": "Del Amo",
+    "url": "https://www.apple.com/retail/delamo/"
+  },
+  {
+    "state": "California",
+    "city": "Valencia",
+    "storeNumber": "R462",
+    "storeName": "Valencia Town Center",
+    "url": "https://www.apple.com/retail/valenciatowncenter/"
+  },
+  {
+    "state": "California",
+    "city": "Walnut Creek",
+    "storeNumber": "R014",
+    "storeName": "Broadway Plaza",
+    "url": "https://www.apple.com/retail/broadwayplaza/"
+  },
+  {
+    "state": "Colorado",
+    "city": "Boulder",
+    "storeNumber": "R172",
+    "storeName": "Twenty Ninth Street",
+    "url": "https://www.apple.com/retail/twentyninthstreet/"
+  },
+  {
+    "state": "Colorado",
+    "city": "Broomfield",
+    "storeNumber": "R182",
+    "storeName": "FlatIron Crossing",
+    "url": "https://www.apple.com/retail/flatironcrossing/"
+  },
+  {
+    "state": "Colorado",
+    "city": "Colorado Springs",
+    "storeNumber": "R338",
+    "storeName": "The Promenade Shops at Briargate",
+    "url": "https://www.apple.com/retail/thepromenadeshopsatbriargate/"
+  },
+  {
+    "state": "Colorado",
+    "city": "Denver",
+    "storeNumber": "R047",
+    "storeName": "Cherry Creek",
+    "url": "https://www.apple.com/retail/cherrycreek/"
+  },
+  {
+    "state": "Colorado",
+    "city": "Littleton",
+    "storeNumber": "R030",
+    "storeName": "Aspen Grove",
+    "url": "https://www.apple.com/retail/aspengrove/"
+  },
+  {
+    "state": "Colorado",
+    "city": "Lone Tree",
+    "storeNumber": "R228",
+    "storeName": "Park Meadows",
+    "url": "https://www.apple.com/retail/parkmeadows/"
+  },
+  {
+    "state": "Connecticut",
+    "city": "Danbury",
+    "storeNumber": "R093",
+    "storeName": "Danbury Fair Mall",
+    "url": "https://www.apple.com/retail/danburyfairmall/"
+  },
+  {
+    "state": "Connecticut",
+    "city": "Farmington",
+    "storeNumber": "R025",
+    "storeName": "Westfarms",
+    "url": "https://www.apple.com/retail/westfarms/"
+  },
+  {
+    "state": "Connecticut",
+    "city": "Greenwich",
+    "storeNumber": "R282",
+    "storeName": "Greenwich Avenue",
+    "url": "https://www.apple.com/retail/greenwichavenue/"
+  },
+  {
+    "state": "Connecticut",
+    "city": "New Haven",
+    "storeNumber": "R446",
+    "storeName": "New Haven",
+    "url": "https://www.apple.com/retail/newhaven/"
+  },
+  {
+    "state": "Connecticut",
+    "city": "Norwalk",
+    "storeNumber": "R202",
+    "storeName": "SoNo Collection",
+    "url": "https://www.apple.com/retail/sonocollection/"
+  },
+  {
+    "state": "Connecticut",
+    "city": "South Windsor",
+    "storeNumber": "R613",
+    "storeName": "Evergreen Walk",
+    "url": "https://www.apple.com/retail/evergreenwalk/"
+  },
+  {
+    "state": "Delaware",
+    "city": "Newark",
+    "storeNumber": "R102",
+    "storeName": "Christiana Mall",
+    "url": "https://www.apple.com/retail/christianamall/"
+  },
+  {
+    "state": "District of Columbia",
+    "city": "Washington",
+    "storeNumber": "R287",
+    "storeName": "Georgetown",
+    "url": "https://www.apple.com/retail/georgetown/"
+  },
+  {
+    "state": "District of Columbia",
+    "city": "Washington",
+    "storeNumber": "R516",
+    "storeName": "Carnegie Library",
+    "url": "https://www.apple.com/retail/carnegielibrary/"
+  },
+  {
+    "state": "Florida",
+    "city": "Altamonte Springs",
+    "storeNumber": "R291",
+    "storeName": "Altamonte",
+    "url": "https://www.apple.com/retail/altamonte/"
+  },
+  {
+    "state": "Florida",
+    "city": "Aventura",
+    "storeNumber": "R087",
+    "storeName": "Aventura",
+    "url": "https://www.apple.com/retail/aventura/"
+  },
+  {
+    "state": "Florida",
+    "city": "Boca Raton",
+    "storeNumber": "R074",
+    "storeName": "Boca Raton",
+    "url": "https://www.apple.com/retail/bocaraton/"
+  },
+  {
+    "state": "Florida",
+    "city": "Brandon",
+    "storeNumber": "R289",
+    "storeName": "Brandon",
+    "url": "https://www.apple.com/retail/brandon/"
+  },
+  {
+    "state": "Florida",
+    "city": "Estero",
+    "storeNumber": "R185",
+    "storeName": "Coconut Point",
+    "url": "https://www.apple.com/retail/coconutpoint/"
+  },
+  {
+    "state": "Florida",
+    "city": "Fort Lauderdale",
+    "storeNumber": "R214",
+    "storeName": "The Galleria",
+    "url": "https://www.apple.com/retail/thegalleria/"
+  },
+  {
+    "state": "Florida",
+    "city": "Jacksonville",
+    "storeNumber": "R111",
+    "storeName": "St. Johns Town Center",
+    "url": "https://www.apple.com/retail/stjohnstowncenter/"
+  },
+  {
+    "state": "Florida",
+    "city": "Miami",
+    "storeNumber": "R312",
+    "storeName": "Dadeland",
+    "url": "https://www.apple.com/retail/dadeland/"
+  },
+  {
+    "state": "Florida",
+    "city": "Miami",
+    "storeNumber": "R752",
+    "storeName": "Miami Worldcenter",
+    "url": "https://www.apple.com/retail/miamiworldcenter/"
+  },
+  {
+    "state": "Florida",
+    "city": "Miami",
+    "storeNumber": "R623",
+    "storeName": "Brickell City Centre",
+    "url": "https://www.apple.com/retail/brickellcitycentre/"
+  },
+  {
+    "state": "Florida",
+    "city": "Miami",
+    "storeNumber": "R012",
+    "storeName": "The Falls",
+    "url": "https://www.apple.com/retail/thefalls/"
+  },
+  {
+    "state": "Florida",
+    "city": "Miami Beach",
+    "storeNumber": "R115",
+    "storeName": "Lincoln Road",
+    "url": "https://www.apple.com/retail/lincolnroad/"
+  },
+  {
+    "state": "Florida",
+    "city": "Naples",
+    "storeNumber": "R169",
+    "storeName": "Waterside Shops",
+    "url": "https://www.apple.com/retail/watersideshops/"
+  },
+  {
+    "state": "Florida",
+    "city": "Orlando",
+    "storeNumber": "R143",
+    "storeName": "Florida Mall",
+    "url": "https://www.apple.com/retail/floridamall/"
+  },
+  {
+    "state": "Florida",
+    "city": "Orlando",
+    "storeNumber": "R053",
+    "storeName": "Millenia",
+    "url": "https://www.apple.com/retail/millenia/"
+  },
+  {
+    "state": "Florida",
+    "city": "Palm Beach Gardens",
+    "storeNumber": "R127",
+    "storeName": "The Gardens Mall",
+    "url": "https://www.apple.com/retail/thegardensmall/"
+  },
+  {
+    "state": "Florida",
+    "city": "Sarasota",
+    "storeNumber": "R615",
+    "storeName": "University Town Center",
+    "url": "https://www.apple.com/retail/universitytowncenter/"
+  },
+  {
+    "state": "Florida",
+    "city": "Tampa",
+    "storeNumber": "R019",
+    "storeName": "International Plaza",
+    "url": "https://www.apple.com/retail/internationalplaza/"
+  },
+  {
+    "state": "Florida",
+    "city": "Wellington",
+    "storeNumber": "R024",
+    "storeName": "Wellington Green",
+    "url": "https://www.apple.com/retail/wellingtongreen/"
+  },
+  {
+    "state": "Georgia",
+    "city": "Alpharetta",
+    "storeNumber": "R080",
+    "storeName": "Avalon",
+    "url": "https://www.apple.com/retail/avalon/"
+  },
+  {
+    "state": "Georgia",
+    "city": "Atlanta",
+    "storeNumber": "R006",
+    "storeName": "Lenox Square",
+    "url": "https://www.apple.com/retail/lenoxsquare/"
+  },
+  {
+    "state": "Georgia",
+    "city": "Atlanta",
+    "storeNumber": "R184",
+    "storeName": "Perimeter",
+    "url": "https://www.apple.com/retail/perimeter/"
+  },
+  {
+    "state": "Georgia",
+    "city": "Atlanta",
+    "storeNumber": "R591",
+    "storeName": "Cumberland Mall",
+    "url": "https://www.apple.com/retail/cumberlandmall/"
+  },
+  {
+    "state": "Georgia",
+    "city": "Augusta",
+    "storeNumber": "R364",
+    "storeName": "Augusta",
+    "url": "https://www.apple.com/retail/augusta/"
+  },
+  {
+    "state": "Georgia",
+    "city": "Buford",
+    "storeNumber": "R259",
+    "storeName": "Mall of Georgia",
+    "url": "https://www.apple.com/retail/mallofgeorgia/"
+  },
+  {
+    "state": "Hawaii",
+    "city": "Honolulu",
+    "storeNumber": "R210",
+    "storeName": "Kahala",
+    "url": "https://www.apple.com/retail/kahala/"
+  },
+  {
+    "state": "Hawaii",
+    "city": "Honolulu",
+    "storeNumber": "R073",
+    "storeName": "Ala Moana",
+    "url": "https://www.apple.com/retail/alamoana/"
+  },
+  {
+    "state": "Idaho",
+    "city": "Boise",
+    "storeNumber": "R303",
+    "storeName": "Boise Towne Square",
+    "url": "https://www.apple.com/retail/boisetownesquare/"
+  },
+  {
+    "state": "Illinois",
+    "city": "Chicago",
+    "storeNumber": "R035",
+    "storeName": "Michigan Avenue",
+    "url": "https://www.apple.com/retail/michiganavenue/"
+  },
+  {
+    "state": "Illinois",
+    "city": "Chicago",
+    "storeNumber": "R284",
+    "storeName": "Lincoln Park",
+    "url": "https://www.apple.com/retail/lincolnpark/"
+  },
+  {
+    "state": "Illinois",
+    "city": "Deer Park",
+    "storeNumber": "R258",
+    "storeName": "Deer Park",
+    "url": "https://www.apple.com/retail/deerpark/"
+  },
+  {
+    "state": "Illinois",
+    "city": "Naperville",
+    "storeNumber": "R348",
+    "storeName": "Main Place",
+    "url": "https://www.apple.com/retail/mainplace/"
+  },
+  {
+    "state": "Illinois",
+    "city": "Oak Brook",
+    "storeNumber": "R056",
+    "storeName": "Oakbrook",
+    "url": "https://www.apple.com/retail/oakbrook/"
+  },
+  {
+    "state": "Illinois",
+    "city": "Orland Park",
+    "storeNumber": "R237",
+    "storeName": "Orland Square Mall",
+    "url": "https://www.apple.com/retail/orlandsquaremall/"
+  },
+  {
+    "state": "Illinois",
+    "city": "Schaumburg",
+    "storeNumber": "R018",
+    "storeName": "Woodfield",
+    "url": "https://www.apple.com/retail/woodfield/"
+  },
+  {
+    "state": "Illinois",
+    "city": "Skokie",
+    "storeNumber": "R089",
+    "storeName": "Old Orchard",
+    "url": "https://www.apple.com/retail/oldorchard/"
+  },
+  {
+    "state": "Indiana",
+    "city": "Indianapolis",
+    "storeNumber": "R066",
+    "storeName": "The Fashion Mall at Keystone",
+    "url": "https://www.apple.com/retail/thefashionmallatkeystone/"
+  },
+  {
+    "state": "Indiana",
+    "city": "Mishawaka",
+    "storeNumber": "R360",
+    "storeName": "University Park Mall",
+    "url": "https://www.apple.com/retail/universityparkmall/"
+  },
+  {
+    "state": "Iowa",
+    "city": "West Des Moines",
+    "storeNumber": "R109",
+    "storeName": "Jordan Creek",
+    "url": "https://www.apple.com/retail/jordancreek/"
+  },
+  {
+    "state": "Kansas",
+    "city": "Leawood",
+    "storeNumber": "R283",
+    "storeName": "Leawood",
+    "url": "https://www.apple.com/retail/leawood/"
+  },
+  {
+    "state": "Kentucky",
+    "city": "Lexington",
+    "storeNumber": "R288",
+    "storeName": "Fritz Farm",
+    "url": "https://www.apple.com/retail/fritzfarm/"
+  },
+  {
+    "state": "Kentucky",
+    "city": "Louisville",
+    "storeNumber": "R264",
+    "storeName": "Oxmoor",
+    "url": "https://www.apple.com/retail/oxmoor/"
+  },
+  {
+    "state": "Louisiana",
+    "city": "Baton Rouge",
+    "storeNumber": "R263",
+    "storeName": "Mall of Louisiana",
+    "url": "https://www.apple.com/retail/malloflouisiana/"
+  },
+  {
+    "state": "Louisiana",
+    "city": "Metairie",
+    "storeNumber": "R235",
+    "storeName": "Lakeside Shopping Center",
+    "url": "https://www.apple.com/retail/lakesideshoppingcenter/"
+  },
+  {
+    "state": "Maine",
+    "city": "South Portland",
+    "storeNumber": "R307",
+    "storeName": "Maine Mall",
+    "url": "https://www.apple.com/retail/mainemall/"
+  },
+  {
+    "state": "Maryland",
+    "city": "Annapolis",
+    "storeNumber": "R142",
+    "storeName": "Annapolis",
+    "url": "https://www.apple.com/retail/annapolis/"
+  },
+  {
+    "state": "Maryland",
+    "city": "Bethesda",
+    "storeNumber": "R084",
+    "storeName": "Montgomery Mall",
+    "url": "https://www.apple.com/retail/montgomerymall/"
+  },
+  {
+    "state": "Maryland",
+    "city": "Bethesda",
+    "storeNumber": "R112",
+    "storeName": "Bethesda Row",
+    "url": "https://www.apple.com/retail/bethesdarow/"
+  },
+  {
+    "state": "Maryland",
+    "city": "Columbia",
+    "storeNumber": "R168",
+    "storeName": "Columbia",
+    "url": "https://www.apple.com/retail/columbia/"
+  },
+  {
+    "state": "Massachusetts",
+    "city": "Boston",
+    "storeNumber": "R149",
+    "storeName": "Boylston Street",
+    "url": "https://www.apple.com/retail/boylstonstreet/"
+  },
+  {
+    "state": "Massachusetts",
+    "city": "Braintree",
+    "storeNumber": "R110",
+    "storeName": "South Shore",
+    "url": "https://www.apple.com/retail/southshore/"
+  },
+  {
+    "state": "Massachusetts",
+    "city": "Burlington",
+    "storeNumber": "R155",
+    "storeName": "Burlington",
+    "url": "https://www.apple.com/retail/burlington/"
+  },
+  {
+    "state": "Massachusetts",
+    "city": "Cambridge",
+    "storeNumber": "R021",
+    "storeName": "CambridgeSide",
+    "url": "https://www.apple.com/retail/cambridgeside/"
+  },
+  {
+    "state": "Massachusetts",
+    "city": "Chestnut Hill",
+    "storeNumber": "R076",
+    "storeName": "Chestnut Hill",
+    "url": "https://www.apple.com/retail/chestnuthill/"
+  },
+  {
+    "state": "Massachusetts",
+    "city": "Dedham",
+    "storeNumber": "R346",
+    "storeName": "Legacy Place",
+    "url": "https://www.apple.com/retail/legacyplace/"
+  },
+  {
+    "state": "Massachusetts",
+    "city": "Hingham",
+    "storeNumber": "R137",
+    "storeName": "Derby Street",
+    "url": "https://www.apple.com/retail/derbystreet/"
+  },
+  {
+    "state": "Massachusetts",
+    "city": "Holyoke",
+    "storeNumber": "R191",
+    "storeName": "Holyoke",
+    "url": "https://www.apple.com/retail/holyoke/"
+  },
+  {
+    "state": "Massachusetts",
+    "city": "Lynnfield",
+    "storeNumber": "R011",
+    "storeName": "MarketStreet",
+    "url": "https://www.apple.com/retail/marketstreet/"
+  },
+  {
+    "state": "Massachusetts",
+    "city": "Millbury",
+    "storeNumber": "R622",
+    "storeName": "The Shops at Blackstone Valley",
+    "url": "https://www.apple.com/retail/theshopsatblackstonevalley/"
+  },
+  {
+    "state": "Massachusetts",
+    "city": "Natick",
+    "storeNumber": "R232",
+    "storeName": "Natick",
+    "url": "https://www.apple.com/retail/natick/"
+  },
+  {
+    "state": "Michigan",
+    "city": "Ann Arbor",
+    "storeNumber": "R230",
+    "storeName": "Briarwood",
+    "url": "https://www.apple.com/retail/briarwood/"
+  },
+  {
+    "state": "Michigan",
+    "city": "Detroit",
+    "storeNumber": "R763",
+    "storeName": "Downtown Detroit",
+    "url": "https://www.apple.com/retail/downtowndetroit/"
+  },
+  {
+    "state": "Michigan",
+    "city": "Grand Rapids",
+    "storeNumber": "R132",
+    "storeName": "Woodland",
+    "url": "https://www.apple.com/retail/woodland/"
+  },
+  {
+    "state": "Michigan",
+    "city": "Lansing",
+    "storeNumber": "R616",
+    "storeName": "Eastwood Towne Center",
+    "url": "https://www.apple.com/retail/eastwoodtownecenter/"
+  },
+  {
+    "state": "Michigan",
+    "city": "Novi",
+    "storeNumber": "R041",
+    "storeName": "Twelve Oaks",
+    "url": "https://www.apple.com/retail/twelveoaks/"
+  },
+  {
+    "state": "Michigan",
+    "city": "Troy",
+    "storeNumber": "R055",
+    "storeName": "Somerset",
+    "url": "https://www.apple.com/retail/somerset/"
+  },
+  {
+    "state": "Minnesota",
+    "city": "Bloomington",
+    "storeNumber": "R007",
+    "storeName": "Mall of America",
+    "url": "https://www.apple.com/retail/mallofamerica/"
+  },
+  {
+    "state": "Minnesota",
+    "city": "Edina",
+    "storeNumber": "R054",
+    "storeName": "Southdale",
+    "url": "https://www.apple.com/retail/southdale/"
+  },
+  {
+    "state": "Minnesota",
+    "city": "Minnetonka",
+    "storeNumber": "R183",
+    "storeName": "Ridgedale",
+    "url": "https://www.apple.com/retail/ridgedale/"
+  },
+  {
+    "state": "Minnesota",
+    "city": "Roseville",
+    "storeNumber": "R022",
+    "storeName": "Rosedale Center",
+    "url": "https://www.apple.com/retail/rosedalecenter/"
+  },
+  {
+    "state": "Mississippi",
+    "city": "Ridgeland",
+    "storeNumber": "R324",
+    "storeName": "Renaissance at Colony Park",
+    "url": "https://www.apple.com/retail/renaissanceatcolonypark/"
+  },
+  {
+    "state": "Missouri",
+    "city": "Kansas City",
+    "storeNumber": "R097",
+    "storeName": "Country Club Plaza",
+    "url": "https://www.apple.com/retail/countryclubplaza/"
+  },
+  {
+    "state": "Missouri",
+    "city": "Saint Louis",
+    "storeNumber": "R114",
+    "storeName": "Saint Louis Galleria",
+    "url": "https://www.apple.com/retail/saintlouisgalleria/"
+  },
+  {
+    "state": "Missouri",
+    "city": "Saint Louis",
+    "storeNumber": "R062",
+    "storeName": "West County",
+    "url": "https://www.apple.com/retail/westcounty/"
+  },
+  {
+    "state": "Nebraska",
+    "city": "Omaha",
+    "storeNumber": "R190",
+    "storeName": "Village Pointe",
+    "url": "https://www.apple.com/retail/villagepointe/"
+  },
+  {
+    "state": "Nevada",
+    "city": "Las Vegas",
+    "storeNumber": "R219",
+    "storeName": "Town Square",
+    "url": "https://www.apple.com/retail/townsquare/"
+  },
+  {
+    "state": "Nevada",
+    "city": "Las Vegas",
+    "storeNumber": "R161",
+    "storeName": "The Forum Shops",
+    "url": "https://www.apple.com/retail/theforumshops/"
+  },
+  {
+    "state": "Nevada",
+    "city": "Las Vegas",
+    "storeNumber": "R650",
+    "storeName": "Summerlin",
+    "url": "https://www.apple.com/retail/summerlin/"
+  },
+  {
+    "state": "Nevada",
+    "city": "Las Vegas",
+    "storeNumber": "R064",
+    "storeName": "Fashion Show",
+    "url": "https://www.apple.com/retail/fashionshow/"
+  },
+  {
+    "state": "Nevada",
+    "city": "Reno",
+    "storeNumber": "R186",
+    "storeName": "Shayden Summit",
+    "url": "https://www.apple.com/retail/shaydensummit/"
+  },
+  {
+    "state": "New Hampshire",
+    "city": "Manchester",
+    "storeNumber": "R631",
+    "storeName": "The Mall of New Hampshire",
+    "url": "https://www.apple.com/retail/themallofnewhampshire/"
+  },
+  {
+    "state": "New Hampshire",
+    "city": "Nashua",
+    "storeNumber": "R354",
+    "storeName": "Pheasant Lane",
+    "url": "https://www.apple.com/retail/pheasantlane/"
+  },
+  {
+    "state": "New Hampshire",
+    "city": "Salem",
+    "storeNumber": "R027",
+    "storeName": "Rockingham Park",
+    "url": "https://www.apple.com/retail/rockinghampark/"
+  },
+  {
+    "state": "New Jersey",
+    "city": "Bridgewater",
+    "storeNumber": "R104",
+    "storeName": "Bridgewater",
+    "url": "https://www.apple.com/retail/bridgewater/"
+  },
+  {
+    "state": "New Jersey",
+    "city": "Cherry Hill",
+    "storeNumber": "R206",
+    "storeName": "Cherry Hill",
+    "url": "https://www.apple.com/retail/cherryhill/"
+  },
+  {
+    "state": "New Jersey",
+    "city": "East Rutherford",
+    "storeNumber": "R755",
+    "storeName": "American Dream",
+    "url": "https://www.apple.com/retail/americandream/"
+  },
+  {
+    "state": "New Jersey",
+    "city": "Edison",
+    "storeNumber": "R067",
+    "storeName": "Menlo Park",
+    "url": "https://www.apple.com/retail/menlopark/"
+  },
+  {
+    "state": "New Jersey",
+    "city": "Freehold",
+    "storeNumber": "R138",
+    "storeName": "Freehold Raceway Mall",
+    "url": "https://www.apple.com/retail/freeholdracewaymall/"
+  },
+  {
+    "state": "New Jersey",
+    "city": "Lawrence Township",
+    "storeNumber": "R549",
+    "storeName": "Quaker Bridge",
+    "url": "https://www.apple.com/retail/quakerbridge/"
+  },
+  {
+    "state": "New Jersey",
+    "city": "Marlton",
+    "storeNumber": "R088",
+    "storeName": "Sagemore",
+    "url": "https://www.apple.com/retail/sagemore/"
+  },
+  {
+    "state": "New Jersey",
+    "city": "Paramus",
+    "storeNumber": "R117",
+    "storeName": "Garden State Plaza",
+    "url": "https://www.apple.com/retail/gardenstateplaza/"
+  },
+  {
+    "state": "New Jersey",
+    "city": "Rockaway",
+    "storeNumber": "R103",
+    "storeName": "Rockaway",
+    "url": "https://www.apple.com/retail/rockaway/"
+  },
+  {
+    "state": "New Jersey",
+    "city": "Short Hills",
+    "storeNumber": "R043",
+    "storeName": "Short Hills",
+    "url": "https://www.apple.com/retail/shorthills/"
+  },
+  {
+    "state": "New Jersey",
+    "city": "Wayne",
+    "storeNumber": "R325",
+    "storeName": "Willowbrook",
+    "url": "https://www.apple.com/retail/willowbrook/"
+  },
+  {
+    "state": "New Jersey",
+    "city": "Woodcliff Lake",
+    "storeNumber": "R013",
+    "storeName": "Tice's Corner",
+    "url": "https://www.apple.com/retail/ticescorner/"
+  },
+  {
+    "state": "New Mexico",
+    "city": "Albuquerque",
+    "storeNumber": "R177",
+    "storeName": "ABQ Uptown",
+    "url": "https://www.apple.com/retail/abquptown/"
+  },
+  {
+    "state": "New York",
+    "city": "Albany",
+    "storeNumber": "R017",
+    "storeName": "Crossgates",
+    "url": "https://www.apple.com/retail/crossgates/"
+  },
+  {
+    "state": "New York",
+    "city": "Bronx",
+    "storeNumber": "R753",
+    "storeName": "The Mall at Bay Plaza",
+    "url": "https://www.apple.com/retail/themallatbayplaza/"
+  },
+  {
+    "state": "New York",
+    "city": "Brooklyn",
+    "storeNumber": "R594",
+    "storeName": "Williamsburg",
+    "url": "https://www.apple.com/retail/williamsburg/"
+  },
+  {
+    "state": "New York",
+    "city": "Brooklyn",
+    "storeNumber": "R715",
+    "storeName": "Downtown Brooklyn",
+    "url": "https://www.apple.com/retail/downtownbrooklyn/"
+  },
+  {
+    "state": "New York",
+    "city": "Buffalo",
+    "storeNumber": "R016",
+    "storeName": "Walden Galleria",
+    "url": "https://www.apple.com/retail/waldengalleria/"
+  },
+  {
+    "state": "New York",
+    "city": "Elmhurst",
+    "storeNumber": "R612",
+    "storeName": "Queens Center",
+    "url": "https://www.apple.com/retail/queenscenter/"
+  },
+  {
+    "state": "New York",
+    "city": "Garden City",
+    "storeNumber": "R060",
+    "storeName": "Roosevelt Field",
+    "url": "https://www.apple.com/retail/rooseveltfield/"
+  },
+  {
+    "state": "New York",
+    "city": "Huntington Station",
+    "storeNumber": "R068",
+    "storeName": "Walt Whitman",
+    "url": "https://www.apple.com/retail/waltwhitman/"
+  },
+  {
+    "state": "New York",
+    "city": "Lake Grove",
+    "storeNumber": "R139",
+    "storeName": "Smith Haven",
+    "url": "https://www.apple.com/retail/smithhaven/"
+  },
+  {
+    "state": "New York",
+    "city": "Manhasset",
+    "storeNumber": "R327",
+    "storeName": "Manhasset",
+    "url": "https://www.apple.com/retail/manhasset/"
+  },
+  {
+    "state": "New York",
+    "city": "Nanuet",
+    "storeNumber": "R046",
+    "storeName": "Nanuet",
+    "url": "https://www.apple.com/retail/nanuet/"
+  },
+  {
+    "state": "New York",
+    "city": "New York",
+    "storeNumber": "R250",
+    "storeName": "West 14th Street",
+    "url": "https://www.apple.com/retail/west14thstreet/"
+  },
+  {
+    "state": "New York",
+    "city": "New York",
+    "storeNumber": "R095",
+    "storeName": "Fifth Avenue",
+    "url": "https://www.apple.com/retail/fifthavenue/"
+  },
+  {
+    "state": "New York",
+    "city": "New York",
+    "storeNumber": "R654",
+    "storeName": "World Trade Center",
+    "url": "https://www.apple.com/retail/worldtradecenter/"
+  },
+  {
+    "state": "New York",
+    "city": "New York",
+    "storeNumber": "R032",
+    "storeName": "SoHo",
+    "url": "https://www.apple.com/retail/soho/"
+  },
+  {
+    "state": "New York",
+    "city": "New York",
+    "storeNumber": "R251",
+    "storeName": "Upper West Side",
+    "url": "https://www.apple.com/retail/upperwestside/"
+  },
+  {
+    "state": "New York",
+    "city": "New York",
+    "storeNumber": "R582",
+    "storeName": "Upper East Side",
+    "url": "https://www.apple.com/retail/uppereastside/"
+  },
+  {
+    "state": "New York",
+    "city": "New York",
+    "storeNumber": "R415",
+    "storeName": "Grand Central",
+    "url": "https://www.apple.com/retail/grandcentral/"
+  },
+  {
+    "state": "New York",
+    "city": "Staten Island",
+    "storeNumber": "R152",
+    "storeName": "Staten Island",
+    "url": "https://www.apple.com/retail/statenisland/"
+  },
+  {
+    "state": "New York",
+    "city": "Syracuse",
+    "storeNumber": "R107",
+    "storeName": "Syracuse",
+    "url": "https://www.apple.com/retail/syracuse/"
+  },
+  {
+    "state": "New York",
+    "city": "Victor",
+    "storeNumber": "R140",
+    "storeName": "Eastview",
+    "url": "https://www.apple.com/retail/eastview/"
+  },
+  {
+    "state": "New York",
+    "city": "White Plains",
+    "storeNumber": "R061",
+    "storeName": "The Westchester",
+    "url": "https://www.apple.com/retail/thewestchester/"
+  },
+  {
+    "state": "New York",
+    "city": "Yonkers",
+    "storeNumber": "R261",
+    "storeName": "Ridge Hill",
+    "url": "https://www.apple.com/retail/ridgehill/"
+  },
+  {
+    "state": "North Carolina",
+    "city": "Charlotte",
+    "storeNumber": "R083",
+    "storeName": "SouthPark",
+    "url": "https://www.apple.com/retail/southpark/"
+  },
+  {
+    "state": "North Carolina",
+    "city": "Durham",
+    "storeNumber": "R049",
+    "storeName": "Southpoint",
+    "url": "https://www.apple.com/retail/southpoint/"
+  },
+  {
+    "state": "North Carolina",
+    "city": "Greensboro",
+    "storeNumber": "R293",
+    "storeName": "Friendly Center",
+    "url": "https://www.apple.com/retail/friendlycenter/"
+  },
+  {
+    "state": "North Carolina",
+    "city": "Huntersville",
+    "storeNumber": "R796",
+    "storeName": "Birkdale Village",
+    "url": "https://www.apple.com/retail/birkdalevillage/"
+  },
+  {
+    "state": "North Carolina",
+    "city": "Raleigh",
+    "storeNumber": "R116",
+    "storeName": "Crabtree Valley Mall",
+    "url": "https://www.apple.com/retail/crabtreevalleymall/"
+  },
+  {
+    "state": "Ohio",
+    "city": "Akron",
+    "storeNumber": "R353",
+    "storeName": "Summit Mall",
+    "url": "https://www.apple.com/retail/summitmall/"
+  },
+  {
+    "state": "Ohio",
+    "city": "Beavercreek",
+    "storeNumber": "R518",
+    "storeName": "The Greene",
+    "url": "https://www.apple.com/retail/thegreene/"
+  },
+  {
+    "state": "Ohio",
+    "city": "Cincinnati",
+    "storeNumber": "R028",
+    "storeName": "Kenwood Towne Centre",
+    "url": "https://www.apple.com/retail/kenwoodtownecentre/"
+  },
+  {
+    "state": "Ohio",
+    "city": "Columbus",
+    "storeNumber": "R417",
+    "storeName": "Polaris Fashion Place",
+    "url": "https://www.apple.com/retail/polarisfashionplace/"
+  },
+  {
+    "state": "Ohio",
+    "city": "Columbus",
+    "storeNumber": "R009",
+    "storeName": "Easton Town Center",
+    "url": "https://www.apple.com/retail/eastontowncenter/"
+  },
+  {
+    "state": "Ohio",
+    "city": "Toledo",
+    "storeNumber": "R299",
+    "storeName": "Franklin Park Mall",
+    "url": "https://www.apple.com/retail/franklinparkmall/"
+  },
+  {
+    "state": "Ohio",
+    "city": "Westlake",
+    "storeNumber": "R192",
+    "storeName": "Crocker Park",
+    "url": "https://www.apple.com/retail/crockerpark/"
+  },
+  {
+    "state": "Ohio",
+    "city": "Woodmere",
+    "storeNumber": "R081",
+    "storeName": "Eton",
+    "url": "https://www.apple.com/retail/eton/"
+  },
+  {
+    "state": "Oklahoma",
+    "city": "Oklahoma City",
+    "storeNumber": "R130",
+    "storeName": "Penn Square",
+    "url": "https://www.apple.com/retail/pennsquare/"
+  },
+  {
+    "state": "Oklahoma",
+    "city": "Tulsa",
+    "storeNumber": "R233",
+    "storeName": "Woodland Hills",
+    "url": "https://www.apple.com/retail/woodlandhills/"
+  },
+  {
+    "state": "Oregon",
+    "city": "Portland",
+    "storeNumber": "R077",
+    "storeName": "Pioneer Place",
+    "url": "https://www.apple.com/retail/pioneerplace/"
+  },
+  {
+    "state": "Oregon",
+    "city": "Tigard",
+    "storeNumber": "R134",
+    "storeName": "Bridgeport Village",
+    "url": "https://www.apple.com/retail/bridgeportvillage/"
+  },
+  {
+    "state": "Oregon",
+    "city": "Tigard",
+    "storeNumber": "R090",
+    "storeName": "Washington Square",
+    "url": "https://www.apple.com/retail/washingtonsquare/"
+  },
+  {
+    "state": "Pennsylvania",
+    "city": "Ardmore",
+    "storeNumber": "R166",
+    "storeName": "Suburban Square",
+    "url": "https://www.apple.com/retail/suburbansquare/"
+  },
+  {
+    "state": "Pennsylvania",
+    "city": "King of Prussia",
+    "storeNumber": "R065",
+    "storeName": "King of Prussia",
+    "url": "https://www.apple.com/retail/kingofprussia/"
+  },
+  {
+    "state": "Pennsylvania",
+    "city": "Lancaster",
+    "storeNumber": "R304",
+    "storeName": "Park City",
+    "url": "https://www.apple.com/retail/parkcity/"
+  },
+  {
+    "state": "Pennsylvania",
+    "city": "Philadelphia",
+    "storeNumber": "R162",
+    "storeName": "Walnut Street",
+    "url": "https://www.apple.com/retail/walnutstreet/"
+  },
+  {
+    "state": "Pennsylvania",
+    "city": "Pittsburgh",
+    "storeNumber": "R413",
+    "storeName": "Ross Park",
+    "url": "https://www.apple.com/retail/rosspark/"
+  },
+  {
+    "state": "Pennsylvania",
+    "city": "Pittsburgh",
+    "storeNumber": "R096",
+    "storeName": "Shadyside",
+    "url": "https://www.apple.com/retail/shadyside/"
+  },
+  {
+    "state": "Pennsylvania",
+    "city": "Pittsburgh",
+    "storeNumber": "R147",
+    "storeName": "South Hills Village",
+    "url": "https://www.apple.com/retail/southhillsvillage/"
+  },
+  {
+    "state": "Pennsylvania",
+    "city": "Whitehall",
+    "storeNumber": "R281",
+    "storeName": "Lehigh Valley",
+    "url": "https://www.apple.com/retail/lehighvalley/"
+  },
+  {
+    "state": "Pennsylvania",
+    "city": "Willow Grove",
+    "storeNumber": "R234",
+    "storeName": "Willow Grove Park",
+    "url": "https://www.apple.com/retail/willowgrovepark/"
+  },
+  {
+    "state": "Rhode Island",
+    "city": "Providence",
+    "storeNumber": "R167",
+    "storeName": "Providence Place",
+    "url": "https://www.apple.com/retail/providenceplace/"
+  },
+  {
+    "state": "South Carolina",
+    "city": "Charleston",
+    "storeNumber": "R318",
+    "storeName": "Charleston",
+    "url": "https://www.apple.com/retail/charleston/"
+  },
+  {
+    "state": "South Carolina",
+    "city": "Greenville",
+    "storeNumber": "R355",
+    "storeName": "Haywood Mall",
+    "url": "https://www.apple.com/retail/haywoodmall/"
+  },
+  {
+    "state": "Tennessee",
+    "city": "Franklin",
+    "storeNumber": "R513",
+    "storeName": "CoolSprings Galleria",
+    "url": "https://www.apple.com/retail/coolspringsgalleria/"
+  },
+  {
+    "state": "Tennessee",
+    "city": "Germantown",
+    "storeNumber": "R020",
+    "storeName": "Saddle Creek",
+    "url": "https://www.apple.com/retail/saddlecreek/"
+  },
+  {
+    "state": "Tennessee",
+    "city": "Knoxville",
+    "storeNumber": "R203",
+    "storeName": "West Town Mall",
+    "url": "https://www.apple.com/retail/westtownmall/"
+  },
+  {
+    "state": "Tennessee",
+    "city": "Nashville",
+    "storeNumber": "R123",
+    "storeName": "Green Hills",
+    "url": "https://www.apple.com/retail/greenhills/"
+  },
+  {
+    "state": "Tennessee",
+    "city": "Nashville",
+    "storeNumber": "R133",
+    "storeName": "Downtown Nashville",
+    "url": "https://www.apple.com/retail/downtownnashville/"
+  },
+  {
+    "state": "Texas",
+    "city": "Austin",
+    "storeNumber": "R216",
+    "storeName": "Domain NORTHSIDE",
+    "url": "https://www.apple.com/retail/domainnorthside/"
+  },
+  {
+    "state": "Texas",
+    "city": "Austin",
+    "storeNumber": "R085",
+    "storeName": "Barton Creek",
+    "url": "https://www.apple.com/retail/bartoncreek/"
+  },
+  {
+    "state": "Texas",
+    "city": "Dallas",
+    "storeNumber": "R144",
+    "storeName": "NorthPark Center",
+    "url": "https://www.apple.com/retail/northparkcenter/"
+  },
+  {
+    "state": "Texas",
+    "city": "Dallas",
+    "storeNumber": "R042",
+    "storeName": "Knox Street",
+    "url": "https://www.apple.com/retail/knoxstreet/"
+  },
+  {
+    "state": "Texas",
+    "city": "Dallas",
+    "storeNumber": "R746",
+    "storeName": "Galleria Dallas",
+    "url": "https://www.apple.com/retail/galleriadallas/"
+  },
+  {
+    "state": "Texas",
+    "city": "El Paso",
+    "storeNumber": "R492",
+    "storeName": "Cielo Vista Mall",
+    "url": "https://www.apple.com/retail/cielovistamall/"
+  },
+  {
+    "state": "Texas",
+    "city": "Fort Worth",
+    "storeNumber": "R316",
+    "storeName": "University Park Village",
+    "url": "https://www.apple.com/retail/universityparkvillage/"
+  },
+  {
+    "state": "Texas",
+    "city": "Friendswood",
+    "storeNumber": "R204",
+    "storeName": "Baybrook",
+    "url": "https://www.apple.com/retail/baybrook/"
+  },
+  {
+    "state": "Texas",
+    "city": "Houston",
+    "storeNumber": "R164",
+    "storeName": "Memorial City",
+    "url": "https://www.apple.com/retail/memorialcity/"
+  },
+  {
+    "state": "Texas",
+    "city": "Houston",
+    "storeNumber": "R058",
+    "storeName": "Houston Galleria",
+    "url": "https://www.apple.com/retail/houstongalleria/"
+  },
+  {
+    "state": "Texas",
+    "city": "Houston",
+    "storeNumber": "R321",
+    "storeName": "Willowbrook Mall",
+    "url": "https://www.apple.com/retail/willowbrookmall/"
+  },
+  {
+    "state": "Texas",
+    "city": "Houston",
+    "storeNumber": "R437",
+    "storeName": "Highland Village",
+    "url": "https://www.apple.com/retail/highlandvillage/"
+  },
+  {
+    "state": "Texas",
+    "city": "San Antonio",
+    "storeNumber": "R290",
+    "storeName": "North Star",
+    "url": "https://www.apple.com/retail/northstar/"
+  },
+  {
+    "state": "Texas",
+    "city": "San Antonio",
+    "storeNumber": "R131",
+    "storeName": "La Cantera",
+    "url": "https://www.apple.com/retail/lacantera/"
+  },
+  {
+    "state": "Texas",
+    "city": "Southlake",
+    "storeNumber": "R151",
+    "storeName": "Southlake Town Square",
+    "url": "https://www.apple.com/retail/southlaketownsquare/"
+  },
+  {
+    "state": "Texas",
+    "city": "Sugar Land",
+    "storeNumber": "R205",
+    "storeName": "First Colony Mall",
+    "url": "https://www.apple.com/retail/firstcolonymall/"
+  },
+  {
+    "state": "Texas",
+    "city": "The Woodlands",
+    "storeNumber": "R126",
+    "storeName": "The Woodlands",
+    "url": "https://www.apple.com/retail/thewoodlands/"
+  },
+  {
+    "state": "Utah",
+    "city": "Farmington",
+    "storeNumber": "R599",
+    "storeName": "Station Park",
+    "url": "https://www.apple.com/retail/stationpark/"
+  },
+  {
+    "state": "Utah",
+    "city": "Murray",
+    "storeNumber": "R461",
+    "storeName": "Fashion Place",
+    "url": "https://www.apple.com/retail/fashionplace/"
+  },
+  {
+    "state": "Utah",
+    "city": "Salt Lake City",
+    "storeNumber": "R125",
+    "storeName": "City Creek Center",
+    "url": "https://www.apple.com/retail/citycreekcenter/"
+  },
+  {
+    "state": "Virginia",
+    "city": "Arlington",
+    "storeNumber": "R036",
+    "storeName": "Clarendon",
+    "url": "https://www.apple.com/retail/clarendon/"
+  },
+  {
+    "state": "Virginia",
+    "city": "Arlington",
+    "storeNumber": "R129",
+    "storeName": "Pentagon City",
+    "url": "https://www.apple.com/retail/pentagoncity/"
+  },
+  {
+    "state": "Virginia",
+    "city": "Fairfax",
+    "storeNumber": "R221",
+    "storeName": "Fairfax Corner",
+    "url": "https://www.apple.com/retail/fairfaxcorner/"
+  },
+  {
+    "state": "Virginia",
+    "city": "McLean",
+    "storeNumber": "R010",
+    "storeName": "Tysons Corner",
+    "url": "https://www.apple.com/retail/tysonscorner/"
+  },
+  {
+    "state": "Virginia",
+    "city": "Reston",
+    "storeNumber": "R271",
+    "storeName": "Reston",
+    "url": "https://www.apple.com/retail/reston/"
+  },
+  {
+    "state": "Virginia",
+    "city": "Richmond",
+    "storeNumber": "R078",
+    "storeName": "Short Pump Town Center",
+    "url": "https://www.apple.com/retail/shortpumptowncenter/"
+  },
+  {
+    "state": "Virginia",
+    "city": "Virginia Beach",
+    "storeNumber": "R614",
+    "storeName": "Lynnhaven Mall",
+    "url": "https://www.apple.com/retail/lynnhavenmall/"
+  },
+  {
+    "state": "Virginia",
+    "city": "Woodbridge",
+    "storeNumber": "R598",
+    "storeName": "Stonebridge Potomac Town Center",
+    "url": "https://www.apple.com/retail/stonebridgepotomactowncenter/"
+  },
+  {
+    "state": "Washington",
+    "city": "Bellevue",
+    "storeNumber": "R003",
+    "storeName": "Bellevue Square",
+    "url": "https://www.apple.com/retail/bellevuesquare/"
+  },
+  {
+    "state": "Washington",
+    "city": "Lynnwood",
+    "storeNumber": "R100",
+    "storeName": "Alderwood",
+    "url": "https://www.apple.com/retail/alderwood/"
+  },
+  {
+    "state": "Washington",
+    "city": "Seattle",
+    "storeNumber": "R072",
+    "storeName": "University Village",
+    "url": "https://www.apple.com/retail/universityvillage/"
+  },
+  {
+    "state": "Washington",
+    "city": "Spokane",
+    "storeNumber": "R420",
+    "storeName": "River Park Square",
+    "url": "https://www.apple.com/retail/riverparksquare/"
+  },
+  {
+    "state": "Washington",
+    "city": "Tacoma",
+    "storeNumber": "R339",
+    "storeName": "Tacoma Mall",
+    "url": "https://www.apple.com/retail/tacomamall/"
+  },
+  {
+    "state": "Washington",
+    "city": "Tukwila",
+    "storeNumber": "R106",
+    "storeName": "Southcenter",
+    "url": "https://www.apple.com/retail/southcenter/"
+  },
+  {
+    "state": "Wisconsin",
+    "city": "Glendale",
+    "storeNumber": "R257",
+    "storeName": "Bayshore",
+    "url": "https://www.apple.com/retail/bayshore/"
+  },
+  {
+    "state": "Wisconsin",
+    "city": "Madison",
+    "storeNumber": "R229",
+    "storeName": "Hilldale",
+    "url": "https://www.apple.com/retail/hilldale/"
+  },
+  {
+    "state": "Wisconsin",
+    "city": "Wauwatosa",
+    "storeNumber": "R059",
+    "storeName": "Mayfair",
+    "url": "https://www.apple.com/retail/mayfair/"
+  }
+]

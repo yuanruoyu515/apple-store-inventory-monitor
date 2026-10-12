@@ -1,5 +1,4588 @@
 [
   {
+    "locale": "en_US",
+    "calledLocale": "en_US",
+    "state": [
+      {
+        "__typename": "RgdsState",
+        "name": "Alabama",
+        "store": [
+          {
+            "id": "R225",
+            "name": "The Summit",
+            "slug": "thesummit",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Birmingham",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Alabama · Birmingham",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R266",
+            "name": "Bridge Street",
+            "slug": "bridgestreet",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Huntsville",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Alabama · Huntsville",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Alaska",
+        "store": [
+          {
+            "id": "R262",
+            "name": "Anchorage 5th Avenue Mall",
+            "slug": "anchorage5thavenuemall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Anchorage",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Alaska · Anchorage",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Arizona",
+        "store": [
+          {
+            "id": "R026",
+            "name": "Chandler Fashion Center",
+            "slug": "chandlerfashioncenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Chandler",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Arizona · Chandler",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R267",
+            "name": "SanTan Village",
+            "slug": "santanvillage",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Gilbert",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Arizona · Gilbert",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R247",
+            "name": "Arrowhead",
+            "slug": "arrowhead",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Glendale",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Arizona · Glendale",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R031",
+            "name": "Scottsdale Fashion Square",
+            "slug": "scottsdalefashionsquare",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Scottsdale",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Arizona · Scottsdale",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R292",
+            "name": "Scottsdale Quarter",
+            "slug": "scottsdalequarter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Scottsdale",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Arizona · Scottsdale",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R086",
+            "name": "La Encantada",
+            "slug": "laencantada",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Tucson",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Arizona · Tucson",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Arkansas",
+        "store": [
+          {
+            "id": "R286",
+            "name": "The Promenade at Chenal",
+            "slug": "thepromenadeatchenal",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Little Rock",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Arkansas · Little Rock",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "California",
+        "store": [
+          {
+            "id": "R550",
+            "name": "Valley Plaza",
+            "slug": "valleyplaza",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Bakersfield",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Bakersfield",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R414",
+            "name": "4th Street",
+            "slug": "4thstreet",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Berkeley",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Berkeley",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R156",
+            "name": "Brea Mall",
+            "slug": "breamall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Brea",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Brea",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R029",
+            "name": "Burlingame",
+            "slug": "burlingame",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Burlingame",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Burlingame",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R189",
+            "name": "Topanga",
+            "slug": "topanga",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Canoga Park",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Canoga Park",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R294",
+            "name": "Carlsbad",
+            "slug": "carlsbad",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Carlsbad",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Carlsbad",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R300",
+            "name": "Los Cerritos",
+            "slug": "loscerritos",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Cerritos",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Cerritos",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R213",
+            "name": "Otay Ranch",
+            "slug": "otayranch",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Chula Vista",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Chula Vista",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R071",
+            "name": "Corte Madera",
+            "slug": "cortemadera",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Corte Madera",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Corte Madera",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R004",
+            "name": "South Coast Plaza",
+            "slug": "southcoastplaza",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Costa Mesa",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Costa Mesa",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R824",
+            "name": "Apple Park Visitor Center",
+            "slug": "appleparkvisitorcenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Cupertino",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Cupertino",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R057",
+            "name": "Bay Street",
+            "slug": "baystreet",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Emeryville",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Emeryville",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R236",
+            "name": "Fashion Fair",
+            "slug": "fashionfair",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Fresno",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Fresno",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R001",
+            "name": "Glendale Galleria",
+            "slug": "glendalegalleria",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Glendale",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Glendale",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R451",
+            "name": "The Americana at Brand",
+            "slug": "theamericanaatbrand",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Glendale",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Glendale",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R146",
+            "name": "Irvine Spectrum Center",
+            "slug": "irvinespectrumcenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Irvine",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Irvine",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R050",
+            "name": "The Grove",
+            "slug": "thegrove",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Los Angeles",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Los Angeles",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R124",
+            "name": "Beverly Center",
+            "slug": "beverlycenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Los Angeles",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Los Angeles",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R720",
+            "name": "Tower Theatre",
+            "slug": "towertheatre",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Los Angeles",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Los Angeles",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R108",
+            "name": "Century City",
+            "slug": "centurycity",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Los Angeles",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Los Angeles",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R240",
+            "name": "Los Gatos",
+            "slug": "losgatos",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Los Gatos",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Los Gatos",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R122",
+            "name": "Manhattan Village",
+            "slug": "manhattanvillage",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Manhattan Beach",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Manhattan Beach",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R069",
+            "name": "Mission Viejo",
+            "slug": "missionviejo",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Mission Viejo",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Mission Viejo",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R322",
+            "name": "Vintage Faire",
+            "slug": "vintagefaire",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Modesto",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Modesto",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R305",
+            "name": "Del Monte",
+            "slug": "delmonte",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Monterey",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Monterey",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R015",
+            "name": "Fashion Island",
+            "slug": "fashionisland",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Newport Beach",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Newport Beach",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R023",
+            "name": "Northridge",
+            "slug": "northridge",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Northridge",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Northridge",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R297",
+            "name": "El Paseo Village",
+            "slug": "elpaseovillage",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Palm Desert",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Palm Desert",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R002",
+            "name": "Palo Alto",
+            "slug": "paloalto",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Palo Alto",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Palo Alto",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R099",
+            "name": "Stanford Shopping Center",
+            "slug": "stanfordshoppingcenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Palo Alto",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Palo Alto",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R034",
+            "name": "Pasadena",
+            "slug": "pasadena",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Pasadena",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Pasadena",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R101",
+            "name": "Stoneridge Mall",
+            "slug": "stoneridgemall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Pleasanton",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Pleasanton",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R094",
+            "name": "Victoria Gardens",
+            "slug": "victoriagardens",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Rancho Cucamonga",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Rancho Cucamonga",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R298",
+            "name": "Roseville",
+            "slug": "roseville",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Roseville",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Roseville",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R070",
+            "name": "Arden Fair",
+            "slug": "ardenfair",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Sacramento",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Sacramento",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R040",
+            "name": "Fashion Valley",
+            "slug": "fashionvalley",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "San Diego",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · San Diego",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R082",
+            "name": "UTC",
+            "slug": "utc",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "San Diego",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · San Diego",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R033",
+            "name": "Stonestown",
+            "slug": "stonestown",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "San Francisco",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · San Francisco",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R075",
+            "name": "Union Square",
+            "slug": "unionsquare",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "San Francisco",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · San Francisco",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R217",
+            "name": "Chestnut Street",
+            "slug": "chestnutstreet",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "San Francisco",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · San Francisco",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R105",
+            "name": "Oakridge",
+            "slug": "oakridge",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "San Jose",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · San Jose",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R199",
+            "name": "Higuera Street",
+            "slug": "higuerastreet",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "San Luis Obispo",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · San Luis Obispo",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R231",
+            "name": "Hillsdale",
+            "slug": "hillsdale",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "San Mateo",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · San Mateo",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R317",
+            "name": "State Street",
+            "slug": "statestreet",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Santa Barbara",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Santa Barbara",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R039",
+            "name": "Valley Fair",
+            "slug": "valleyfair",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Santa Clara",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Santa Clara",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R051",
+            "name": "Third Street Promenade",
+            "slug": "thirdstreetpromenade",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Santa Monica",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Santa Monica",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R044",
+            "name": "Montgomery Village",
+            "slug": "montgomeryvillage",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Santa Rosa",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Santa Rosa",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R148",
+            "name": "Sherman Oaks",
+            "slug": "shermanoaks",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Sherman Oaks",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Sherman Oaks",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R345",
+            "name": "Promenade Temecula",
+            "slug": "promenadetemecula",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Temecula",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Temecula",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R154",
+            "name": "The Oaks",
+            "slug": "theoaks",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Thousand Oaks",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Thousand Oaks",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R777",
+            "name": "Del Amo",
+            "slug": "delamo",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Torrance",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Torrance",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R462",
+            "name": "Valencia Town Center",
+            "slug": "valenciatowncenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Valencia",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Valencia",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R014",
+            "name": "Broadway Plaza",
+            "slug": "broadwayplaza",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Walnut Creek",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "California · Walnut Creek",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Colorado",
+        "store": [
+          {
+            "id": "R172",
+            "name": "Twenty Ninth Street",
+            "slug": "twentyninthstreet",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Boulder",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Colorado · Boulder",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R182",
+            "name": "FlatIron Crossing",
+            "slug": "flatironcrossing",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Broomfield",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Colorado · Broomfield",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R338",
+            "name": "The Promenade Shops at Briargate",
+            "slug": "thepromenadeshopsatbriargate",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Colorado Springs",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Colorado · Colorado Springs",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R047",
+            "name": "Cherry Creek",
+            "slug": "cherrycreek",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Denver",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Colorado · Denver",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R030",
+            "name": "Aspen Grove",
+            "slug": "aspengrove",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Littleton",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Colorado · Littleton",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R228",
+            "name": "Park Meadows",
+            "slug": "parkmeadows",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Lone Tree",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Colorado · Lone Tree",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Connecticut",
+        "store": [
+          {
+            "id": "R093",
+            "name": "Danbury Fair Mall",
+            "slug": "danburyfairmall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Danbury",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Connecticut · Danbury",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R025",
+            "name": "Westfarms",
+            "slug": "westfarms",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Farmington",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Connecticut · Farmington",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R282",
+            "name": "Greenwich Avenue",
+            "slug": "greenwichavenue",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Greenwich",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Connecticut · Greenwich",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R446",
+            "name": "New Haven",
+            "slug": "newhaven",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "New Haven",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Connecticut · New Haven",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R202",
+            "name": "SoNo Collection",
+            "slug": "sonocollection",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Norwalk",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Connecticut · Norwalk",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R613",
+            "name": "Evergreen Walk",
+            "slug": "evergreenwalk",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "South Windsor",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Connecticut · South Windsor",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Delaware",
+        "store": [
+          {
+            "id": "R102",
+            "name": "Christiana Mall",
+            "slug": "christianamall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Newark",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Delaware · Newark",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "District of Columbia",
+        "store": [
+          {
+            "id": "R287",
+            "name": "Georgetown",
+            "slug": "georgetown",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Washington",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "District of Columbia · Washington",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R516",
+            "name": "Carnegie Library",
+            "slug": "carnegielibrary",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Washington",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "District of Columbia · Washington",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Florida",
+        "store": [
+          {
+            "id": "R291",
+            "name": "Altamonte",
+            "slug": "altamonte",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Altamonte Springs",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Florida · Altamonte Springs",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R087",
+            "name": "Aventura",
+            "slug": "aventura",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Aventura",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Florida · Aventura",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R074",
+            "name": "Boca Raton",
+            "slug": "bocaraton",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Boca Raton",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Florida · Boca Raton",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R289",
+            "name": "Brandon",
+            "slug": "brandon",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Brandon",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Florida · Brandon",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R185",
+            "name": "Coconut Point",
+            "slug": "coconutpoint",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Estero",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Florida · Estero",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R214",
+            "name": "The Galleria",
+            "slug": "thegalleria",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Fort Lauderdale",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Florida · Fort Lauderdale",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R111",
+            "name": "St. Johns Town Center",
+            "slug": "stjohnstowncenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Jacksonville",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Florida · Jacksonville",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R312",
+            "name": "Dadeland",
+            "slug": "dadeland",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Miami",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Florida · Miami",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R752",
+            "name": "Miami Worldcenter",
+            "slug": "miamiworldcenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Miami",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Florida · Miami",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R623",
+            "name": "Brickell City Centre",
+            "slug": "brickellcitycentre",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Miami",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Florida · Miami",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R012",
+            "name": "The Falls",
+            "slug": "thefalls",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Miami",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Florida · Miami",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R115",
+            "name": "Lincoln Road",
+            "slug": "lincolnroad",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Miami Beach",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Florida · Miami Beach",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R169",
+            "name": "Waterside Shops",
+            "slug": "watersideshops",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Naples",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Florida · Naples",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R143",
+            "name": "Florida Mall",
+            "slug": "floridamall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Orlando",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Florida · Orlando",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R053",
+            "name": "Millenia",
+            "slug": "millenia",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Orlando",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Florida · Orlando",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R127",
+            "name": "The Gardens Mall",
+            "slug": "thegardensmall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Palm Beach Gardens",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Florida · Palm Beach Gardens",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R615",
+            "name": "University Town Center",
+            "slug": "universitytowncenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Sarasota",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Florida · Sarasota",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R019",
+            "name": "International Plaza",
+            "slug": "internationalplaza",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Tampa",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Florida · Tampa",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R024",
+            "name": "Wellington Green",
+            "slug": "wellingtongreen",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Wellington",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Florida · Wellington",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Georgia",
+        "store": [
+          {
+            "id": "R080",
+            "name": "Avalon",
+            "slug": "avalon",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Alpharetta",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Georgia · Alpharetta",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R006",
+            "name": "Lenox Square",
+            "slug": "lenoxsquare",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Atlanta",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Georgia · Atlanta",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R184",
+            "name": "Perimeter",
+            "slug": "perimeter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Atlanta",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Georgia · Atlanta",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R591",
+            "name": "Cumberland Mall",
+            "slug": "cumberlandmall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Atlanta",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Georgia · Atlanta",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R364",
+            "name": "Augusta",
+            "slug": "augusta",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Augusta",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Georgia · Augusta",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R259",
+            "name": "Mall of Georgia",
+            "slug": "mallofgeorgia",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Buford",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Georgia · Buford",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Hawaii",
+        "store": [
+          {
+            "id": "R210",
+            "name": "Kahala",
+            "slug": "kahala",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Honolulu",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Hawaii · Honolulu",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R073",
+            "name": "Ala Moana",
+            "slug": "alamoana",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Honolulu",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Hawaii · Honolulu",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Idaho",
+        "store": [
+          {
+            "id": "R303",
+            "name": "Boise Towne Square",
+            "slug": "boisetownesquare",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Boise",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Idaho · Boise",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Illinois",
+        "store": [
+          {
+            "id": "R035",
+            "name": "Michigan Avenue",
+            "slug": "michiganavenue",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Chicago",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Illinois · Chicago",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R284",
+            "name": "Lincoln Park",
+            "slug": "lincolnpark",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Chicago",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Illinois · Chicago",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R258",
+            "name": "Deer Park",
+            "slug": "deerpark",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Deer Park",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Illinois · Deer Park",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R348",
+            "name": "Main Place",
+            "slug": "mainplace",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Naperville",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Illinois · Naperville",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R056",
+            "name": "Oakbrook",
+            "slug": "oakbrook",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Oak Brook",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Illinois · Oak Brook",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R237",
+            "name": "Orland Square Mall",
+            "slug": "orlandsquaremall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Orland Park",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Illinois · Orland Park",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R018",
+            "name": "Woodfield",
+            "slug": "woodfield",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Schaumburg",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Illinois · Schaumburg",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R089",
+            "name": "Old Orchard",
+            "slug": "oldorchard",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Skokie",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Illinois · Skokie",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Indiana",
+        "store": [
+          {
+            "id": "R066",
+            "name": "The Fashion Mall at Keystone",
+            "slug": "thefashionmallatkeystone",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Indianapolis",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Indiana · Indianapolis",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R360",
+            "name": "University Park Mall",
+            "slug": "universityparkmall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Mishawaka",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Indiana · Mishawaka",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Iowa",
+        "store": [
+          {
+            "id": "R109",
+            "name": "Jordan Creek",
+            "slug": "jordancreek",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "West Des Moines",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Iowa · West Des Moines",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Kansas",
+        "store": [
+          {
+            "id": "R283",
+            "name": "Leawood",
+            "slug": "leawood",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Leawood",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Kansas · Leawood",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Kentucky",
+        "store": [
+          {
+            "id": "R288",
+            "name": "Fritz Farm",
+            "slug": "fritzfarm",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Lexington",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Kentucky · Lexington",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R264",
+            "name": "Oxmoor",
+            "slug": "oxmoor",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Louisville",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Kentucky · Louisville",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Louisiana",
+        "store": [
+          {
+            "id": "R263",
+            "name": "Mall of Louisiana",
+            "slug": "malloflouisiana",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Baton Rouge",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Louisiana · Baton Rouge",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R235",
+            "name": "Lakeside Shopping Center",
+            "slug": "lakesideshoppingcenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Metairie",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Louisiana · Metairie",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Maine",
+        "store": [
+          {
+            "id": "R307",
+            "name": "Maine Mall",
+            "slug": "mainemall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "South Portland",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Maine · South Portland",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Maryland",
+        "store": [
+          {
+            "id": "R142",
+            "name": "Annapolis",
+            "slug": "annapolis",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Annapolis",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Maryland · Annapolis",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R084",
+            "name": "Montgomery Mall",
+            "slug": "montgomerymall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Bethesda",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Maryland · Bethesda",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R112",
+            "name": "Bethesda Row",
+            "slug": "bethesdarow",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Bethesda",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Maryland · Bethesda",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R168",
+            "name": "Columbia",
+            "slug": "columbia",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Columbia",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Maryland · Columbia",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Massachusetts",
+        "store": [
+          {
+            "id": "R149",
+            "name": "Boylston Street",
+            "slug": "boylstonstreet",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Boston",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Massachusetts · Boston",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R110",
+            "name": "South Shore",
+            "slug": "southshore",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Braintree",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Massachusetts · Braintree",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R155",
+            "name": "Burlington",
+            "slug": "burlington",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Burlington",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Massachusetts · Burlington",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R021",
+            "name": "CambridgeSide",
+            "slug": "cambridgeside",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Cambridge",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Massachusetts · Cambridge",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R076",
+            "name": "Chestnut Hill",
+            "slug": "chestnuthill",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Chestnut Hill",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Massachusetts · Chestnut Hill",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R346",
+            "name": "Legacy Place",
+            "slug": "legacyplace",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Dedham",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Massachusetts · Dedham",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R137",
+            "name": "Derby Street",
+            "slug": "derbystreet",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Hingham",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Massachusetts · Hingham",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R191",
+            "name": "Holyoke",
+            "slug": "holyoke",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Holyoke",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Massachusetts · Holyoke",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R011",
+            "name": "MarketStreet",
+            "slug": "marketstreet",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Lynnfield",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Massachusetts · Lynnfield",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R622",
+            "name": "The Shops at Blackstone Valley",
+            "slug": "theshopsatblackstonevalley",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Millbury",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Massachusetts · Millbury",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R232",
+            "name": "Natick",
+            "slug": "natick",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Natick",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Massachusetts · Natick",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Michigan",
+        "store": [
+          {
+            "id": "R230",
+            "name": "Briarwood",
+            "slug": "briarwood",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Ann Arbor",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Michigan · Ann Arbor",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R763",
+            "name": "Downtown Detroit",
+            "slug": "downtowndetroit",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Detroit",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Michigan · Detroit",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R132",
+            "name": "Woodland",
+            "slug": "woodland",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Grand Rapids",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Michigan · Grand Rapids",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R616",
+            "name": "Eastwood Towne Center",
+            "slug": "eastwoodtownecenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Lansing",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Michigan · Lansing",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R041",
+            "name": "Twelve Oaks",
+            "slug": "twelveoaks",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Novi",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Michigan · Novi",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R055",
+            "name": "Somerset",
+            "slug": "somerset",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Troy",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Michigan · Troy",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Minnesota",
+        "store": [
+          {
+            "id": "R007",
+            "name": "Mall of America",
+            "slug": "mallofamerica",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Bloomington",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Minnesota · Bloomington",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R054",
+            "name": "Southdale",
+            "slug": "southdale",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Edina",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Minnesota · Edina",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R183",
+            "name": "Ridgedale",
+            "slug": "ridgedale",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Minnetonka",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Minnesota · Minnetonka",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R022",
+            "name": "Rosedale Center",
+            "slug": "rosedalecenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Roseville",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Minnesota · Roseville",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Mississippi",
+        "store": [
+          {
+            "id": "R324",
+            "name": "Renaissance at Colony Park",
+            "slug": "renaissanceatcolonypark",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Ridgeland",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Mississippi · Ridgeland",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Missouri",
+        "store": [
+          {
+            "id": "R097",
+            "name": "Country Club Plaza",
+            "slug": "countryclubplaza",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Kansas City",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Missouri · Kansas City",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R114",
+            "name": "Saint Louis Galleria",
+            "slug": "saintlouisgalleria",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Saint Louis",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Missouri · Saint Louis",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R062",
+            "name": "West County",
+            "slug": "westcounty",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Saint Louis",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Missouri · Saint Louis",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Nebraska",
+        "store": [
+          {
+            "id": "R190",
+            "name": "Village Pointe",
+            "slug": "villagepointe",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Omaha",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Nebraska · Omaha",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Nevada",
+        "store": [
+          {
+            "id": "R219",
+            "name": "Town Square",
+            "slug": "townsquare",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Las Vegas",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Nevada · Las Vegas",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R161",
+            "name": "The Forum Shops",
+            "slug": "theforumshops",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Las Vegas",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Nevada · Las Vegas",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R650",
+            "name": "Summerlin",
+            "slug": "summerlin",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Las Vegas",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Nevada · Las Vegas",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R064",
+            "name": "Fashion Show",
+            "slug": "fashionshow",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Las Vegas",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Nevada · Las Vegas",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R186",
+            "name": "Shayden Summit",
+            "slug": "shaydensummit",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Reno",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Nevada · Reno",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "New Hampshire",
+        "store": [
+          {
+            "id": "R631",
+            "name": "The Mall of New Hampshire",
+            "slug": "themallofnewhampshire",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Manchester",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New Hampshire · Manchester",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R354",
+            "name": "Pheasant Lane",
+            "slug": "pheasantlane",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Nashua",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New Hampshire · Nashua",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R027",
+            "name": "Rockingham Park",
+            "slug": "rockinghampark",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Salem",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New Hampshire · Salem",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "New Jersey",
+        "store": [
+          {
+            "id": "R104",
+            "name": "Bridgewater",
+            "slug": "bridgewater",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Bridgewater",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New Jersey · Bridgewater",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R206",
+            "name": "Cherry Hill",
+            "slug": "cherryhill",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Cherry Hill",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New Jersey · Cherry Hill",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R755",
+            "name": "American Dream",
+            "slug": "americandream",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "East Rutherford",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New Jersey · East Rutherford",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R067",
+            "name": "Menlo Park",
+            "slug": "menlopark",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Edison",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New Jersey · Edison",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R138",
+            "name": "Freehold Raceway Mall",
+            "slug": "freeholdracewaymall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Freehold",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New Jersey · Freehold",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R549",
+            "name": "Quaker Bridge",
+            "slug": "quakerbridge",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Lawrence Township",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New Jersey · Lawrence Township",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R088",
+            "name": "Sagemore",
+            "slug": "sagemore",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Marlton",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New Jersey · Marlton",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R117",
+            "name": "Garden State Plaza",
+            "slug": "gardenstateplaza",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Paramus",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New Jersey · Paramus",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R103",
+            "name": "Rockaway",
+            "slug": "rockaway",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Rockaway",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New Jersey · Rockaway",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R043",
+            "name": "Short Hills",
+            "slug": "shorthills",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Short Hills",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New Jersey · Short Hills",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R325",
+            "name": "Willowbrook",
+            "slug": "willowbrook",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Wayne",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New Jersey · Wayne",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R013",
+            "name": "Tice's Corner",
+            "slug": "ticescorner",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Woodcliff Lake",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New Jersey · Woodcliff Lake",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "New Mexico",
+        "store": [
+          {
+            "id": "R177",
+            "name": "ABQ Uptown",
+            "slug": "abquptown",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Albuquerque",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New Mexico · Albuquerque",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "New York",
+        "store": [
+          {
+            "id": "R017",
+            "name": "Crossgates",
+            "slug": "crossgates",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Albany",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · Albany",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R753",
+            "name": "The Mall at Bay Plaza",
+            "slug": "themallatbayplaza",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Bronx",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · Bronx",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R594",
+            "name": "Williamsburg",
+            "slug": "williamsburg",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Brooklyn",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · Brooklyn",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R715",
+            "name": "Downtown Brooklyn",
+            "slug": "downtownbrooklyn",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Brooklyn",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · Brooklyn",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R016",
+            "name": "Walden Galleria",
+            "slug": "waldengalleria",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Buffalo",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · Buffalo",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R612",
+            "name": "Queens Center",
+            "slug": "queenscenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Elmhurst",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · Elmhurst",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R060",
+            "name": "Roosevelt Field",
+            "slug": "rooseveltfield",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Garden City",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · Garden City",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R068",
+            "name": "Walt Whitman",
+            "slug": "waltwhitman",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Huntington Station",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · Huntington Station",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R139",
+            "name": "Smith Haven",
+            "slug": "smithhaven",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Lake Grove",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · Lake Grove",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R327",
+            "name": "Manhasset",
+            "slug": "manhasset",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Manhasset",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · Manhasset",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R046",
+            "name": "Nanuet",
+            "slug": "nanuet",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Nanuet",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · Nanuet",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R250",
+            "name": "West 14th Street",
+            "slug": "west14thstreet",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "New York",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · New York",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R095",
+            "name": "Fifth Avenue",
+            "slug": "fifthavenue",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "New York",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · New York",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R654",
+            "name": "World Trade Center",
+            "slug": "worldtradecenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "New York",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · New York",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R032",
+            "name": "SoHo",
+            "slug": "soho",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "New York",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · New York",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R251",
+            "name": "Upper West Side",
+            "slug": "upperwestside",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "New York",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · New York",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R582",
+            "name": "Upper East Side",
+            "slug": "uppereastside",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "New York",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · New York",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R415",
+            "name": "Grand Central",
+            "slug": "grandcentral",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "New York",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · New York",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R152",
+            "name": "Staten Island",
+            "slug": "statenisland",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Staten Island",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · Staten Island",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R107",
+            "name": "Syracuse",
+            "slug": "syracuse",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Syracuse",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · Syracuse",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R140",
+            "name": "Eastview",
+            "slug": "eastview",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Victor",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · Victor",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R061",
+            "name": "The Westchester",
+            "slug": "thewestchester",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "White Plains",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · White Plains",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R261",
+            "name": "Ridge Hill",
+            "slug": "ridgehill",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Yonkers",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "New York · Yonkers",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "North Carolina",
+        "store": [
+          {
+            "id": "R083",
+            "name": "SouthPark",
+            "slug": "southpark",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Charlotte",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "North Carolina · Charlotte",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R049",
+            "name": "Southpoint",
+            "slug": "southpoint",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Durham",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "North Carolina · Durham",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R293",
+            "name": "Friendly Center",
+            "slug": "friendlycenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Greensboro",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "North Carolina · Greensboro",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R796",
+            "name": "Birkdale Village",
+            "slug": "birkdalevillage",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Huntersville",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "North Carolina · Huntersville",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R116",
+            "name": "Crabtree Valley Mall",
+            "slug": "crabtreevalleymall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Raleigh",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "North Carolina · Raleigh",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Ohio",
+        "store": [
+          {
+            "id": "R353",
+            "name": "Summit Mall",
+            "slug": "summitmall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Akron",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Ohio · Akron",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R518",
+            "name": "The Greene",
+            "slug": "thegreene",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Beavercreek",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Ohio · Beavercreek",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R028",
+            "name": "Kenwood Towne Centre",
+            "slug": "kenwoodtownecentre",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Cincinnati",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Ohio · Cincinnati",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R417",
+            "name": "Polaris Fashion Place",
+            "slug": "polarisfashionplace",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Columbus",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Ohio · Columbus",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R009",
+            "name": "Easton Town Center",
+            "slug": "eastontowncenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Columbus",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Ohio · Columbus",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R299",
+            "name": "Franklin Park Mall",
+            "slug": "franklinparkmall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Toledo",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Ohio · Toledo",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R192",
+            "name": "Crocker Park",
+            "slug": "crockerpark",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Westlake",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Ohio · Westlake",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R081",
+            "name": "Eton",
+            "slug": "eton",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Woodmere",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Ohio · Woodmere",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Oklahoma",
+        "store": [
+          {
+            "id": "R130",
+            "name": "Penn Square",
+            "slug": "pennsquare",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Oklahoma City",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Oklahoma · Oklahoma City",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R233",
+            "name": "Woodland Hills",
+            "slug": "woodlandhills",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Tulsa",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Oklahoma · Tulsa",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Oregon",
+        "store": [
+          {
+            "id": "R077",
+            "name": "Pioneer Place",
+            "slug": "pioneerplace",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Portland",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Oregon · Portland",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R134",
+            "name": "Bridgeport Village",
+            "slug": "bridgeportvillage",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Tigard",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Oregon · Tigard",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R090",
+            "name": "Washington Square",
+            "slug": "washingtonsquare",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Tigard",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Oregon · Tigard",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Pennsylvania",
+        "store": [
+          {
+            "id": "R166",
+            "name": "Suburban Square",
+            "slug": "suburbansquare",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Ardmore",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Pennsylvania · Ardmore",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R065",
+            "name": "King of Prussia",
+            "slug": "kingofprussia",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "King of Prussia",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Pennsylvania · King of Prussia",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R304",
+            "name": "Park City",
+            "slug": "parkcity",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Lancaster",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Pennsylvania · Lancaster",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R162",
+            "name": "Walnut Street",
+            "slug": "walnutstreet",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Philadelphia",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Pennsylvania · Philadelphia",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R413",
+            "name": "Ross Park",
+            "slug": "rosspark",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Pittsburgh",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Pennsylvania · Pittsburgh",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R096",
+            "name": "Shadyside",
+            "slug": "shadyside",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Pittsburgh",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Pennsylvania · Pittsburgh",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R147",
+            "name": "South Hills Village",
+            "slug": "southhillsvillage",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Pittsburgh",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Pennsylvania · Pittsburgh",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R281",
+            "name": "Lehigh Valley",
+            "slug": "lehighvalley",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Whitehall",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Pennsylvania · Whitehall",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R234",
+            "name": "Willow Grove Park",
+            "slug": "willowgrovepark",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Willow Grove",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Pennsylvania · Willow Grove",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Rhode Island",
+        "store": [
+          {
+            "id": "R167",
+            "name": "Providence Place",
+            "slug": "providenceplace",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Providence",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Rhode Island · Providence",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "South Carolina",
+        "store": [
+          {
+            "id": "R318",
+            "name": "Charleston",
+            "slug": "charleston",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Charleston",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "South Carolina · Charleston",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R355",
+            "name": "Haywood Mall",
+            "slug": "haywoodmall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Greenville",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "South Carolina · Greenville",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Tennessee",
+        "store": [
+          {
+            "id": "R513",
+            "name": "CoolSprings Galleria",
+            "slug": "coolspringsgalleria",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Franklin",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Tennessee · Franklin",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R020",
+            "name": "Saddle Creek",
+            "slug": "saddlecreek",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Germantown",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Tennessee · Germantown",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R203",
+            "name": "West Town Mall",
+            "slug": "westtownmall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Knoxville",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Tennessee · Knoxville",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R123",
+            "name": "Green Hills",
+            "slug": "greenhills",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Nashville",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Tennessee · Nashville",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R133",
+            "name": "Downtown Nashville",
+            "slug": "downtownnashville",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Nashville",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Tennessee · Nashville",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Texas",
+        "store": [
+          {
+            "id": "R216",
+            "name": "Domain NORTHSIDE",
+            "slug": "domainnorthside",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Austin",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Texas · Austin",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R085",
+            "name": "Barton Creek",
+            "slug": "bartoncreek",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Austin",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Texas · Austin",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R144",
+            "name": "NorthPark Center",
+            "slug": "northparkcenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Dallas",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Texas · Dallas",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R042",
+            "name": "Knox Street",
+            "slug": "knoxstreet",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Dallas",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Texas · Dallas",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R746",
+            "name": "Galleria Dallas",
+            "slug": "galleriadallas",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Dallas",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Texas · Dallas",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R492",
+            "name": "Cielo Vista Mall",
+            "slug": "cielovistamall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "El Paso",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Texas · El Paso",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R316",
+            "name": "University Park Village",
+            "slug": "universityparkvillage",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Fort Worth",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Texas · Fort Worth",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R204",
+            "name": "Baybrook",
+            "slug": "baybrook",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Friendswood",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Texas · Friendswood",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R164",
+            "name": "Memorial City",
+            "slug": "memorialcity",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Houston",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Texas · Houston",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R058",
+            "name": "Houston Galleria",
+            "slug": "houstongalleria",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Houston",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Texas · Houston",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R321",
+            "name": "Willowbrook Mall",
+            "slug": "willowbrookmall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Houston",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Texas · Houston",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R437",
+            "name": "Highland Village",
+            "slug": "highlandvillage",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Houston",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Texas · Houston",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R290",
+            "name": "North Star",
+            "slug": "northstar",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "San Antonio",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Texas · San Antonio",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R131",
+            "name": "La Cantera",
+            "slug": "lacantera",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "San Antonio",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Texas · San Antonio",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R151",
+            "name": "Southlake Town Square",
+            "slug": "southlaketownsquare",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Southlake",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Texas · Southlake",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R205",
+            "name": "First Colony Mall",
+            "slug": "firstcolonymall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Sugar Land",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Texas · Sugar Land",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R126",
+            "name": "The Woodlands",
+            "slug": "thewoodlands",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "The Woodlands",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Texas · The Woodlands",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Utah",
+        "store": [
+          {
+            "id": "R599",
+            "name": "Station Park",
+            "slug": "stationpark",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Farmington",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Utah · Farmington",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R461",
+            "name": "Fashion Place",
+            "slug": "fashionplace",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Murray",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Utah · Murray",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R125",
+            "name": "City Creek Center",
+            "slug": "citycreekcenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Salt Lake City",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Utah · Salt Lake City",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Virginia",
+        "store": [
+          {
+            "id": "R036",
+            "name": "Clarendon",
+            "slug": "clarendon",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Arlington",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Virginia · Arlington",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R129",
+            "name": "Pentagon City",
+            "slug": "pentagoncity",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Arlington",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Virginia · Arlington",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R221",
+            "name": "Fairfax Corner",
+            "slug": "fairfaxcorner",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Fairfax",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Virginia · Fairfax",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R010",
+            "name": "Tysons Corner",
+            "slug": "tysonscorner",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "McLean",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Virginia · McLean",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R271",
+            "name": "Reston",
+            "slug": "reston",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Reston",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Virginia · Reston",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R078",
+            "name": "Short Pump Town Center",
+            "slug": "shortpumptowncenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Richmond",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Virginia · Richmond",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R614",
+            "name": "Lynnhaven Mall",
+            "slug": "lynnhavenmall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Virginia Beach",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Virginia · Virginia Beach",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R598",
+            "name": "Stonebridge Potomac Town Center",
+            "slug": "stonebridgepotomactowncenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Woodbridge",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Virginia · Woodbridge",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Washington",
+        "store": [
+          {
+            "id": "R003",
+            "name": "Bellevue Square",
+            "slug": "bellevuesquare",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Bellevue",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Washington · Bellevue",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R100",
+            "name": "Alderwood",
+            "slug": "alderwood",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Lynnwood",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Washington · Lynnwood",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R072",
+            "name": "University Village",
+            "slug": "universityvillage",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Seattle",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Washington · Seattle",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R420",
+            "name": "River Park Square",
+            "slug": "riverparksquare",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Spokane",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Washington · Spokane",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R339",
+            "name": "Tacoma Mall",
+            "slug": "tacomamall",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Tacoma",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Washington · Tacoma",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R106",
+            "name": "Southcenter",
+            "slug": "southcenter",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Tukwila",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Washington · Tukwila",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "__typename": "RgdsState",
+        "name": "Wisconsin",
+        "store": [
+          {
+            "id": "R257",
+            "name": "Bayshore",
+            "slug": "bayshore",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Glendale",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Wisconsin · Glendale",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R229",
+            "name": "Hilldale",
+            "slug": "hilldale",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Madison",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Wisconsin · Madison",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R059",
+            "name": "Mayfair",
+            "slug": "mayfair",
+            "telephone": "",
+            "address": {
+              "address1": "",
+              "address2": "",
+              "city": "Wauwatosa",
+              "postalCode": "",
+              "__typename": "PostalAddress",
+              "stateName": "Wisconsin · Wauwatosa",
+              "stateCode": null
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      }
+    ],
+    "store": [],
+    "hasStates": true,
+    "__typename": "RgdsStoreSearchResult"
+  },
+  {
     "locale": "zh_CN",
     "calledLocale": "zh_CN",
     "state": [

@@ -47,9 +47,9 @@ const SELECTION: &str = r#"{
 // ---- 内嵌数据 ----
 
 #[test]
-fn 七个地区都能从内嵌数据读出商品与门店() {
+fn 八个地区都能从内嵌数据读出商品与门店() {
     let catalog = Catalog::new();
-    assert_eq!(REGIONS.len(), 7);
+    assert_eq!(REGIONS.len(), 8);
 
     for region in REGIONS {
         let products = catalog
@@ -111,6 +111,13 @@ fn 四个品类在每个地区都有商品() {
     for region in REGIONS {
         let products = catalog.products(region.locale).expect("内嵌数据应当可用");
         for category in Category::ALL {
+            if !region
+                .families
+                .iter()
+                .any(|family| family.category == *category)
+            {
+                continue;
+            }
             assert!(
                 products.iter().any(|p| p.category == *category),
                 "{} 的内嵌数据里没有 {} 商品",
@@ -119,6 +126,27 @@ fn 四个品类在每个地区都有商品() {
             );
         }
     }
+}
+
+#[test]
+fn 美国目录包含全部门店与iphone_18_pro配置() {
+    let catalog = Catalog::new();
+    let stores = catalog.stores("en_US").expect("美国门店目录应当可用");
+    assert_eq!(stores.len(), 269);
+    let west_14th = catalog
+        .store_by_number("en_US", "R250")
+        .expect("美国目录应当包含 West 14th Street");
+    assert!(west_14th.title.contains("New York"));
+    assert!(west_14th.title.contains("West 14th Street"));
+
+    let products = catalog.products("en_US").expect("美国商品目录应当可用");
+    assert_eq!(products.len(), 32);
+    let silver = catalog
+        .product_by_part("en_US", "MJQ44LL/A")
+        .expect("美国目录应当包含 iPhone 18 Pro 256GB Silver");
+    assert_eq!(silver.title, "iPhone 18 Pro 256GB Silver");
+    assert_eq!(silver.capacity, "256GB");
+    assert_eq!(silver.color, "Silver");
 }
 
 #[test]

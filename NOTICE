@@ -203,3 +203,11 @@ Rust 侧：
     typescript                 Apache-2.0
 
 src/components/ui/ 下的组件基于 shadcn/ui（MIT）生成，并按本项目需要作了修改。
+United States edition changes (2026-09-15)
+------------------------------------------------------------
+
+This distribution adds the Apple United States region, a US Apple Retail
+Store snapshot, iPhone 18 Pro / Pro Max US part numbers, US fulfillment query
+parameters, an isolated application identity, and US-specific documentation.
+It disables the upstream updater so those changes are not replaced by an
+incompatible upstream release.

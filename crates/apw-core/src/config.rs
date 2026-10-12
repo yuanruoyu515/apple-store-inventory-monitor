@@ -92,10 +92,10 @@ pub const MAX_SETTINGS_BYTES: usize = 1 << 20;
 ///
 /// 上游把 `user_settings.json` 直接写在进程工作目录。打包成 macOS `.app` 之后，
 /// 工作目录取决于应用被如何启动，可能是 `/` 这种不可写的位置，设置会静默丢失。
-const APP_DIR: &str = "apple-store-inventory-monitor";
+const APP_DIR: &str = "apple-store-inventory-monitor-us";
 
 /// 改名前版本使用的配置目录。只用于首次迁移，不会写入或删除。
-const PREVIOUS_APP_DIR: &str = "apple-pickup-watcher";
+const PREVIOUS_APP_DIR: &str = "apple-store-inventory-monitor-us-legacy";
 
 /// 新版设置文件名。
 ///

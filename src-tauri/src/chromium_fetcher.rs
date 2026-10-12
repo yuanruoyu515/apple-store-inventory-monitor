@@ -297,6 +297,9 @@ impl ChromiumSession {
                 .enumerate()
                 .map(|(index, part)| (format!("parts.{index}"), part.clone())),
         );
+        if region.locale == "en_US" {
+            pairs.push(("cppart".to_string(), "UNLOCKED/US".to_string()));
+        }
         pairs.push(("store".to_string(), store_number.to_string()));
         if let Some(location) = delivery_region {
             pairs.extend([
@@ -938,6 +941,26 @@ mod tests {
                 );
             }
         }
+    }
+
+    /// 美国版发布前的最小真实回归：使用一间美国门店和一个 LL/A 零件号，
+    /// 验证 Chromium 风控握手、UNLOCKED/US 参数及响应解析能完整走通。
+    #[tokio::test]
+    #[ignore = "需要本机 Chromium 与 Apple 美国官网网络"]
+    async fn 真实美国iphone_18_pro库存查询可以解析() {
+        let region = region_by_locale("en_US").expect("应当有美国地区配置");
+        let fetcher = AppleChromiumFetcher::new();
+        let targets = vec![test_target("MJQ44LL/A")];
+
+        let result = fetcher
+            .pickup(region, "R250", &targets, None)
+            .await
+            .expect("Apple 美国站查询应当得到可解析响应");
+        let status = result
+            .parts
+            .get(&targets[0].part_number)
+            .expect("响应应包含请求的美国零件号");
+        assert!(!status.pickup_display.trim().is_empty());
     }
 
     /// 用户现场回归：Apple Watch 的配置零件号没有 `/shop/product/{part}` 页面，

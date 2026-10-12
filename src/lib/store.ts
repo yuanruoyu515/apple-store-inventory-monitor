@@ -71,7 +71,7 @@ export interface UiState {
 }
 
 const DEFAULT_SETTINGS: Settings = {
-  locale: "zh_CN",
+  locale: "en_US",
   targets: [],
   deliveryRegion: null,
   intervalSeconds: 30,
@@ -225,9 +225,7 @@ export function connect(): Promise<void> {
     ]);
     update({ regions, categories, settings, rows, running, ready: true });
     await loadCatalog(settings.locale);
-    // 启动时静默查一次。查不到就算了，不打扰用户 —— 网络不通、GitHub 抽风
-    // 都会走到这里，跟「有没有新版本」是两回事。
-    void checkForUpdate({ quiet: true });
+    // 美国版是独立分支，不能安装上游正式版更新，否则会覆盖美国地区支持。
   })();
   return starting;
 }
@@ -532,7 +530,7 @@ async function openCommunityPage(url: string, label: string): Promise<void> {
   }
 }
 
-/** 打开开源仓库主页，可从 Releases 下载最新版。 */
+/** 打开上游开源仓库主页，供查看原始源码与许可证。 */
 export function openProjectPage(): Promise<void> {
   return openCommunityPage(
     "https://github.com/suversal/apple-store-inventory-monitor",

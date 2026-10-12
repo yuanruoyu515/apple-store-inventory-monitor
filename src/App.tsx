@@ -694,7 +694,7 @@ export default function App() {
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <h1 className="truncate text-lg font-semibold tracking-[-0.02em]">
-                    果到雷达
+                    果到雷达 · 美国版
                   </h1>
                   <Badge variant="outline" className="hidden border-primary/20 bg-primary/8 text-primary sm:inline-flex">
                     LIVE
@@ -704,14 +704,14 @@ export default function App() {
                   </span>
                 </div>
                 <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                  Apple 直营店取货库存监控
+                  美国 Apple Store iPhone 18 Pro 库存监控
                 </p>
               </div>
             </div>
 
             <div className="hidden min-w-0 flex-1 items-center justify-center gap-2 min-[860px]:flex">
               <span className="truncate text-sm text-muted-foreground">
-                本软件已开源，欢迎下载最新版体验
+                基于 GPL 开源项目构建的美国版
               </span>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -719,13 +719,13 @@ export default function App() {
                     variant="ghost"
                     size="icon-sm"
                     className="rounded-lg"
-                    aria-label="在 GitHub 查看开源项目并下载最新版"
+                    aria-label="在 GitHub 查看原开源项目"
                     onClick={() => void openProjectPage()}
                   >
                     <GithubBrandIcon />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>GitHub 项目与最新版下载</TooltipContent>
+                <TooltipContent>查看原项目源码与许可证</TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>

@@ -1,6 +1,8 @@
 # 果到雷达 · 美国版
 
-这是 `Apple Store Inventory Monitor` v1.0.6 的美国地区分支，面向美国 Apple Store 的 iPhone 18 Pro 与 iPhone 18 Pro Max 到店取货库存监控。
+当前美国版为 **v1.0.7-us.1**，基于上游 `Apple Store Inventory Monitor` v1.0.6，支持美国 Apple Store 的 iPhone Duo、iPhone 18 Pro 与 iPhone 18 Pro Max 到店取货库存监控。
+
+从 [GitHub Release](https://github.com/yuanruoyu515/apple-store-inventory-monitor/releases/latest) 下载：Apple 芯片 Mac 选择 `macOS-arm64`，Intel Mac 选择 `macOS-Intel`，解压后把应用放进“应用程序”。
 
 ## 使用
 
@@ -12,7 +14,7 @@
    ```
 
 3. 地区默认是 `United States`。门店搜索支持州、城市、店名或门店编号。
-4. 选择一个或多个门店，再选择 iPhone 18 Pro / Pro Max 的容量与颜色，点击“添加监控”。
+4. 选择一个或多个门店，再选择 iPhone Duo / 18 Pro / Pro Max 的容量与颜色，点击“添加监控”。可在型号搜索框输入 `Duo` 筛选新机型。
 5. 可填写 Bark 地址（例如 `https://api.day.app/你的密钥`），再点“测试提醒与跳转”。
 6. 点击“开始监控”。关闭主窗口后应用会留在菜单栏继续监控；彻底退出、电脑休眠或关机后会停止。
 
@@ -22,12 +24,24 @@
 
 - 美国站点 `https://www.apple.com` 与 `en_US` 地区支持。
 - 内置 269 家美国 Apple Store，门店标题同时包含州与城市。
-- 内置 32 个美国 `LL/A` 的 iPhone 18 Pro / Pro Max SKU，涵盖容量与颜色。
+- 内置 40 个美国 `LL/A` SKU：32 个 iPhone 18 Pro / Pro Max 配置，以及 8 个 iPhone Duo 配置。
+- iPhone Duo 支持 256GB、512GB、1TB、2TB，颜色为 Night Sky 与 Star White；“刷新型号”也包含 Duo 购买页。
 - 美国查询携带 Apple 的 `UNLOCKED/US` 配置参数。
 - 使用独立配置目录和 Bundle ID，不覆盖原版配置。
 - 禁用上游自动更新检查，避免美国支持被正式版覆盖。
 
-数据快照生成脚本为 `scripts/generate-us-data.mjs`，原始快照位于 `crates/apw-core/data/us-source/`。商品配置已于 2026-09-15 对照 Apple 美国官方购买页确认。
+数据快照生成脚本为 `scripts/generate-us-data.mjs`，原始快照位于 `crates/apw-core/data/us-source/`。Pro 系列配置于 2026-09-15 核对，Duo 配置于 2026-10-15 从 [Apple 美国官方购买页](https://www.apple.com/shop/buy-iphone/iphone-duo) 的 `productSelectionData` 核对，仅使用 `UNLOCKED/US` 的美国料号。
+
+截至 2026-10-15，Apple 官方购买页显示 Duo 于 10 月 16 日上午 5 点（太平洋时间）开始预购，10 月 23 日发售。在 Apple 开放取货查询前，程序可能显示“即将发售”或“暂无数据”；加入目录不代表已有现货。Apple 的 HTTP 541 拦截仍可能发生，查询失败会保留为未知状态并延长重试间隔。
+
+## iPhone Duo 美国配置
+
+| 容量 | Night Sky | Star White |
+| --- | --- | --- |
+| 256GB | `MK1F4LL/A` | `MK1E4LL/A` |
+| 512GB | `MK1H4LL/A` | `MK1G4LL/A` |
+| 1TB | `MK1L4LL/A` | `MK1J4LL/A` |
+| 2TB | `MK1R4LL/A` | `MK1Q4LL/A` |
 
 ## 从源码构建
 
@@ -35,12 +49,15 @@
 
 ```bash
 pnpm install --frozen-lockfile
+pnpm generate:us
 pnpm test
 cargo test --workspace
 pnpm tauri build --bundles app
 ```
 
 输出位于 `target/release/bundle/macos/Apple Store Inventory Monitor US.app`。
+
+两种 Mac 架构可分别使用 `pnpm tauri build --bundles app --target aarch64-apple-darwin` 和 `pnpm tauri build --bundles app --target x86_64-apple-darwin`，前提是通过 `rustup target add` 安装对应目标。
 
 ## 许可
 

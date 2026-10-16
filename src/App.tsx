@@ -704,7 +704,7 @@ export default function App() {
                   </span>
                 </div>
                 <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                  美国 Apple Store iPhone 18 Pro 库存监控
+                  美国 Apple Store · iPhone Duo / 18 Pro / Pro Max
                 </p>
               </div>
             </div>

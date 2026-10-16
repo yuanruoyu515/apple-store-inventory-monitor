@@ -1,0 +1,74 @@
+[
+  {
+    "sku": "MK1F4",
+    "partNumber": "MK1F4LL/A",
+    "model": "iPhone Duo",
+    "storage": "256GB",
+    "color": "Night Sky",
+    "name": "iPhone Duo 256GB Night Sky",
+    "price": 1999
+  },
+  {
+    "sku": "MK1E4",
+    "partNumber": "MK1E4LL/A",
+    "model": "iPhone Duo",
+    "storage": "256GB",
+    "color": "Star White",
+    "name": "iPhone Duo 256GB Star White",
+    "price": 1999
+  },
+  {
+    "sku": "MK1H4",
+    "partNumber": "MK1H4LL/A",
+    "model": "iPhone Duo",
+    "storage": "512GB",
+    "color": "Night Sky",
+    "name": "iPhone Duo 512GB Night Sky",
+    "price": 2199
+  },
+  {
+    "sku": "MK1G4",
+    "partNumber": "MK1G4LL/A",
+    "model": "iPhone Duo",
+    "storage": "512GB",
+    "color": "Star White",
+    "name": "iPhone Duo 512GB Star White",
+    "price": 2199
+  },
+  {
+    "sku": "MK1L4",
+    "partNumber": "MK1L4LL/A",
+    "model": "iPhone Duo",
+    "storage": "1TB",
+    "color": "Night Sky",
+    "name": "iPhone Duo 1TB Night Sky",
+    "price": 2599
+  },
+  {
+    "sku": "MK1J4",
+    "partNumber": "MK1J4LL/A",
+    "model": "iPhone Duo",
+    "storage": "1TB",
+    "color": "Star White",
+    "name": "iPhone Duo 1TB Star White",
+    "price": 2599
+  },
+  {
+    "sku": "MK1R4",
+    "partNumber": "MK1R4LL/A",
+    "model": "iPhone Duo",
+    "storage": "2TB",
+    "color": "Night Sky",
+    "name": "iPhone Duo 2TB Night Sky",
+    "price": 3199
+  },
+  {
+    "sku": "MK1Q4",
+    "partNumber": "MK1Q4LL/A",
+    "model": "iPhone Duo",
+    "storage": "2TB",
+    "color": "Star White",
+    "name": "iPhone Duo 2TB Star White",
+    "price": 3199
+  }
+]

@@ -129,7 +129,7 @@ fn 四个品类在每个地区都有商品() {
 }
 
 #[test]
-fn 美国目录包含全部门店与iphone_18_pro配置() {
+fn 美国目录包含全部门店与iphone配置() {
     let catalog = Catalog::new();
     let stores = catalog.stores("en_US").expect("美国门店目录应当可用");
     assert_eq!(stores.len(), 269);
@@ -140,13 +140,49 @@ fn 美国目录包含全部门店与iphone_18_pro配置() {
     assert!(west_14th.title.contains("West 14th Street"));
 
     let products = catalog.products("en_US").expect("美国商品目录应当可用");
-    assert_eq!(products.len(), 32);
+    assert_eq!(products.len(), 40);
     let silver = catalog
         .product_by_part("en_US", "MJQ44LL/A")
         .expect("美国目录应当包含 iPhone 18 Pro 256GB Silver");
     assert_eq!(silver.title, "iPhone 18 Pro 256GB Silver");
     assert_eq!(silver.capacity, "256GB");
     assert_eq!(silver.color, "Silver");
+}
+
+#[test]
+fn 美国duo目录覆盖四种容量两种颜色且料号匹配官方配置() {
+    let catalog = Catalog::new();
+    let products = catalog.products("en_US").expect("美国商品目录应当可用");
+    let duo: Vec<_> = products
+        .iter()
+        .filter(|p| p.family == "iphoneduo")
+        .collect();
+    assert_eq!(duo.len(), 8, "Duo 不应缺失配置或重复列出运营商版本");
+
+    for (part, capacity, color) in [
+        ("MK1F4LL/A", "256GB", "Night Sky"),
+        ("MK1E4LL/A", "256GB", "Star White"),
+        ("MK1H4LL/A", "512GB", "Night Sky"),
+        ("MK1G4LL/A", "512GB", "Star White"),
+        ("MK1L4LL/A", "1TB", "Night Sky"),
+        ("MK1J4LL/A", "1TB", "Star White"),
+        ("MK1R4LL/A", "2TB", "Night Sky"),
+        ("MK1Q4LL/A", "2TB", "Star White"),
+    ] {
+        let product = catalog
+            .product_by_part("en_US", part)
+            .expect("Duo SKU 应在离线目录中");
+        assert_eq!(product.family, "iphoneduo");
+        assert_eq!(product.capacity, capacity);
+        assert_eq!(product.color, color);
+        assert_eq!(product.title, format!("iPhone Duo {capacity} {color}"));
+    }
+    let region = region_by_locale("en_US").unwrap();
+    assert!(
+        region
+            .families_in(Category::Iphone)
+            .any(|family| family.slug == "iphone-duo")
+    );
 }
 
 #[test]

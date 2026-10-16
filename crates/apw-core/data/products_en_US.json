@@ -259,11 +259,104 @@
           }
         },
         "dimensionScreensize": {
-          "6_3inch": {
-            "value": "iPhone 18 Pro"
-          },
           "6_9inch": {
             "value": "iPhone 18 Pro Max"
+          },
+          "6_3inch": {
+            "value": "iPhone 18 Pro"
+          }
+        }
+      }
+    }
+  },
+  {
+    "category": "iphone",
+    "family": "iphone-duo",
+    "data": {
+      "products": [
+        {
+          "partNumber": "MK1F4LL/A",
+          "familyType": "iphoneduo",
+          "dimensionCapacity": "256gb",
+          "dimensionScreensize": "7_6inch",
+          "dimensionColor": "nightsky"
+        },
+        {
+          "partNumber": "MK1E4LL/A",
+          "familyType": "iphoneduo",
+          "dimensionCapacity": "256gb",
+          "dimensionScreensize": "7_6inch",
+          "dimensionColor": "starwhite"
+        },
+        {
+          "partNumber": "MK1H4LL/A",
+          "familyType": "iphoneduo",
+          "dimensionCapacity": "512gb",
+          "dimensionScreensize": "7_6inch",
+          "dimensionColor": "nightsky"
+        },
+        {
+          "partNumber": "MK1G4LL/A",
+          "familyType": "iphoneduo",
+          "dimensionCapacity": "512gb",
+          "dimensionScreensize": "7_6inch",
+          "dimensionColor": "starwhite"
+        },
+        {
+          "partNumber": "MK1L4LL/A",
+          "familyType": "iphoneduo",
+          "dimensionCapacity": "1tb",
+          "dimensionScreensize": "7_6inch",
+          "dimensionColor": "nightsky"
+        },
+        {
+          "partNumber": "MK1J4LL/A",
+          "familyType": "iphoneduo",
+          "dimensionCapacity": "1tb",
+          "dimensionScreensize": "7_6inch",
+          "dimensionColor": "starwhite"
+        },
+        {
+          "partNumber": "MK1R4LL/A",
+          "familyType": "iphoneduo",
+          "dimensionCapacity": "2tb",
+          "dimensionScreensize": "7_6inch",
+          "dimensionColor": "nightsky"
+        },
+        {
+          "partNumber": "MK1Q4LL/A",
+          "familyType": "iphoneduo",
+          "dimensionCapacity": "2tb",
+          "dimensionScreensize": "7_6inch",
+          "dimensionColor": "starwhite"
+        }
+      ],
+      "displayValues": {
+        "dimensionCapacity": {
+          "256gb": {
+            "value": "256GB"
+          },
+          "512gb": {
+            "value": "512GB"
+          },
+          "1tb": {
+            "value": "1TB"
+          },
+          "2tb": {
+            "value": "2TB"
+          }
+        },
+        "dimensionColor": {
+          "nightsky": {
+            "value": "Night Sky"
+          },
+          "starwhite": {
+            "value": "Star White"
+          }
+        },
+        "dimensionScreensize": {
+          "7_6inch": {
+            "value": "iPhone Duo"
           }
         }
       }

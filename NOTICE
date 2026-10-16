@@ -211,3 +211,12 @@ Store snapshot, iPhone 18 Pro / Pro Max US part numbers, US fulfillment query
 parameters, an isolated application identity, and US-specific documentation.
 It disables the upstream updater so those changes are not replaced by an
 incompatible upstream release.
+
+United States iPhone Duo support (2026-10-15)
+------------------------------------------------------------
+
+This distribution adds eight US iPhone Duo part numbers, four storage
+capacities and two finishes, an offline catalog snapshot, the iPhone Duo
+fallback purchase page, catalog regression tests, and updated US documentation.
+The Duo SKU facts were checked against Apple's US purchase page:
+https://www.apple.com/shop/buy-iphone/iphone-duo

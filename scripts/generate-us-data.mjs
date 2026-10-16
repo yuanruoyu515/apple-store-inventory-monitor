@@ -6,9 +6,10 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dataDir = path.join(root, "crates", "apw-core", "data");
 const sourceDir = path.join(dataDir, "us-source");
 
-const [storesSource, skuSource, currentRegions] = await Promise.all([
+const [storesSource, proSkus, duoSkus, currentRegions] = await Promise.all([
   readFile(path.join(sourceDir, "us-apple-stores.json"), "utf8").then(JSON.parse),
   readFile(path.join(sourceDir, "iphone-18-skus.json"), "utf8").then(JSON.parse),
+  readFile(path.join(sourceDir, "iphone-duo-skus.json"), "utf8").then(JSON.parse),
   readFile(path.join(dataDir, "stores.json"), "utf8").then(JSON.parse),
 ]);
 
@@ -53,38 +54,50 @@ await writeFile(
 );
 
 const normalized = (value) => value.toLowerCase().replaceAll(" ", "");
-const products = skuSource.map((sku) => ({
-  partNumber: sku.partNumber,
-  familyType: sku.model.endsWith("Pro Max") ? "iphone18promax" : "iphone18pro",
-  dimensionCapacity: normalized(sku.storage),
-  dimensionScreensize: sku.model.endsWith("Pro Max") ? "6_9inch" : "6_3inch",
-  dimensionColor: normalized(sku.color),
-}));
-
-const displayValues = {
-  dimensionCapacity: Object.fromEntries(
-    [...new Set(skuSource.map((sku) => sku.storage))]
-      .map((capacity) => [normalized(capacity), { value: capacity }]),
-  ),
-  dimensionColor: Object.fromEntries(
-    [...new Set(skuSource.map((sku) => sku.color))]
-      .map((color) => [normalized(color), { value: color }]),
-  ),
-  dimensionScreensize: {
-    "6_3inch": { value: "iPhone 18 Pro" },
-    "6_9inch": { value: "iPhone 18 Pro Max" },
-  },
+const models = {
+  "iPhone 18 Pro": { familyType: "iphone18pro", screen: "6_3inch" },
+  "iPhone 18 Pro Max": { familyType: "iphone18promax", screen: "6_9inch" },
+  "iPhone Duo": { familyType: "iphoneduo", screen: "7_6inch" },
 };
-
-const productSnapshot = [{
-  category: "iphone",
-  family: "iphone-18-pro",
-  data: { products, displayValues },
-}];
+const seenParts = new Set();
+const productSnapshot = [
+  { family: "iphone-18-pro", skus: proSkus },
+  { family: "iphone-duo", skus: duoSkus },
+].map(({ family, skus }) => {
+  const products = skus.map((sku) => {
+    const model = models[sku.model];
+    if (!model || !sku.partNumber.endsWith("LL/A") || seenParts.has(sku.partNumber)) {
+      throw new Error(`Invalid or duplicate US SKU: ${sku.partNumber} (${sku.model})`);
+    }
+    seenParts.add(sku.partNumber);
+    return {
+      partNumber: sku.partNumber,
+      familyType: model.familyType,
+      dimensionCapacity: normalized(sku.storage),
+      dimensionScreensize: model.screen,
+      dimensionColor: normalized(sku.color),
+    };
+  });
+  const displayValues = {
+    dimensionCapacity: Object.fromEntries(
+      [...new Set(skus.map((sku) => sku.storage))]
+        .map((capacity) => [normalized(capacity), { value: capacity }]),
+    ),
+    dimensionColor: Object.fromEntries(
+      [...new Set(skus.map((sku) => sku.color))]
+        .map((color) => [normalized(color), { value: color }]),
+    ),
+    dimensionScreensize: Object.fromEntries(
+      [...new Set(skus.map((sku) => sku.model))]
+        .map((name) => [models[name].screen, { value: name }]),
+    ),
+  };
+  return { category: "iphone", family, data: { products, displayValues } };
+});
 
 await writeFile(
   path.join(dataDir, "products_en_US.json"),
   `${JSON.stringify(productSnapshot, null, 2)}\n`,
 );
 
-console.log(`Generated ${storesSource.length} US stores and ${skuSource.length} iPhone SKUs.`);
+console.log(`Generated ${storesSource.length} US stores and ${seenParts.size} iPhone SKUs.`);

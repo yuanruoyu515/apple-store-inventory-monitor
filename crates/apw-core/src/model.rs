@@ -368,12 +368,17 @@ const DEFAULT_FAMILIES: &[Family<'static>] = &[
     },
 ];
 
-/// 美国版当前聚焦于 iPhone 18 Pro / Pro Max。单独限制购买页既避免把其他
-/// 地区的零件号误用于美国，也让“刷新型号”只访问用户真正需要的一页。
-const US_FAMILIES: &[Family<'static>] = &[Family {
-    category: Category::Iphone,
-    slug: "iphone-18-pro",
-}];
+/// 美国版的离线兜底购买页；分别保留 Pro 系列与 Duo 的目录来源。
+const US_FAMILIES: &[Family<'static>] = &[
+    Family {
+        category: Category::Iphone,
+        slug: "iphone-18-pro",
+    },
+    Family {
+        category: Category::Iphone,
+        slug: "iphone-duo",
+    },
+];
 
 /// 内置地区表。
 ///

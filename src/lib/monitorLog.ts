@@ -18,22 +18,22 @@ export function describeMonitorStatus(row: Pick<TargetState, "availability" | "p
 } {
   const a = row.availability;
   const base = describeAvailability(a);
+  const d = row.pickupDetails;
+  const evidence = d ? [
+    `取货=${short(d.pickupDisplay)}`,
+    d.pickupQuote ? `Apple：${short(d.pickupQuote)}` : null,
+    d.saleReason ? `购买=${short(d.saleReason)}` : null,
+    d.saleMessage ? `送货：${short(d.saleMessage)}` : null,
+  ].filter(Boolean).join("；") : null;
   if (a.kind === "unknown") {
     const labels: Record<string, string> = {
       no_pickup_data: "暂无取货数据", product_not_returned: "未返回型号",
       blocked: "请求被拦截", rate_limited: "请求被限流",
       transport: "查询失败", schema_drift: "响应解析失败", apple_error: "Apple 返回错误",
     };
-    return { ...base, label: labels[a.reason] ?? base.label };
+    return { ...base, label: labels[a.reason] ?? base.label, detail: [base.detail, evidence].filter(Boolean).join("；") };
   }
-  const d = row.pickupDetails;
   if (!d) return base;
-  const evidence = [
-    `取货=${short(d.pickupDisplay)}`,
-    d.pickupQuote ? `Apple：${short(d.pickupQuote)}` : null,
-    d.saleReason ? `购买=${short(d.saleReason)}` : null,
-    d.saleMessage ? `送货：${short(d.saleMessage)}` : null,
-  ].filter(Boolean).join("；");
   // 已确认有货时绝不被送货描述覆盖；暂未开售必须有明确业务证据。
   if (a.kind === "out_of_stock") {
     if (d.saleReason === "COMING_SOON") {
@@ -60,7 +60,7 @@ function short(raw: string): string {
  * 避免因为新增地区或 Apple 改文案就把“可送货”错误折叠成“暂无送货”。
  */
 export function describeDelivery(
-  pickupDetails?: Pick<NonNullable<TargetState["pickupDetails"]>, "saleMessage">,
+  pickupDetails?: Pick<NonNullable<TargetState["pickupDetails"]>, "saleMessage" | "deliveryDate">,
   checkedAtMs: number | null = Date.now(),
 ): DeliveryPresentation | null {
   const detail = short(pickupDetails?.saleMessage ?? "");
@@ -71,7 +71,10 @@ export function describeDelivery(
   }
 
   const referenceMs = checkedAtMs ?? Date.now();
-  const dates = parseDeliveryDates(detail);
+  const encoded = pickupDetails?.deliveryDate?.match(/^(20\d{2})(\d{2})(\d{2})$/);
+  const encodedDates = encoded ? parseDeliveryDates(`${encoded[1]}/${encoded[2]}/${encoded[3]}`) : [];
+  const textDates = parseDeliveryDates(detail);
+  const dates = textDates.length ? textDates : encodedDates;
   if (dates.length > 0) {
     const firstDays = daysFrom(referenceMs, dates[0]!);
     return {
@@ -101,6 +104,16 @@ export function describeDelivery(
 export function describePickupDate(pickupQuote?: string | null): string | null {
   const dates = parseDeliveryDates(short(pickupQuote ?? ""));
   return dates[0] ? formatShortDate(dates[0]) : null;
+}
+
+/** 这是 Apple 建议再次查询的日期，绝不能标成“可取货日期”。 */
+export function describePickupRecheckDate(pickupQuote?: string | null): string | null {
+  const match = short(pickupQuote ?? "").match(/\bCheck back for availability on (\d{1,2})\.(\d{1,2})\b/i);
+  if (!match) return null;
+  const month = Number(match[1]);
+  const day = Number(match[2]);
+  if (!parseDeliveryDates(`2024/${month}/${day}`).length) return null;
+  return `${month}/${day} 再查`;
 }
 
 function parseDeliveryDates(raw: string): Date[] {

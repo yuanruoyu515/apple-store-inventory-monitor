@@ -1,0 +1,36 @@
+{
+  "head": { "status": "200" },
+  "body": {
+    "content": {
+      "pickupMessage": {
+        "stores": [{
+          "storeNumber": "R087",
+          "storeName": "Aventura",
+          "partsAvailability": {
+            "MK1L4LL/A": {
+              "partNumber": "MK1L4LL/A",
+              "pickupDisplay": "default",
+              "pickupSearchQuote": "Check back for availability on 10.24",
+              "storePickEligible": true,
+              "messageTypes": { "regular": {
+                "storePickupProductTitle": "iPhone Duo 1TB Night Sky",
+                "storePickupQuote": "Check back for availability on 10.24",
+                "storeSearchEnabled": false,
+                "storeSelectionEnabled": false
+              } }
+            }
+          }
+        }]
+      },
+      "deliveryMessage": {
+        "MK1L4LL/A": { "regular": {
+          "buyability": { "isBuyable": true, "reason": "OK" },
+          "deliveryOptionMessages": [{
+            "displayName": "Mon, Jan 25 — Free",
+            "encodedUpperDateString": "20270125"
+          }]
+        } }
+      }
+    }
+  }
+}

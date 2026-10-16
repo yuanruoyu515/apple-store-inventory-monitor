@@ -675,6 +675,16 @@ pub fn parse_pickup_message(raw: &[u8], want_store: &str) -> Result<StoreAvailab
                         .and_then(|v| v.pointer("/regular/deliveryOptionMessages/0/displayName"))
                         .and_then(serde_json::Value::as_str)
                         .map(str::to_owned),
+                    delivery_date: resp
+                        .body
+                        .content
+                        .delivery_message
+                        .get(key)
+                        .and_then(|v| {
+                            v.pointer("/regular/deliveryOptionMessages/0/encodedUpperDateString")
+                        })
+                        .and_then(serde_json::Value::as_str)
+                        .map(str::to_owned),
                 }),
                 pickup_display: raw_display,
             },
@@ -716,7 +726,7 @@ fn check_envelope(resp: &PickupResponse) -> Result<(), ApiError> {
 /// 把 Apple 的 `pickupDisplay` 字段翻译成三态。
 ///
 /// 已实际观测到的取值：`available`（可取货）、`unavailable`（不可取货）、
-/// `ineligible`（该型号在此门店不支持到店取货）。
+/// `ineligible`（该型号在此门店不支持到店取货）、`default`（取货待公布）。
 ///
 /// 未知取值一律归为 `Unknown` 并带上原始值，而不是 `OutOfStock` —— 猜错成
 /// 「无货」会让用户错过机会，猜错成「未知」只是让用户多看一眼。同样重要的是，
@@ -726,6 +736,7 @@ pub fn availability_from(pickup_display: &str) -> Availability {
     match pickup_display.trim().to_ascii_lowercase().as_str() {
         "available" => Availability::InStock,
         "unavailable" | "ineligible" => Availability::OutOfStock,
+        "default" => Availability::Unknown(UnknownReason::PickupPending),
         other => Availability::Unknown(UnknownReason::SchemaDrift {
             field: "pickupDisplay".into(),
             raw: other.to_string(),

@@ -962,7 +962,42 @@ mod tests {
                 .get(&target.part_number)
                 .expect("响应应包含请求的美国零件号");
             assert!(!status.pickup_display.trim().is_empty());
+            assert!(
+                !status.availability.is_failure(),
+                "未识别的库存状态：{status:?}"
+            );
             println!("{}: {}", target.part_number, status.pickup_display);
+        }
+    }
+
+    #[tokio::test]
+    #[ignore = "需要本机 Chromium 与 Apple 美国官网网络；仅输出商品业务字段"]
+    async fn 真实美国duo预售响应回归() {
+        let region = region_by_locale("en_US").unwrap();
+        let mut session = ChromiumSession::start().await.unwrap();
+        let parts: Vec<String> = [
+            "MK1F4LL/A",
+            "MK1E4LL/A",
+            "MK1H4LL/A",
+            "MK1G4LL/A",
+            "MK1L4LL/A",
+            "MK1J4LL/A",
+            "MK1R4LL/A",
+            "MK1Q4LL/A",
+        ]
+        .into_iter()
+        .map(str::to_owned)
+        .collect();
+        let payload = session.fetch(region, "R087", &parts, None).await.unwrap();
+        assert_eq!(payload.status, 200);
+        let parsed = parse_pickup_message(payload.body.as_bytes(), "R087").unwrap();
+        for part in &parts {
+            let status = parsed.parts.get(part).expect("应返回全部 8 个 Duo 配置");
+            assert!(!status.availability.is_failure(), "{part}: {status:?}");
+            println!(
+                "R087 {part}: {:?}; {:?}",
+                status.availability, status.pickup_details
+            );
         }
     }
 

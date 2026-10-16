@@ -1,10 +1,30 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { describeCycleRow, describeCycleSummary, describeDelivery, describeMonitorStatus, describePickupDate } from "../src/lib/monitorLog.ts";
+import { describeCycleRow, describeCycleSummary, describeDelivery, describeMonitorStatus, describePickupDate, describePickupRecheckDate } from "../src/lib/monitorLog.ts";
 const target = { storeTitle: "上海-南京东路", storeNumber: "R359", productName: "iPhone", partNumber: "MJTJ4CH/A", locale: "zh_CN" };
 const row = (availability, pickupDetails) => ({ target, availability, pickupDetails });
 const unavailable = {kind:"out_of_stock"};
 const details = {pickupDisplay:"ineligible", pickupQuote:"目前暂不提供 Apple Store 零售店取货服务",saleReason:"NOT_FOR_SALE",saleMessage:"暂未发售"};
+test("Duo default 显示待公布与 Apple 再查日期，不冒充有货或解析失败", () => {
+  const pending = row({kind:"unknown",reason:"pickup_pending"}, {
+    pickupDisplay:"default",pickupQuote:"Check back for availability on 10.24",
+    saleReason:"OK",saleMessage:"Mon, Jan 25 — Free",deliveryDate:"20270125"
+  });
+  assert.equal(describeMonitorStatus(pending).label,"取货待公布");
+  assert.equal(describeMonitorStatus(pending).tone,"pending");
+  assert.match(describeCycleRow(1,pending),/取货待公布.*default.*Check back.*10\.24/);
+  assert.equal(describePickupRecheckDate(pending.pickupDetails.pickupQuote),"10/24 再查");
+  assert.equal(describePickupRecheckDate("Available tomorrow"),null);
+  assert.equal(describePickupRecheckDate("Check back for availability on 99.99"),null);
+});
+test("美式跨年日期使用 Apple 编码日期，不误报未选地址", () => {
+  const checkedAt = new Date(2026,9,16,10,20).getTime();
+  assert.deepEqual(describeDelivery({saleMessage:"Mon, Jan 25 — Free",deliveryDate:"20270125"},checkedAt), {
+    label:"1/25",timing:"101 天后",tone:"later",detail:"Mon, Jan 25 — Free"
+  });
+  assert.equal(describeDelivery({saleMessage:"Mon, Jan 25 — Free",deliveryDate:"20270231"},checkedAt).tone,"unknown");
+  assert.equal(describeDelivery({saleMessage:"2026/10/24 – 2026/10/26 — 免费",deliveryDate:"20261026"},checkedAt).label,"10/24 – 10/26");
+});
 test("缺失 SKU 与空取货节点分别解释，不误报结构错误或无货", () => {
   const missing = row({kind:"unknown",reason:"product_not_returned",part_number:target.partNumber});
   const empty = row({kind:"unknown",reason:"no_pickup_data",store_number:"R359"});

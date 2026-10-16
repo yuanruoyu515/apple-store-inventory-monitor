@@ -1,6 +1,6 @@
 # 果到雷达 · 美国版
 
-当前美国版为 **v1.0.7-us.1**，基于上游 `Apple Store Inventory Monitor` v1.0.6，支持美国 Apple Store 的 iPhone Duo、iPhone 18 Pro 与 iPhone 18 Pro Max 到店取货库存监控。
+当前美国版为 **v1.0.8-us.1**，基于上游 `Apple Store Inventory Monitor` v1.0.6，支持美国 Apple Store 的 iPhone Duo、iPhone 18 Pro 与 iPhone 18 Pro Max 到店取货库存监控。
 
 从 [GitHub Release](https://github.com/yuanruoyu515/apple-store-inventory-monitor/releases/latest) 下载：Apple 芯片 Mac 选择 `macOS-arm64`，Intel Mac 选择 `macOS-Intel`，解压后把应用放进“应用程序”。
 
@@ -32,7 +32,9 @@
 
 数据快照生成脚本为 `scripts/generate-us-data.mjs`，原始快照位于 `crates/apw-core/data/us-source/`。Pro 系列配置于 2026-09-15 核对，Duo 配置于 2026-10-15 从 [Apple 美国官方购买页](https://www.apple.com/shop/buy-iphone/iphone-duo) 的 `productSelectionData` 核对，仅使用 `UNLOCKED/US` 的美国料号。
 
-截至 2026-10-15，Apple 官方购买页显示 Duo 于 10 月 16 日上午 5 点（太平洋时间）开始预购，10 月 23 日发售。在 Apple 开放取货查询前，程序可能显示“即将发售”或“暂无数据”；加入目录不代表已有现货。Apple 的 HTTP 541 拦截仍可能发生，查询失败会保留为未知状态并延长重试间隔。
+截至 2026-10-16，Apple 的 Duo 预购取货响应可能为 `pickupDisplay: default`，并附带 `Check back for availability on 10.24`。新版将其显示为“取货待公布 / 10/24 再查”：这是 Apple 建议再查询的日期，不是保证可取货的日期，也不代表门店有货或无货。程序会继续按设定间隔查询，不把这个合法状态当解析错误或触发有货通知；真正返回可取货后才提醒。提示日期来自每次响应，不硬编码 10/24。
+
+送货时间与门店取货分开显示；美式英文日期使用 Apple 提供的完整年月日解析，跨年日期也可正确显示。Apple 的 HTTP 541 拦截仍可能发生，查询失败会保留为未知状态并延长重试间隔。
 
 ## iPhone Duo 美国配置
 

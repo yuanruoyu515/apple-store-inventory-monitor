@@ -52,6 +52,10 @@ fn 未知状态会扁平成两层判别字段() {
             json!({"kind": "unknown", "reason": "not_yet_checked"}),
         ),
         (
+            UnknownReason::PickupPending,
+            json!({"kind": "unknown", "reason": "pickup_pending"}),
+        ),
+        (
             UnknownReason::Blocked {
                 detail: "HTTP 541".into(),
             },
@@ -250,9 +254,13 @@ fn 缺失型号与业务说明的前端协议稳定() {
         pickup_quote: Some("暂不提供取货".into()),
         sale_reason: Some("NOT_FOR_SALE".into()),
         sale_message: Some("暂未发售".into()),
+        delivery_date: None,
     };
     assert_eq!(
         to_value(&detail),
         json!({"pickupDisplay":"ineligible","pickupQuote":"暂不提供取货","saleReason":"NOT_FOR_SALE","saleMessage":"暂未发售"})
     );
+    let mut dated = detail;
+    dated.delivery_date = Some("20270125".into());
+    assert_eq!(to_value(&dated)["deliveryDate"], json!("20270125"));
 }

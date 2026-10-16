@@ -220,3 +220,11 @@ capacities and two finishes, an offline catalog snapshot, the iPhone Duo
 fallback purchase page, catalog regression tests, and updated US documentation.
 The Duo SKU facts were checked against Apple's US purchase page:
 https://www.apple.com/shop/buy-iphone/iphone-duo
+
+United States Duo preorder pickup fix (2026-10-16)
+------------------------------------------------------------
+
+This distribution recognizes Apple's default pickup placeholder as pending,
+preserves check-back guidance without claiming stock availability, parses
+encoded US delivery dates including year rollover, fixes overlapping status
+badges, and adds response, watcher, IPC and presentation regression tests.

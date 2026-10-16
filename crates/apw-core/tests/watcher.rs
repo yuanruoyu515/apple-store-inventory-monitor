@@ -533,6 +533,80 @@ async fn 全部型号都缺失时判定为门店级失败() {
 }
 
 #[tokio::test]
+async fn 取货待公布不触发故障退避和有货提醒且后续有货仍能通知() {
+    let fake = FakeFetcher::new(|nth, store, parts| {
+        Ok(ok_response(
+            store,
+            parts,
+            if nth == 0 {
+                Availability::Unknown(UnknownReason::PickupPending)
+            } else {
+                Availability::InStock
+            },
+        ))
+    });
+    let (w, mut rx) = Watcher::spawn(fake, fast_config());
+    w.set_targets(vec![target("R087", "MK1L4LL/A")]).await;
+    w.start().await;
+    let first = wait_cycle(&mut rx).await;
+    assert_eq!(count_in_stock(&first), 0);
+    assert!(
+        !first
+            .iter()
+            .any(|event| matches!(event, Event::Trouble { .. }))
+    );
+    let snapshot = first
+        .iter()
+        .find_map(|event| match event {
+            Event::CycleComplete {
+                healthy: true,
+                snapshot,
+                ..
+            } => Some(snapshot),
+            _ => None,
+        })
+        .expect("合法待公布响应应报告查询正常");
+    assert_eq!(
+        snapshot[0].availability,
+        Availability::Unknown(UnknownReason::PickupPending)
+    );
+    assert_eq!(snapshot[0].consecutive_failures, 0);
+    assert_eq!(count_in_stock(&wait_cycle(&mut rx).await), 1);
+    w.stop().await;
+}
+
+#[tokio::test]
+async fn 十九家门店八个配置待公布时整轮正常且无有货通知() {
+    let fake = FakeFetcher::new(|_, store, parts| {
+        Ok(ok_response(
+            store,
+            parts,
+            Availability::Unknown(UnknownReason::PickupPending),
+        ))
+    });
+    let (w, mut rx) = Watcher::spawn(fake.clone(), fast_config());
+    let targets = (0..19)
+        .flat_map(|store| {
+            (0..8).map(move |part| target(&format!("R{store:03}"), &format!("DUO{part}/A")))
+        })
+        .collect();
+    w.set_targets(targets).await;
+    w.start().await;
+    let events = wait_cycle(&mut rx).await;
+    w.stop().await;
+    assert_eq!(count_in_stock(&events), 0);
+    assert!(
+        !events
+            .iter()
+            .any(|event| matches!(event, Event::Trouble { .. }))
+    );
+    assert!(events.iter().any(|event| matches!(event,
+        Event::CycleComplete { healthy: true, snapshot, .. } if snapshot.len() == 152
+    )));
+    assert_eq!(fake.call_count(), 19, "同店 8 个配置应合并为一次查询");
+}
+
+#[tokio::test]
 async fn 个别型号缺失不会拖垮整个门店() {
     // 与上一条相反的边界：只有一个型号对不上时，不该把整个门店判成故障。
     let fake = FakeFetcher::new(|_, store, parts| {

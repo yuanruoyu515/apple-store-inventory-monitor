@@ -57,6 +57,7 @@ impl Availability {
             Self::InStock => "有货",
             Self::OutOfStock => "无货",
             Self::Unknown(UnknownReason::NotYetChecked) => "待查询",
+            Self::Unknown(UnknownReason::PickupPending) => "取货待公布",
             Self::Unknown(UnknownReason::NoPickupData { .. }) => "暂无数据",
             Self::Unknown(UnknownReason::ProductNotReturned { .. }) => "未返回型号",
             Self::Unknown(_) => "未知",
@@ -81,6 +82,9 @@ impl Availability {
 pub enum UnknownReason {
     /// 刚加进监控列表，还没轮到它。这是唯一一种「正常」的未知。
     NotYetChecked,
+    /// Apple 返回合法的 `default` 占位状态，尚未公布门店取货结论。
+    /// 不代表有货或无货，也不是查询故障。
+    PickupPending,
     /// 请求被 Apple 边缘节点拦截。
     ///
     /// Apple 的商品页会先完成浏览器环境校验；缺少有效页面会话的请求可能返回
@@ -107,6 +111,7 @@ impl UnknownReason {
     pub fn describe(&self) -> String {
         match self {
             Self::NotYetChecked => "尚未查询".to_string(),
+            Self::PickupPending => "Apple 尚未公布此门店的取货情况，请以取货说明为准".into(),
             Self::Blocked { detail } => format!("请求被 Apple 拦截：{detail}"),
             Self::RateLimited => "请求过于频繁被限流，正在退避".to_string(),
             Self::SchemaDrift { field, raw } => {
@@ -125,9 +130,9 @@ impl UnknownReason {
 
     /// 这个原因是否代表一次真正的故障。
     ///
-    /// `NotYetChecked` 只是还没轮到，不该被算进失败数，也不该触发告警或退避。
+    /// 尚未查询与 Apple 合法的待公布状态都不应触发故障告警或退避。
     pub fn is_failure(&self) -> bool {
-        !matches!(self, Self::NotYetChecked)
+        !matches!(self, Self::NotYetChecked | Self::PickupPending)
     }
 }
 
@@ -139,6 +144,9 @@ pub struct PickupDetails {
     pub pickup_quote: Option<String>,
     pub sale_reason: Option<String>,
     pub sale_message: Option<String>,
+    /// Apple 的 YYYYMMDD 日期，保留年份以正确显示美国站跨年的英文日期。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub delivery_date: Option<String>,
 }
 
 /// Apple 送货查询使用的行政区。中国大陆接口只需要省、市、区，

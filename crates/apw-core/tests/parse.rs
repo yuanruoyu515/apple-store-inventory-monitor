@@ -236,6 +236,27 @@ fn 大小写与空白不影响判定() {
 }
 
 #[test]
+fn duo预售default是待公布而不是解析失败或库存结论() {
+    let raw = include_bytes!("fixtures/pickup_duo_pending.json");
+    let got = parse_pickup_message(raw, "R087").unwrap();
+    let status = &got.parts["MK1L4LL/A"];
+    assert_eq!(
+        status.availability,
+        Availability::Unknown(UnknownReason::PickupPending)
+    );
+    assert!(!status.availability.is_failure());
+    assert!(!status.availability.is_in_stock());
+    let details = status.pickup_details.as_ref().unwrap();
+    assert_eq!(
+        details.pickup_quote.as_deref(),
+        Some("Check back for availability on 10.24")
+    );
+    assert_eq!(details.delivery_date.as_deref(), Some("20270125"));
+    assert_eq!(details.sale_reason.as_deref(), Some("OK"));
+    assert_eq!(availability_from("  DEFAULT  "), status.availability);
+}
+
+#[test]
 fn 已知取货节点为空是暂无数据而不是接口损坏或无货() {
     for raw in [
         r#"{"head":{"status":"200"},"body":{"content":{"deliveryMessage":{"processing":""},"pickupMessage":{}}}}"#,

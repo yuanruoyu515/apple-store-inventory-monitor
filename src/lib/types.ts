@@ -12,6 +12,7 @@
 
 export type UnknownReason =
   | { reason: "not_yet_checked" }
+  | { reason: "pickup_pending" }
   | { reason: "blocked"; detail: string }
   | { reason: "rate_limited" }
   | { reason: "schema_drift"; field: string; raw: string }
@@ -41,6 +42,7 @@ export interface PickupDetails {
   pickupQuote: string | null;
   saleReason: string | null;
   saleMessage: string | null;
+  deliveryDate?: string | null;
 }
 
 export interface TargetState {
@@ -222,6 +224,8 @@ function describeUnknown(a: { kind: "unknown" } & UnknownReason): {
   switch (a.reason) {
     case "not_yet_checked":
       return { label: "待查询", tone: "pending", detail: "尚未轮到这一项" };
+    case "pickup_pending":
+      return { label: "取货待公布", tone: "pending", detail: "Apple 尚未公布此门店的取货情况，不代表有货或无货；程序将继续监控。" };
     case "blocked":
       return {
         label: "未知",

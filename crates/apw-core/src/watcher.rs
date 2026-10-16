@@ -100,7 +100,7 @@ pub enum Event {
         /// 从开始调度到所有门店查询结束的耗时，包含限速与会话暖场。
         #[serde(rename = "elapsedMs")]
         elapsed_ms: u64,
-        /// 本轮是否所有目标都拿到了明确答复。
+        /// 本轮是否没有查询故障。合法的取货待公布状态不算故障，仍不代表有货。
         ///
         /// 界面需要一个明确的「恢复」信号才能收起故障告警。用「所有行都没有
         /// 错误」去反推是不可靠的：某些故障路径下状态根本没被更新，旧的错误
@@ -458,7 +458,7 @@ async fn query_one_store<F: Fetcher>(
         Ok(result) => {
             let mut parts = Vec::with_capacity(group.targets.len());
             let mut problems = 0usize;
-            // 真正拿到明确答复（有货或无货）的型号数。
+            // 返回已识别业务状态（包括取货待公布）的型号数。
             let mut resolved = 0usize;
             let mut omitted = 0usize;
 

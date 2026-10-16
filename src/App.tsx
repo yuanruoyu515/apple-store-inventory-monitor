@@ -104,7 +104,7 @@ import {
   targetKey,
 } from "@/lib/types";
 
-import { describeDelivery, describeMonitorStatus, describePickupDate, type DeliveryTone } from "@/lib/monitorLog";
+import { describeDelivery, describeMonitorStatus, describePickupDate, describePickupRecheckDate, type DeliveryTone } from "@/lib/monitorLog";
 import { compareNewestProducts, sortMonitorsNewestFirst } from "@/lib/productOrder";
 
 const EMPTY_DELIVERY_LOCALITIES: DeliveryLocalities = {
@@ -168,23 +168,26 @@ const TONE_DOT: Record<StatusTone, string> = {
 function StatusBadge({ availability, pickupDetails }: { availability: Availability; pickupDetails?: PickupDetails }) {
   const { label, tone, detail } = describeMonitorStatus({ availability, pickupDetails });
   const pickupDate = availability.kind === "in_stock" ? describePickupDate(pickupDetails?.pickupQuote) : null;
+  const recheckDate = availability.kind === "unknown" && availability.reason === "pickup_pending"
+    ? describePickupRecheckDate(pickupDetails?.pickupQuote) : null;
   const badge = (
-    <span className="inline-flex flex-col items-center gap-0.5">
+    <span className="inline-flex max-w-full flex-col items-center gap-0.5">
       <Badge
         variant="outline"
-        className={`h-7 min-w-20 justify-center gap-2 px-2.5 font-medium ${TONE_CLASS[tone]}`}
+        className={`min-h-7 max-w-full min-w-20 justify-center gap-1.5 whitespace-normal px-2 py-1 text-center leading-4 font-medium ${TONE_CLASS[tone]}`}
       >
-        <span className={`size-1.5 rounded-full ${TONE_DOT[tone]}`} aria-hidden="true" />
+        <span className={`size-1.5 shrink-0 rounded-full ${TONE_DOT[tone]}`} aria-hidden="true" />
         {label}
       </Badge>
       {pickupDate ? <span className="text-[10px] leading-3 text-in-stock tabular-nums">{pickupDate} 可取</span> : null}
+      {recheckDate ? <span className="text-[10px] leading-3 text-muted-foreground tabular-nums">{recheckDate}</span> : null}
     </span>
   );
   if (!detail) return badge;
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className="cursor-help">{badge}</span>
+        <span className="inline-block max-w-full cursor-help">{badge}</span>
       </TooltipTrigger>
       <TooltipContent className="max-w-90">{detail}</TooltipContent>
     </Tooltip>
@@ -978,10 +981,10 @@ export default function App() {
                 </div>
 
                 <ScrollArea className="min-h-0 flex-1">
-                  <Table className="table-fixed">
+                  <Table className="min-w-[920px] table-fixed">
                     <TableHeader className="sticky top-0 z-10 bg-card/95">
                       <TableRow className="hover:bg-transparent">
-                        <TableHead className="w-24 px-4 text-xs text-muted-foreground">取货状态</TableHead>
+                        <TableHead className="w-34 px-3 text-xs text-muted-foreground">取货状态</TableHead>
                         <TableHead className="w-36 px-3 text-xs text-muted-foreground">门店</TableHead>
                         <TableHead className="px-3 text-xs text-muted-foreground">型号</TableHead>
                         <TableHead className="w-48 px-3 text-xs text-muted-foreground">
@@ -1012,7 +1015,7 @@ export default function App() {
                       ) : (
                         sortedRows.map((row) => (
                           <TableRow key={targetKey(row.target)} className="group hover:bg-muted/22">
-                            <TableCell className="px-4"><StatusBadge availability={row.availability} pickupDetails={row.pickupDetails} /></TableCell>
+                            <TableCell className="overflow-hidden px-3"><StatusBadge availability={row.availability} pickupDetails={row.pickupDetails} /></TableCell>
                             <TableCell className="truncate px-3 font-medium" title={row.target.storeTitle}>{row.target.storeTitle}</TableCell>
                             <TableCell className="min-w-0 px-3 py-2.5 text-muted-foreground" title={row.target.productName}>
                               <button

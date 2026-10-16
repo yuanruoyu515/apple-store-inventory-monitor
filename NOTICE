@@ -228,3 +228,19 @@ This distribution recognizes Apple's default pickup placeholder as pending,
 preserves check-back guidance without claiming stock availability, parses
 encoded US delivery dates including year rollover, fixes overlapping status
 badges, and adds response, watcher, IPC and presentation regression tests.
+
+United States edition maintainer and documentation (2026-10-16)
+------------------------------------------------------------
+
+The United States fork is maintained by yuanruoyu515:
+https://github.com/yuanruoyu515/apple-store-inventory-monitor
+Maintainer contact: https://www.threads.com/@realtimyry
+
+The US fork's direct upstream is suversal/apple-store-inventory-monitor
+v1.0.6: https://github.com/suversal/apple-store-inventory-monitor
+The earlier upstream relationships and copyright notices above are retained.
+
+This documentation update replaces the fork's landing README with US-specific
+download, installation and usage guidance, adds screenshots of the US edition,
+and archives the upstream README in README_UPSTREAM.md. It does not claim
+original authorship of upstream code or change the GPL-3.0-or-later license.

@@ -1,4 +1,6 @@
-# 果到雷达 · 美国版
+# 果到雷达 · 美国版技术说明
+
+完整介绍、界面截图与下载安装入口见 **[美国修改版首页](README.md)**。本版由 [yuanruoyu515](https://github.com/yuanruoyu515) 维护，联系与反馈：[Threads @realtimyry](https://www.threads.com/@realtimyry)。下文保留美国适配细节、SKU 与构建说明。
 
 当前美国版为 **v1.0.8-us.1**，基于上游 `Apple Store Inventory Monitor` v1.0.6，支持美国 Apple Store 的 iPhone Duo、iPhone 18 Pro 与 iPhone 18 Pro Max 到店取货库存监控。
 
@@ -7,7 +9,7 @@
 ## 使用
 
 1. Mac 需已安装 Google Chrome 或 Microsoft Edge，并保持电脑唤醒。
-2. 双击 `Apple Store Inventory Monitor US.app`。这是没有 Developer ID 公证的构建；若 macOS 拦截，请在 Finder 中按住 Control 点击应用并选择“打开”。仍被拦截时，可在终端执行：
+2. 双击 `Apple Store Inventory Monitor US.app`。这是没有 Developer ID 签名及 Apple 公证的构建；若 macOS 拦截，可在“系统设置 → 隐私与安全性”确认本应用后选择“仍要打开”，或在系统允许时从 Finder 按住 Control 点击应用并选择“打开”。确认安装包来自本仓库 Release 后，仍被拦截时可在终端执行：
 
    ```bash
    xattr -dr com.apple.quarantine "/Applications/Apple Store Inventory Monitor US.app"
@@ -63,4 +65,4 @@ pnpm tauri build --bundles app
 
 ## 许可
 
-本分支是 GPL-3.0-or-later 衍生作品。原项目与来源说明见 `README.md`、`NOTICE` 和 `LICENSE`；分发应用时请同时保留对应源代码与许可证。
+本分支是 GPL-3.0-or-later 衍生作品，直接基于 suversal/apple-store-inventory-monitor v1.0.6。原项目与来源说明见 [README](README.md#来源与开源许可)、[NOTICE](NOTICE) 和 [LICENSE](LICENSE)；上游原版文档归档在 [README_UPSTREAM.md](README_UPSTREAM.md)。分发应用时请同时保留对应源代码与许可证。

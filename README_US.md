@@ -1,8 +1,8 @@
 # 果到雷达 · 美国版技术说明
 
-完整介绍、界面截图与下载安装入口见 **[美国修改版首页](README.md)**。本版由 [yuanruoyu515](https://github.com/yuanruoyu515) 维护，联系与反馈：[Threads @realtimyry](https://www.threads.com/@realtimyry)。下文保留美国适配细节、SKU 与构建说明。
+完整介绍、界面截图与下载安装入口见 **[美加修改版首页](README.md)**。v1.0.9 起同一应用增加加拿大支持，详见 [加拿大说明](README_CA.md)。本版由 [yuanruoyu515](https://github.com/yuanruoyu515) 维护，联系与反馈：[Threads @realtimyry](https://www.threads.com/@realtimyry)。下文保留美国适配细节、SKU 与构建说明。
 
-当前美国版为 **v1.0.8-us.1**，基于上游 `Apple Store Inventory Monitor` v1.0.6，支持美国 Apple Store 的 iPhone Duo、iPhone 18 Pro 与 iPhone 18 Pro Max 到店取货库存监控。
+当前美加版为 **v1.0.9-us.1**，基于上游 `Apple Store Inventory Monitor` v1.0.6，美国部分继续支持 iPhone Duo、iPhone 18 Pro 与 iPhone 18 Pro Max 到店取货库存监控。保留 `US` 文件名、Bundle ID 与配置目录，兼容旧版覆盖升级。
 
 从 [GitHub Release](https://github.com/yuanruoyu515/apple-store-inventory-monitor/releases/latest) 下载：Apple 芯片 Mac 选择 `macOS-arm64`，Intel Mac 选择 `macOS-Intel`，解压后把应用放进“应用程序”。
 
@@ -53,7 +53,7 @@
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm generate:us
+pnpm generate:na
 pnpm test
 cargo test --workspace
 pnpm tauri build --bundles app

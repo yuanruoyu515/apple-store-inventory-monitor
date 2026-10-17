@@ -4583,6 +4583,498 @@
     "__typename": "RgdsStoreSearchResult"
   },
   {
+    "locale": "en_CA",
+    "calledLocale": "en_CA",
+    "state": [
+      {
+        "name": "Alberta",
+        "__typename": "RgdsState",
+        "store": [
+          {
+            "id": "R301",
+            "name": "Market Mall",
+            "slug": "marketmall",
+            "telephone": "(403) 648-4865",
+            "address": {
+              "address1": "3625 Shaganappi Trail NW",
+              "address2": "",
+              "city": "Calgary",
+              "postalCode": "T3A 0E2",
+              "__typename": "PostalAddress",
+              "stateName": "Alberta · Calgary",
+              "stateCode": "AB"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R209",
+            "name": "Chinook Centre",
+            "slug": "chinookcentre",
+            "telephone": "(403) 444-3759",
+            "address": {
+              "address1": "6455 Macleod Trail SW",
+              "address2": "",
+              "city": "Calgary",
+              "postalCode": "T2H 0K8",
+              "__typename": "PostalAddress",
+              "stateName": "Alberta · Calgary",
+              "stateCode": "AB"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R411",
+            "name": "Southgate Centre",
+            "slug": "southgatecentre",
+            "telephone": "(780) 801-3820",
+            "address": {
+              "address1": "5015 111 St",
+              "address2": "",
+              "city": "Edmonton",
+              "postalCode": "T6H 4M6",
+              "__typename": "PostalAddress",
+              "stateName": "Alberta · Edmonton",
+              "stateCode": "AB"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R273",
+            "name": "West Edmonton",
+            "slug": "westedmonton",
+            "telephone": "(780) 701-0540",
+            "address": {
+              "address1": "8882-170 Street",
+              "address2": "",
+              "city": "Edmonton",
+              "postalCode": "T5T 4M2",
+              "__typename": "PostalAddress",
+              "stateName": "Alberta · Edmonton",
+              "stateCode": "AB"
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "name": "British Columbia",
+        "__typename": "RgdsState",
+        "store": [
+          {
+            "id": "R460",
+            "name": "Metrotown",
+            "slug": "metrotown",
+            "telephone": "(778) 373-4810",
+            "address": {
+              "address1": "320 4700 Kingsway",
+              "address2": "",
+              "city": "Burnaby",
+              "postalCode": "V5H 4J2",
+              "__typename": "PostalAddress",
+              "stateName": "British Columbia · Burnaby",
+              "stateCode": "BC"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R488",
+            "name": "Coquitlam Centre",
+            "slug": "coquitlamcentre",
+            "telephone": "(604) 945-1160",
+            "address": {
+              "address1": "2929 Barnet Highway",
+              "address2": "",
+              "city": "Coquitlam",
+              "postalCode": "V3B 5R5",
+              "__typename": "PostalAddress",
+              "stateName": "British Columbia · Coquitlam",
+              "stateCode": "BC"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R421",
+            "name": "Richmond Centre",
+            "slug": "richmondcentre",
+            "telephone": "(604) 248-3940",
+            "address": {
+              "address1": "6551 No. 3 Road",
+              "address2": "",
+              "city": "Richmond",
+              "postalCode": "V6Y 2B6",
+              "__typename": "PostalAddress",
+              "stateName": "British Columbia · Richmond",
+              "stateCode": "BC"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R601",
+            "name": "Guildford Town Centre",
+            "slug": "guildfordtowncentre",
+            "telephone": "(604) 634-3240",
+            "address": {
+              "address1": "10355 152 Street",
+              "address2": "",
+              "city": "Surrey",
+              "postalCode": "V3R 7C1",
+              "__typename": "PostalAddress",
+              "stateName": "British Columbia · Surrey",
+              "stateCode": "BC"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R280",
+            "name": "Pacific Centre",
+            "slug": "pacificcentre",
+            "telephone": "(778) 373-1800",
+            "address": {
+              "address1": "701 West Georgia Street",
+              "address2": "",
+              "city": "Vancouver",
+              "postalCode": "V7Y 1G5",
+              "__typename": "PostalAddress",
+              "stateName": "British Columbia · Vancouver",
+              "stateCode": "BC"
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "name": "Manitoba",
+        "__typename": "RgdsState",
+        "store": [
+          {
+            "id": "R369",
+            "name": "Polo Park",
+            "slug": "polopark",
+            "telephone": "(204) 777-4500",
+            "address": {
+              "address1": "1485 Portage Avenue",
+              "address2": "",
+              "city": "Winnipeg",
+              "postalCode": "R3G 0W4",
+              "__typename": "PostalAddress",
+              "stateName": "Manitoba · Winnipeg",
+              "stateCode": "MB"
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "name": "Nova Scotia",
+        "__typename": "RgdsState",
+        "store": [
+          {
+            "id": "R514",
+            "name": "Halifax Shopping Centre",
+            "slug": "halifaxshoppingcentre",
+            "telephone": "(902) 442-3495",
+            "address": {
+              "address1": "7001 Mumford Road",
+              "address2": "",
+              "city": "Halifax",
+              "postalCode": "B3L 2H8",
+              "__typename": "PostalAddress",
+              "stateName": "Nova Scotia · Halifax",
+              "stateCode": "NS"
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "name": "Ontario",
+        "__typename": "RgdsState",
+        "store": [
+          {
+            "id": "R447",
+            "name": "Mapleview Centre",
+            "slug": "mapleviewcentre",
+            "telephone": "(289) 288-2012",
+            "address": {
+              "address1": "900 Maple Avenue",
+              "address2": "",
+              "city": "Burlington",
+              "postalCode": "L7S 2J8",
+              "__typename": "PostalAddress",
+              "stateName": "Ontario · Burlington",
+              "stateCode": "ON"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R489",
+            "name": "Masonville",
+            "slug": "masonville",
+            "telephone": "(519) 963-4060",
+            "address": {
+              "address1": "1680 Richmond Street North",
+              "address2": "",
+              "city": "London",
+              "postalCode": "N6G 3Y9",
+              "__typename": "PostalAddress",
+              "stateName": "Ontario · London",
+              "stateCode": "ON"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R515",
+            "name": "Markville Shopping Centre",
+            "slug": "markvilleshoppingcentre",
+            "telephone": "(905) 513-2860",
+            "address": {
+              "address1": "5000 Highway 7 East",
+              "address2": "",
+              "city": "Markham",
+              "postalCode": "L3R 4M9",
+              "__typename": "PostalAddress",
+              "stateName": "Ontario · Markham",
+              "stateCode": "ON"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R350",
+            "name": "Square One",
+            "slug": "squareone",
+            "telephone": "(905) 366-0580",
+            "address": {
+              "address1": "100 City Centre Drive",
+              "address2": "",
+              "city": "Mississauga",
+              "postalCode": "L5B 2C9",
+              "__typename": "PostalAddress",
+              "stateName": "Ontario · Mississauga",
+              "stateCode": "ON"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R429",
+            "name": "Upper Canada Mall",
+            "slug": "uppercanadamall",
+            "telephone": "(905) 952-3400",
+            "address": {
+              "address1": "17600 Yonge Street",
+              "address2": "",
+              "city": "Newmarket",
+              "postalCode": "L3Y 4Z1",
+              "__typename": "PostalAddress",
+              "stateName": "Ontario · Newmarket",
+              "stateCode": "ON"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R332",
+            "name": "Rideau",
+            "slug": "rideau",
+            "telephone": "(613) 688-5575",
+            "address": {
+              "address1": "50 Rideau Street",
+              "address2": "",
+              "city": "Ottawa",
+              "postalCode": "K1N 9J7",
+              "__typename": "PostalAddress",
+              "stateName": "Ontario · Ottawa",
+              "stateCode": "ON"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R490",
+            "name": "Bayshore Shopping Centre",
+            "slug": "bayshoreshoppingcentre",
+            "telephone": "(613) 288-7950",
+            "address": {
+              "address1": "100 Bayshore Drive",
+              "address2": "",
+              "city": "Ottawa",
+              "postalCode": "K2B 8C1",
+              "__typename": "PostalAddress",
+              "stateName": "Ontario · Ottawa",
+              "stateCode": "ON"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R120",
+            "name": "Yorkdale",
+            "slug": "yorkdale",
+            "telephone": "(416) 785-1776",
+            "address": {
+              "address1": "3401 Dufferin Street",
+              "address2": "",
+              "city": "Toronto",
+              "postalCode": "M6A 3A1",
+              "__typename": "PostalAddress",
+              "stateName": "Ontario · Toronto",
+              "stateCode": "ON"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R208",
+            "name": "Sherway Gardens",
+            "slug": "sherwaygardens",
+            "telephone": "(416) 646-8489",
+            "address": {
+              "address1": "25 The West Mall",
+              "address2": "",
+              "city": "Toronto",
+              "postalCode": "M9C 1B8",
+              "__typename": "PostalAddress",
+              "stateName": "Ontario · Toronto",
+              "stateCode": "ON"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R333",
+            "name": "Fairview",
+            "slug": "fairview",
+            "telephone": "(416) 646-4412",
+            "address": {
+              "address1": "1800 Sheppard Avenue East",
+              "address2": "",
+              "city": "Toronto",
+              "postalCode": "M2J 5A7",
+              "__typename": "PostalAddress",
+              "stateName": "Ontario · Toronto",
+              "stateCode": "ON"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R121",
+            "name": "Eaton Centre",
+            "slug": "eatoncentre",
+            "telephone": "(647) 258-0801",
+            "address": {
+              "address1": "220 Yonge Street",
+              "address2": "",
+              "city": "Toronto",
+              "postalCode": "M5B 2H1",
+              "__typename": "PostalAddress",
+              "stateName": "Ontario · Toronto",
+              "stateCode": "ON"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R464",
+            "name": "Conestoga",
+            "slug": "conestoga",
+            "telephone": "(519) 772-5150",
+            "address": {
+              "address1": "550 King Street North",
+              "address2": "",
+              "city": "Waterloo",
+              "postalCode": "N2L 5W6",
+              "__typename": "PostalAddress",
+              "stateName": "Ontario · Waterloo",
+              "stateCode": "ON"
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      },
+      {
+        "name": "Quebec",
+        "__typename": "RgdsState",
+        "store": [
+          {
+            "id": "R512",
+            "name": "DIX30",
+            "slug": "dix30",
+            "telephone": "(450) 618-1400",
+            "address": {
+              "address1": "1055 rue du Lumen",
+              "address2": "",
+              "city": "Brossard",
+              "postalCode": "J4Y 0L3",
+              "__typename": "PostalAddress",
+              "stateName": "Quebec · Brossard",
+              "stateCode": "QC"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R207",
+            "name": "Carrefour Laval",
+            "slug": "carrefourlaval",
+            "telephone": "(450) 902-4400",
+            "address": {
+              "address1": "3035, boulevard Le Carrefour, local C14B",
+              "address2": "",
+              "city": "Laval",
+              "postalCode": "H7T 1C8",
+              "__typename": "PostalAddress",
+              "stateName": "Quebec · Laval",
+              "stateCode": "QC"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R248",
+            "name": "Sainte-Catherine",
+            "slug": "saintecatherine",
+            "telephone": "(514) 906-8400",
+            "address": {
+              "address1": "1255 Rue Sainte-Catherine West",
+              "address2": "",
+              "city": "Montreal",
+              "postalCode": "H3G 1P3",
+              "__typename": "PostalAddress",
+              "stateName": "Quebec · Montreal",
+              "stateCode": "QC"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R392",
+            "name": "Fairview Pointe-Claire",
+            "slug": "fairviewpointeclaire",
+            "telephone": "(514) 630-8800",
+            "address": {
+              "address1": "6801, Transcanada Highway",
+              "address2": "",
+              "city": "Pointe-Claire",
+              "postalCode": "H9R 5J2",
+              "__typename": "PostalAddress",
+              "stateName": "Quebec · Pointe-Claire",
+              "stateCode": "QC"
+            },
+            "__typename": "RgdsStore"
+          },
+          {
+            "id": "R412",
+            "name": "Place Ste-Foy",
+            "slug": "placestefoy",
+            "telephone": "(418) 266-8600",
+            "address": {
+              "address1": "2450 Boulevard Laurier",
+              "address2": "",
+              "city": "Quebec City",
+              "postalCode": "G1V 2L1",
+              "__typename": "PostalAddress",
+              "stateName": "Quebec · Quebec City",
+              "stateCode": "QC"
+            },
+            "__typename": "RgdsStore"
+          }
+        ]
+      }
+    ],
+    "store": [],
+    "hasStates": true
+  },
+  {
     "locale": "zh_CN",
     "calledLocale": "zh_CN",
     "state": [

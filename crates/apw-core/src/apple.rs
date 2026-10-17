@@ -13,6 +13,31 @@ use tokio::time::Instant;
 
 use crate::model::{Availability, DeliveryRegion, PickupDetails, Region, Target, UnknownReason};
 
+/// Shared by HTTP and Chromium transports. Canada's public purchase pages use
+/// /ca/shop/fulfillment-messages without the US-only carrier-policy parameter.
+pub fn pickup_query(
+    region: &Region,
+    store_number: &str,
+    parts: &[String],
+) -> Vec<(String, String)> {
+    let mut query = vec![
+        ("fae".into(), "true".into()),
+        ("pl".into(), "true".into()),
+        ("mts.0".into(), "regular".into()),
+    ];
+    query.extend(
+        parts
+            .iter()
+            .enumerate()
+            .map(|(index, part)| (format!("parts.{index}"), part.clone())),
+    );
+    if region.locale == "en_US" {
+        query.push(("cppart".into(), "UNLOCKED/US".into()));
+    }
+    query.push(("store".into(), store_number.to_string()));
+    query
+}
+
 /// 请求失败的分类。
 ///
 /// 调度层据此决定是退避、告警还是直接放弃；界面层据此告诉用户到底出了什么事。
@@ -239,19 +264,7 @@ impl AppleClient {
             return Err(ApiError::Transport("零件号列表为空".into()));
         }
 
-        let mut query: Vec<(String, String)> = vec![
-            ("fae".into(), "true".into()),
-            ("pl".into(), "true".into()),
-            ("mts.0".into(), "regular".into()),
-        ];
-        for (i, part) in parts.iter().enumerate() {
-            query.push((format!("parts.{i}"), part.clone()));
-        }
-        if region.locale == "en_US" {
-            query.push(("cppart".into(), "UNLOCKED/US".into()));
-        }
-        // 与 Apple 当前商品页的请求顺序保持一致：固定参数、parts.*、最后 store。
-        query.push(("store".into(), store_number.to_string()));
+        let query = pickup_query(region, store_number, parts);
 
         let pickup_url = region.pickup_message_url();
         // 先把 cookie 攒上再查。见 ensure_warm 的文档：没带 cookie 的查询会被

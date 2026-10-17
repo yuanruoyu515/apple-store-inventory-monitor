@@ -283,6 +283,7 @@ impl Region {
             "zh_HK" => "zh-HK,zh;q=0.9",
             "zh_TW" => "zh-TW,zh;q=0.9",
             "ja_JP" => "ja-JP,ja;q=0.9",
+            "en_CA" => "en-CA,en;q=0.9",
             _ => "en-US,en;q=0.9",
         }
     }
@@ -376,8 +377,8 @@ const DEFAULT_FAMILIES: &[Family<'static>] = &[
     },
 ];
 
-/// 美国版的离线兜底购买页；分别保留 Pro 系列与 Duo 的目录来源。
-const US_FAMILIES: &[Family<'static>] = &[
+/// 美加版的离线兜底购买页；各地区分别读取自己的料号。
+const NORTH_AMERICA_FAMILIES: &[Family<'static>] = &[
     Family {
         category: Category::Iphone,
         slug: "iphone-18-pro",
@@ -396,7 +397,13 @@ pub const REGIONS: &[Region] = &[
         title: "United States",
         locale: "en_US",
         base_url: "https://www.apple.com",
-        families: US_FAMILIES,
+        families: NORTH_AMERICA_FAMILIES,
+    },
+    Region {
+        title: "Canada",
+        locale: "en_CA",
+        base_url: "https://www.apple.com/ca",
+        families: NORTH_AMERICA_FAMILIES,
     },
     Region {
         title: "中国大陆",
@@ -603,11 +610,11 @@ mod tests {
 
     #[test]
     fn 地区表里每个站点都能拼出接口地址() {
-        assert_eq!(REGIONS.len(), 8);
+        assert_eq!(REGIONS.len(), 9);
         let us = region_by_locale("en_US").expect("地区表里应当有美国");
         assert_eq!(us.title, "United States");
         assert_eq!(us.base_url, "https://www.apple.com");
-        assert_eq!(us.families, US_FAMILIES);
+        assert_eq!(us.families, NORTH_AMERICA_FAMILIES);
         let cn = region_by_locale("zh_CN").expect("地区表里应当有中国大陆");
         assert_eq!(
             cn.pickup_message_url(),

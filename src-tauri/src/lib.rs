@@ -283,7 +283,7 @@ impl AppState {
 fn list_regions() -> Vec<RegionDto> {
     REGIONS
         .iter()
-        .filter(|region| region.locale == "en_US")
+        .filter(|region| matches!(region.locale, "en_US" | "en_CA"))
         .map(|r| RegionDto {
             title: r.title,
             locale: r.locale,
@@ -1188,6 +1188,15 @@ mod tests {
         let body = in_stock_notification_body(&target);
         assert!(body.contains("Apple Watch Ultra 4"));
         assert!(body.contains("Watch 送货搭配表带 MKDY4FE/A"));
+    }
+
+    #[test]
+    fn 美加修改版地区列表同时包含美国和加拿大() {
+        let locales: Vec<_> = super::list_regions()
+            .iter()
+            .map(|region| region.locale)
+            .collect();
+        assert_eq!(locales, vec!["en_US", "en_CA"]);
     }
 
     #[test]

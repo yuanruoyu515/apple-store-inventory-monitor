@@ -131,3 +131,50 @@ test("a product-specific Bark URL can be set and cleared", async () => {
   assert.equal(await ctx.store.setProductBarkUrl(target, ""), true);
   assert.deepEqual(ctx.persisted().productBarkUrls, {});
 });
+
+test("switching to Canada preserves existing US monitors, Bark and saved preferences", async () => {
+  const ctx = await setup();
+  const targets = [{ locale: "en_US", storeNumber: "R250", storeTitle: "New York", partNumber: "MJQ44LL/A", productName: "iPhone 18 Pro" }];
+  await ctx.store.saveSettings({ locale: "en_US", targets, productBarkUrls: { "MJQ44LL/A": "https://example.invalid/friend" } });
+  const originalInvoke = invoke;
+  invoke = (command, args) => {
+    if (command === "list_stores") return Promise.resolve([{ number: "R121", title: "Ontario · Toronto-Eaton Centre" }]);
+    if (command === "list_products") return Promise.resolve([{ partNumber: "MK254VC/A" }]);
+    return originalInvoke(command, args);
+  };
+  await ctx.store.changeLocale("en_CA");
+  assert.deepEqual(ctx.persisted(), { ...defaults, locale: "en_CA", targets, productBarkUrls: { "MJQ44LL/A": "https://example.invalid/friend" } });
+  assert.equal(ctx.store.watcherStore.getSnapshot().stores[0].number, "R121");
+  assert.equal(ctx.store.watcherStore.getSnapshot().products[0].partNumber, "MK254VC/A");
+});
+
+test("failed country persistence cannot load a mismatched Canadian catalog", async () => {
+  const ctx = await setup();
+  invoke = async (command) => { assert.equal(command, "save_settings"); throw new Error("disk unavailable"); };
+  await ctx.store.changeLocale("en_CA");
+  assert.equal(ctx.store.watcherStore.getSnapshot().settings.locale, defaults.locale);
+  assert.deepEqual(ctx.store.watcherStore.getSnapshot().stores, []);
+});
+
+test("a slow previous country request cannot overwrite Canada or clear it after a late failure", async () => {
+  const ctx = await setup();
+  await ctx.store.saveSettings({ locale: "en_US" });
+  const pending = [];
+  const originalInvoke = invoke;
+  invoke = (command, args) => {
+    if (command === "list_stores" || command === "list_products") {
+      if (args.locale === "en_US") return new Promise((resolve, reject) => pending.push({ resolve, reject }));
+      return Promise.resolve([{ country: "CA" }]);
+    }
+    return originalInvoke(command, args);
+  };
+  const old = ctx.store.loadCatalog("en_US");
+  await ctx.store.changeLocale("en_CA");
+  pending[0].reject(new Error("old country request failed"));
+  pending[1].resolve([{ country: "US" }]);
+  await old;
+  assert.deepEqual(ctx.store.watcherStore.getSnapshot().stores, [{ country: "CA" }]);
+  assert.deepEqual(ctx.store.watcherStore.getSnapshot().products, [{ country: "CA" }]);
+  await ctx.store.loadCatalog("en_US");
+  assert.deepEqual(ctx.store.watcherStore.getSnapshot().stores, [{ country: "CA" }]);
+});

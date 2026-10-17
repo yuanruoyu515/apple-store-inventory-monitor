@@ -73,6 +73,7 @@ pub enum CatalogError {
 /// 表要手写是因为 `include_str!` 的路径必须是字面量；漏了哪个地区由测试兜住。
 const EMBEDDED_PRODUCTS: &[(&str, &str)] = &[
     ("en_US", include_str!("../data/products_en_US.json")),
+    ("en_CA", include_str!("../data/products_en_CA.json")),
     ("zh_CN", include_str!("../data/products_zh_CN.json")),
     ("zh_HK", include_str!("../data/products_zh_HK.json")),
     ("zh_TW", include_str!("../data/products_zh_TW.json")),

@@ -697,7 +697,7 @@ export default function App() {
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <h1 className="truncate text-lg font-semibold tracking-[-0.02em]">
-                    果到雷达 · 美国版
+                    果到雷达 · 美加版
                   </h1>
                   <Badge variant="outline" className="hidden border-primary/20 bg-primary/8 text-primary sm:inline-flex">
                     LIVE
@@ -707,14 +707,14 @@ export default function App() {
                   </span>
                 </div>
                 <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                  美国 Apple Store · iPhone Duo / 18 Pro / Pro Max
+                  美国 / 加拿大 Apple Store · iPhone Duo / 18 Pro / Pro Max
                 </p>
               </div>
             </div>
 
             <div className="hidden min-w-0 flex-1 items-center justify-center gap-2 min-[860px]:flex">
               <span className="truncate text-sm text-muted-foreground">
-                基于 GPL 开源项目构建的美国版
+                基于 GPL 开源项目的美加修改版
               </span>
               <Tooltip>
                 <TooltipTrigger asChild>

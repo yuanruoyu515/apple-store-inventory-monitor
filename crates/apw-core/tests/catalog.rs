@@ -47,9 +47,9 @@ const SELECTION: &str = r#"{
 // ---- 内嵌数据 ----
 
 #[test]
-fn 八个地区都能从内嵌数据读出商品与门店() {
+fn 九个地区都能从内嵌数据读出商品与门店() {
     let catalog = Catalog::new();
-    assert_eq!(REGIONS.len(), 8);
+    assert_eq!(REGIONS.len(), 9);
 
     for region in REGIONS {
         let products = catalog

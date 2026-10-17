@@ -225,7 +225,7 @@ export function connect(): Promise<void> {
     ]);
     update({ regions, categories, settings, rows, running, ready: true });
     await loadCatalog(settings.locale);
-    // 美国版是独立分支，不能安装上游正式版更新，否则会覆盖美国地区支持。
+    // 美加修改版不能安装上游正式版更新，否则会覆盖本分支的地区支持。
   })();
   return starting;
 }
@@ -241,14 +241,21 @@ export const watcherStore = { subscribe, getSnapshot };
 // ---- 命令。全部只是转发，不含任何业务判断。
 
 /** 载入某地区的门店与型号目录。 */
+let catalogRequestId = 0;
 export async function loadCatalog(locale: string): Promise<void> {
+  if (locale !== state.settings.locale) return;
+  const requestId = ++catalogRequestId;
+  // Do not let old country selections be added while the new catalog loads.
+  update({ stores: [], products: [] });
   try {
     const [stores, products] = await Promise.all([
       invoke<Store[]>("list_stores", { locale }),
       invoke<Product[]>("list_products", { locale }),
     ]);
+    if (requestId !== catalogRequestId || locale !== state.settings.locale) return;
     update({ stores, products });
   } catch (err) {
+    if (requestId !== catalogRequestId || locale !== state.settings.locale) return;
     // 目录读不出来不该让整个界面挂掉，但必须让用户知道下拉为什么是空的。
     update({ stores: [], products: [] });
     pushLog(`载入 ${locale} 的门店与型号失败：${String(err)}`);
@@ -317,8 +324,7 @@ export function setCategory(category: Category): void {
 }
 
 export async function changeLocale(locale: string): Promise<void> {
-  await saveSettings({ locale });
-  await loadCatalog(locale);
+  if (await saveSettings({ locale })) await loadCatalog(state.settings.locale);
 }
 
 export async function setTargets(targets: Target[]): Promise<boolean> {

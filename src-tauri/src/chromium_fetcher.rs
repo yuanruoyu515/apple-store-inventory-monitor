@@ -16,7 +16,7 @@ use std::process::{Child, Command, Stdio};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use apw_core::apple::{ApiError, Fetcher, StoreAvailability, parse_pickup_message};
+use apw_core::apple::{ApiError, Fetcher, StoreAvailability, parse_pickup_message, pickup_query};
 use apw_core::model::{DeliveryRegion, Region, Target};
 use futures_util::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
@@ -286,21 +286,7 @@ impl ChromiumSession {
         }
         self.last_inventory_request = Some(Instant::now());
 
-        let mut pairs = vec![
-            ("fae".to_string(), "true".to_string()),
-            ("pl".to_string(), "true".to_string()),
-            ("mts.0".to_string(), "regular".to_string()),
-        ];
-        pairs.extend(
-            parts
-                .iter()
-                .enumerate()
-                .map(|(index, part)| (format!("parts.{index}"), part.clone())),
-        );
-        if region.locale == "en_US" {
-            pairs.push(("cppart".to_string(), "UNLOCKED/US".to_string()));
-        }
-        pairs.push(("store".to_string(), store_number.to_string()));
+        let mut pairs = pickup_query(region, store_number, parts);
         if let Some(location) = delivery_region {
             pairs.extend([
                 ("state".to_string(), location.state.clone()),
@@ -938,6 +924,36 @@ mod tests {
                 println!(
                     "round={round} store={store} name={} availability={:?}",
                     result.store_name, status.availability
+                );
+            }
+        }
+    }
+
+    #[tokio::test]
+    #[ignore = "需要本机 Chromium 与 Apple 美加官网网络"]
+    async fn 真实加拿大与美国切换后库存查询仍使用各自地区() {
+        let fetcher = AppleChromiumFetcher::new();
+        for (locale, store, parts) in [
+            ("en_CA", "R121", ["MJR64VC/A", "MK254VC/A"]),
+            ("en_US", "R250", ["MJQ44LL/A", "MK1F4LL/A"]),
+            ("en_CA", "R280", ["MJX64VC/A", "MK244VC/A"]),
+        ] {
+            let region = region_by_locale(locale).unwrap();
+            let targets = parts.map(test_target);
+            let result = fetcher
+                .pickup(region, store, &targets, None)
+                .await
+                .unwrap_or_else(|error| panic!("{locale} {store}: {error}"));
+            assert_eq!(result.store_number, store);
+            for part in parts {
+                let status = result.parts.get(part).expect("响应应包含本地区的料号");
+                assert!(
+                    !status.availability.is_failure(),
+                    "{locale} {part}: {status:?}"
+                );
+                println!(
+                    "{locale} {store} {part}: {:?}; {:?}",
+                    status.availability, status.pickup_details
                 );
             }
         }

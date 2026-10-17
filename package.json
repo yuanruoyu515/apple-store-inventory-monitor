@@ -1,10 +1,13 @@
 {
   "name": "apple-store-inventory-monitor",
   "private": true,
-  "version": "1.0.8",
+  "version": "1.0.9",
   "type": "module",
   "scripts": {
     "generate:us": "node scripts/generate-us-data.mjs",
+    "generate:ca": "node scripts/generate-ca-data.mjs",
+    "generate:na": "node scripts/generate-us-data.mjs && node scripts/generate-ca-data.mjs",
+    "refresh:ca": "node scripts/refresh-canada-data.mjs",
     "dev": "vite",
     "build": "tsc && vite build",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",

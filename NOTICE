@@ -244,3 +244,19 @@ This documentation update replaces the fork's landing README with US-specific
 download, installation and usage guidance, adds screenshots of the US edition,
 and archives the upstream README in README_UPSTREAM.md. It does not claim
 original authorship of upstream code or change the GPL-3.0-or-later license.
+
+Canada support in the United States fork (2026-10-16)
+------------------------------------------------------------
+
+Modified by yuanruoyu515. Version 1.0.9 adds the Canadian en_CA region,
+28 Canadian stores and 40 Canadian VC/A iPhone part numbers, taken from Apple's
+public Canadian store list and purchase pages. Source URLs, verification time
+and page hashes are included in crates/apw-core/data/ca-source/catalog.json.
+
+The two transports share locale-aware query construction; Canadian requests
+and checkout links use /ca and do not include the US carrier-policy parameter.
+The UI exposes United States and Canada, guards against stale catalog responses
+when switching countries, and keeps existing US settings and targets intact.
+This release adds Canadian data generation and regression tests and updates
+the documentation. The application identifier and US bundle filename remain
+unchanged for upgrade compatibility. All earlier notices and GPL terms remain.

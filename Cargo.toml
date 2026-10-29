@@ -3,11 +3,11 @@ resolver = "3"
 members = ["crates/apw-core", "src-tauri"]
 
 [workspace.package]
-version = "1.0.9"
+version = "1.0.27"
 edition = "2024"
 rust-version = "1.90"
 license = "GPL-3.0-or-later"
-repository = "https://github.com/suversal/apple-store-inventory-monitor"
+repository = "https://github.com/yuanruoyu515/apple-store-inventory-monitor"
 
 [workspace.dependencies]
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync"] }

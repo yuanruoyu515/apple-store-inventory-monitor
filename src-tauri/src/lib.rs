@@ -8,27 +8,84 @@
 //! 提醒也刻意放在这一层而不是前端：托盘模式下窗口是隐藏的，WebView 可能被
 //! 系统节流甚至挂起，把「及时提醒」挂在一个会被挂起的执行环境上是不能接受的。
 
-use std::sync::RwLock;
-use std::time::Duration;
+use std::io::Write;
+use std::sync::{Mutex as StdMutex, OnceLock, RwLock};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use apw_core::catalog::Catalog;
-use apw_core::config::{MIN_INTERVAL_SECONDS, OpenOnHit, Settings, SettingsStore};
+use apw_core::config::{ClashSettings, MIN_INTERVAL_SECONDS, OpenOnHit, Settings, SettingsStore};
 use apw_core::model::{Category, Product, REGIONS, Store, Target, region_by_locale};
-use apw_core::notify::{Bark, Multi, Notification, Notifier, Sound};
+use apw_core::notify::{Bark, BarkPush, Multi, Notification, Notifier, Sound};
 use apw_core::watcher::{Event, TargetState, Watcher, WatcherConfig};
 use serde::{Deserialize, Serialize};
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::TrayIconBuilder;
-use tauri::{AppHandle, Emitter, Manager, WindowEvent};
-use tauri_plugin_updater::UpdaterExt;
+use tauri::{AppHandle, Emitter, Manager, RunEvent, WindowEvent};
 
+mod browser_support;
+mod checkout;
+mod checkout_login;
 mod chromium_fetcher;
+mod clash;
+mod route_pool;
+#[cfg(windows)]
+mod windows_chromium;
+use checkout::{CheckoutOutcome, CheckoutPlan, CheckoutRunner};
 use chromium_fetcher::AppleChromiumFetcher;
 
 /// 前端事件通道名。前端用 `listen("watcher://event", ...)` 订阅。
 const EVENT_CHANNEL: &str = "watcher://event";
 /// 启动过程中的降级说明通道：配置读不出来之类的事必须让用户看见。
 const NOTICE_CHANNEL: &str = "watcher://notice";
+/// 后端自己改了设置（例如结账完成后关闭自动结账）时，把新设置推给界面。
+const SETTINGS_CHANNEL: &str = "watcher://settings";
+/// 退出时等待浏览器收尾的上限。正在进行的查询或结账可能占着会话不放，
+/// 不能让退出一直卡住；超时后残留的进程由下次启动回收。
+const EXIT_CLEANUP_TIMEOUT: Duration = Duration::from_secs(5);
+
+/// 本地验收时可选的结构化流程日志。只写显式选择的库存和流程字段，
+/// 不序列化 Settings、联系人、Cookie、通知地址或订单号。
+fn checkout_audit(event: &str, details: serde_json::Value) {
+    static LOG: OnceLock<Option<StdMutex<std::fs::File>>> = OnceLock::new();
+    let Some(log) = LOG.get_or_init(|| {
+        let path = std::env::var_os("APW_CHECKOUT_AUDIT_PATH")?;
+        let mut options = std::fs::OpenOptions::new();
+        options.create(true).append(true);
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::OpenOptionsExt;
+            options.mode(0o600);
+        }
+        match options.open(path) {
+            Ok(file) => Some(StdMutex::new(file)),
+            Err(error) => {
+                eprintln!("无法留存结账流程日志：{error}");
+                None
+            }
+        }
+    }) else {
+        return;
+    };
+    let row = serde_json::json!({
+        "tsMs": SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_millis(),
+        "event": event,
+        "details": details,
+    });
+    if let Ok(mut bytes) = serde_json::to_vec(&row) {
+        bytes.push(b'\n');
+        if let Ok(mut file) = log.lock()
+            && let Err(error) = file.write_all(&bytes)
+        {
+            eprintln!("留存结账流程日志失败：{error}");
+        }
+    }
+}
+
+fn checkout_audit_target(target: &Target) -> serde_json::Value {
+    serde_json::json!({"locale": target.locale, "partNumber": target.part_number,
+        "productName": target.product_name, "storeNumber": target.store_number,
+        "storeTitle": target.store_title})
+}
 
 /// 地区的可序列化形式。
 ///
@@ -248,9 +305,11 @@ struct CategoryDto {
 
 struct AppState {
     watcher: Watcher,
+    fetcher: AppleChromiumFetcher,
+    checkout: CheckoutRunner,
     catalog: Catalog,
     http: reqwest::Client,
-    /// 设置的内存副本。写盘失败不该让界面卡住，所以内存副本是权威的展示来源。
+    /// 设置的内存副本。有可用的持久化存储时，只在新设置成功落盘后更新。
     settings: RwLock<Settings>,
     /// 为 `None` 表示配置不可持久化（目录不可写，或上次读取失败已放弃写盘）。
     store: Option<SettingsStore>,
@@ -264,18 +323,16 @@ impl AppState {
             .unwrap_or_else(|e| e.into_inner().clone())
     }
 
-    /// 更新内存副本并尝试落盘。落盘失败只报错，不回滚内存 ——
-    /// 用户的操作已经生效了，没道理因为磁盘问题把界面弹回去。
+    /// 先落盘再更新内存副本。否则 Windows 上文件被占用或权限异常时，
+    /// 界面、监控引擎和下次启动读到的设置会变成三份不同的状态。
     fn put_settings(&self, next: Settings) -> Result<(), String> {
+        if let Some(store) = &self.store {
+            store.save(&next).map_err(|e| e.to_string())?;
+        }
+
         let mut guard = self.settings.write().unwrap_or_else(|e| e.into_inner());
         *guard = next;
-        let to_save = guard.clone();
-        drop(guard);
-
-        match &self.store {
-            Some(store) => store.save(&to_save).map_err(|e| e.to_string()),
-            None => Ok(()),
-        }
+        Ok(())
     }
 }
 
@@ -283,7 +340,7 @@ impl AppState {
 fn list_regions() -> Vec<RegionDto> {
     REGIONS
         .iter()
-        .filter(|region| matches!(region.locale, "en_US" | "en_CA"))
+        .filter(|region| matches!(region.locale, "en_US" | "en_CA" | "en_AE"))
         .map(|r| RegionDto {
             title: r.title,
             locale: r.locale,
@@ -489,33 +546,145 @@ fn list_products(
     state.catalog.products(&locale).map_err(|e| e.to_string())
 }
 
-/// 从 Apple 官网抓最新型号，替换该地区该品类的内存副本，返回抓到的型号数。
+/// 一次目录刷新的结果。部分失败时已成功的部分照常生效。
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct CatalogRefresh {
+    /// 抓到的型号数（不同零件号）。
+    products: usize,
+    /// 刷新到的门店数；门店刷新失败时为 `None`。
+    stores: Option<usize>,
+    errors: Vec<String>,
+}
+
+/// 目录刷新使用的 HTTP 客户端：与库存查询走同一个出口。
 ///
-/// `category` 为 `None` 时抓该地区的全部购买页。界面传的是当前选中的品类：
-/// 一次只抓那几页，用户想看新出的 Mac 不必等 iPhone、iPad、Watch 一起抓完。
+/// 「指定节点」和「Clash 节点轮换」下经 Clash 专用端口，出口就是专用策略组
+/// 当前选中的节点；跟随系统代理时沿用宿主长期持有的客户端。
+fn catalog_http(state: &AppState) -> reqwest::Client {
+    let network = state.settings_snapshot().network;
+    if network.mode == apw_core::config::NetworkMode::System {
+        return state.http.clone();
+    }
+    reqwest::Proxy::all(format!("http://127.0.0.1:{}", network.clash.proxy_port))
+        .and_then(|proxy| reqwest::Client::builder().proxy(proxy).build())
+        .unwrap_or_else(|_| state.http.clone())
+}
+
+/// 探测客户端能否连上某个站点。拿到任何 HTTP 响应都算连通，状态码不重要。
+async fn site_reachable(http: &reqwest::Client, base_url: &str) -> bool {
+    http.get(format!("{base_url}/"))
+        .timeout(Duration::from_secs(8))
+        .send()
+        .await
+        .is_ok()
+}
+
+/// 目录更新后同步修复已有目标的展示元数据。目标键只由地区、门店和零件号决定，
+/// 因此这里不会增加、删除或换掉用户正在监控的 SKU。
+async fn apply_catalog_to_targets(state: &AppState) -> Result<(), String> {
+    let mut next = state.settings_snapshot();
+    let before = next.targets.clone();
+    state.catalog.hydrate_watch_targets(&mut next.targets);
+    state.catalog.hydrate_store_targets(&mut next.targets);
+    state.catalog.attach_pickup_locations(&mut next.targets);
+    if next.targets != before {
+        state.put_settings(next.clone())?;
+        state.watcher.set_targets(next.targets).await;
+    }
+    Ok(())
+}
+
+/// 从 Apple 官网刷新门店列表和型号目录。`category` 为 `None` 时刷新全部品类。
+async fn refresh_catalog(
+    state: &AppState,
+    locale: &str,
+    category: Option<Category>,
+) -> Result<CatalogRefresh, String> {
+    let region = region_by_locale(locale).ok_or_else(|| format!("认不出地区 {locale}"))?;
+    let http = catalog_http(state);
+    // 查询线路的当前节点可能根本连不上某个站点（例如家宽直连访问 www.apple.com
+    // 被断开）。经线路完全失败时改用系统网络再试一次，刷新目录不该被节点拖累。
+    let via_route = state.settings_snapshot().network.mode != apw_core::config::NetworkMode::System;
+    let mut errors = Vec::new();
+
+    let mut stores_result = state.catalog.refresh_stores(region, &http).await;
+    if via_route && stores_result.is_err() {
+        stores_result = state.catalog.refresh_stores(region, &state.http).await;
+        if stores_result.is_ok() {
+            errors.push("门店经查询线路失败，已改用系统网络".to_string());
+        }
+    }
+    let stores = match stores_result {
+        Ok(count) => Some(count),
+        Err(error) => {
+            errors.push(format!("门店列表：{error}"));
+            None
+        }
+    };
+
+    let completely_failed = |result: &Result<usize, apw_core::catalog::CatalogError>| {
+        matches!(
+            result,
+            Err(apw_core::catalog::CatalogError::RefreshFailed { fetched: 0, .. })
+                | Err(apw_core::catalog::CatalogError::Fetch(_))
+        )
+    };
+    // 型号要逐页抓十几页，节点不通时逐页重试会拖很久；先用一次请求探测
+    // 当前节点能否访问该地区官网，不通就直接改用系统网络。
+    let route_reaches_site = !via_route || site_reachable(&http, region.base_url).await;
+    let product_http = if route_reaches_site {
+        http.clone()
+    } else {
+        errors.push("当前节点无法访问该地区官网，型号已改用系统网络刷新".to_string());
+        state.http.clone()
+    };
+    let mut products_result = state
+        .catalog
+        .refresh_products(region, category, &product_http)
+        .await;
+    if via_route && route_reaches_site && completely_failed(&products_result) {
+        products_result = state
+            .catalog
+            .refresh_products(region, category, &state.http)
+            .await;
+        if !completely_failed(&products_result) {
+            errors.push("型号经查询线路失败，已改用系统网络".to_string());
+        }
+    }
+    let products = match products_result {
+        Ok(count) => count,
+        Err(apw_core::catalog::CatalogError::RefreshFailed { fetched, .. }) if fetched > 0 => {
+            errors.push("部分型号页刷新失败，其余已更新".to_string());
+            fetched
+        }
+        Err(error) => {
+            errors.push(format!("型号目录：{error}"));
+            0
+        }
+    };
+    apply_catalog_to_targets(state).await?;
+    if stores.is_none() && products == 0 {
+        return Err(errors.join("；"));
+    }
+    Ok(CatalogRefresh {
+        products,
+        stores,
+        errors,
+    })
+}
+
+/// 手动刷新：门店列表 + 当前品类的型号。
+///
+/// 界面传的是当前选中的品类：一次只抓那几页，用户想看新出的 Mac 不必等 iPhone、
+/// iPad、Watch 一起抓完。
 #[tauri::command]
 async fn refresh_products(
     state: tauri::State<'_, AppState>,
     locale: String,
     category: Option<Category>,
-) -> Result<usize, String> {
-    let region = region_by_locale(&locale).ok_or_else(|| format!("认不出地区 {locale}"))?;
-    let count = state
-        .catalog
-        .refresh_products(region, category, &state.http)
-        .await
-        .map_err(|e| e.to_string())?;
-
-    // 目录更新后同步修复已有 Watch 目标的展示元数据。目标键只由地区、门店和
-    // 零件号决定，因此这里不会增加、删除或换掉用户正在监控的 SKU。
-    let mut next = state.settings_snapshot();
-    let before = next.targets.clone();
-    state.catalog.hydrate_watch_targets(&mut next.targets);
-    if next.targets != before {
-        state.watcher.set_targets(next.targets.clone()).await;
-        state.put_settings(next)?;
-    }
-    Ok(count)
+) -> Result<CatalogRefresh, String> {
+    refresh_catalog(&state, &locale, category).await
 }
 
 #[tauri::command]
@@ -531,17 +700,87 @@ async fn save_settings(
     let mut next = settings;
     next.normalize();
     state.catalog.hydrate_watch_targets(&mut next.targets);
+    state.catalog.hydrate_store_targets(&mut next.targets);
+    state.catalog.attach_pickup_locations(&mut next.targets);
 
-    // 设置里的目标列表和查询间隔要同步给引擎，否则改完设置监控还按旧的跑。
+    // 先成功落盘，再把同一份设置同步给引擎，避免三者分叉。
+    state.put_settings(next.clone())?;
     state.watcher.set_targets(next.targets.clone()).await;
     state.watcher.set_interval(next.interval()).await;
     state
         .watcher
         .set_delivery_region(next.delivery_region.clone())
         .await;
+    state.fetcher.set_network(next.network.clone()).await;
 
-    state.put_settings(next.clone())?;
     Ok(next)
+}
+
+/// Clash 线路测试结果。只访问本机控制接口和端口，不向 Apple 发请求。
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ClashRouteCheck {
+    version: String,
+    #[serde(flatten)]
+    group: clash::GroupNodes,
+    /// 专用代理端口是否能在本机连上。
+    port_open: bool,
+    /// 批量测速超时的节点数（不含 DIRECT）。并发测速可能略微偏高。
+    timeout_count: usize,
+}
+
+#[tauri::command]
+async fn test_clash_route(clash: ClashSettings) -> Result<ClashRouteCheck, String> {
+    let mut network = apw_core::config::NetworkSettings {
+        mode: apw_core::config::NetworkMode::Clash,
+        clash,
+    };
+    let mut settings = Settings {
+        network: network.clone(),
+        ..Settings::default()
+    };
+    settings.normalize();
+    network = settings.network;
+    let controller = clash::ClashController::new(&network.clash)?;
+    let version = controller.version().await?;
+    let group = controller
+        .group_nodes(&network.clash.group, &network.clash.node_filter)
+        .await?;
+    let timeout_count = match controller.group_delays(&network.clash.group).await {
+        Ok(delays) => group
+            .nodes
+            .iter()
+            .filter(|node| node.as_str() != "DIRECT" && !delays.contains_key(*node))
+            .count(),
+        Err(_) => 0,
+    };
+    let port_open = tokio::time::timeout(
+        Duration::from_secs(2),
+        tokio::net::TcpStream::connect(("127.0.0.1", network.clash.proxy_port)),
+    )
+    .await
+    .is_ok_and(|connected| connected.is_ok());
+    Ok(ClashRouteCheck {
+        version,
+        group,
+        port_open,
+        timeout_count,
+    })
+}
+
+#[tauri::command]
+async fn list_clash_nodes(
+    state: tauri::State<'_, AppState>,
+) -> Result<chromium_fetcher::RouteList, String> {
+    state.fetcher.list_routes().await
+}
+
+#[tauri::command]
+async fn select_clash_node(
+    state: tauri::State<'_, AppState>,
+    node: String,
+) -> Result<Option<u32>, String> {
+    state.fetcher.select_route(&node).await
 }
 
 #[tauri::command]
@@ -558,18 +797,20 @@ async fn set_targets(
     next.targets = targets;
     next.normalize();
     state.catalog.hydrate_watch_targets(&mut next.targets);
-    state.watcher.set_targets(next.targets.clone()).await;
-    state.put_settings(next)?;
+    state.catalog.hydrate_store_targets(&mut next.targets);
+    state.catalog.attach_pickup_locations(&mut next.targets);
+    state.put_settings(next.clone())?;
+    state.watcher.set_targets(next.targets).await;
     Ok(state.watcher.snapshot().await)
 }
 
 #[tauri::command]
 async fn set_interval(state: tauri::State<'_, AppState>, seconds: u64) -> Result<u64, String> {
     let secs = seconds.max(MIN_INTERVAL_SECONDS);
-    state.watcher.set_interval(Duration::from_secs(secs)).await;
     let mut next = state.settings_snapshot();
     next.interval_seconds = secs;
     state.put_settings(next)?;
+    state.watcher.set_interval(Duration::from_secs(secs)).await;
     Ok(secs)
 }
 
@@ -583,6 +824,11 @@ async fn start_watching(state: tauri::State<'_, AppState>) -> Result<(), String>
 async fn stop_watching(state: tauri::State<'_, AppState>) -> Result<(), String> {
     state.watcher.stop().await;
     Ok(())
+}
+
+#[tauri::command]
+async fn retry_watching_now(state: tauri::State<'_, AppState>) -> Result<bool, String> {
+    Ok(state.watcher.retry_now().await)
 }
 
 #[tauri::command]
@@ -604,91 +850,14 @@ struct UpdateInfo {
 /// **刻意不做静默自动安装**：给用户装东西这件事应该由用户点头。何况这是个会在
 /// 抢购当口挂着的程序，自作主张地下载、替换、重启，正好会赶上最不该被打断的时刻。
 #[tauri::command]
-async fn check_for_update(app: AppHandle) -> Result<Option<UpdateInfo>, String> {
-    let updater = app
-        .updater_builder()
-        .timeout(Duration::from_secs(300))
-        .build()
-        .map_err(|e| e.to_string())?;
-    match tokio::time::timeout(Duration::from_secs(20), updater.check())
-        .await
-        .map_err(|_| "检查更新超时，请稍后重试".to_string())?
-    {
-        Ok(Some(update)) => Ok(Some(UpdateInfo {
-            version: update.version.clone(),
-            current_version: update.current_version.clone(),
-            notes: update.body.clone(),
-        })),
-        Ok(None) => Ok(None),
-        // 检查更新失败不是错误状态，只是这次没查到 —— 网络不通、GitHub 抽风都
-        // 会走到这里，没必要弹给用户看，写进日志即可。
-        Err(err) => Err(err.to_string()),
-    }
+async fn check_for_update() -> Result<Option<UpdateInfo>, String> {
+    Err("修改版请从 yuanruoyu515 的 GitHub Releases 手动下载更新".into())
 }
 
-/// 下载并安装更新。安装完成后需要重启应用才生效。
+/// The fork uses manual, region-compatible releases only.
 #[tauri::command]
-async fn install_update(app: AppHandle) -> Result<(), String> {
-    let updater = app
-        .updater_builder()
-        .timeout(Duration::from_secs(300))
-        .build()
-        .map_err(|e| e.to_string())?;
-    let update = tokio::time::timeout(Duration::from_secs(20), updater.check())
-        .await
-        .map_err(|_| "检查更新超时，请稍后重试".to_string())?
-        .map_err(|e| e.to_string())?
-        .ok_or_else(|| "已经是最新版本".to_string())?;
-
-    let handle = app.clone();
-    let finished = app.clone();
-    let mut downloaded = 0_u64;
-    let mut last_emit = std::time::Instant::now() - Duration::from_secs(1);
-    let _ = app.emit(
-        "watcher://update-progress",
-        serde_json::json!({
-            "phase": "downloading", "downloaded": 0, "total": null
-        }),
-    );
-    let bytes = update
-        .download(
-            move |chunk, total| {
-                // 插件回调给的是本次数据块大小，界面需要累计字节数。
-                downloaded = downloaded.saturating_add(chunk as u64);
-                if last_emit.elapsed() >= Duration::from_millis(100) || total == Some(downloaded) {
-                    let _ = handle.emit(
-                        "watcher://update-progress",
-                        serde_json::json!({
-                            "phase": "downloading", "downloaded": downloaded, "total": total
-                        }),
-                    );
-                    last_emit = std::time::Instant::now();
-                }
-            },
-            move || {
-                let _ = finished.emit(
-                    "watcher://update-progress",
-                    serde_json::json!({
-                        "phase": "verifying", "downloaded": 0, "total": null
-                    }),
-                );
-            },
-        )
-        .await
-        .map_err(|e| e.to_string())?;
-    // download 完成签名验证后才允许安装，校验失败绝不进入此分支。
-    let _ = app.emit(
-        "watcher://update-progress",
-        serde_json::json!({
-            "phase": "installing", "downloaded": 0, "total": null
-        }),
-    );
-    tauri::async_runtime::spawn_blocking(move || update.install(bytes))
-        .await
-        .map_err(|e| e.to_string())?
-        .map_err(|e| e.to_string())?;
-
-    Ok(())
+async fn install_update() -> Result<(), String> {
+    Err("请从修改版 GitHub Releases 下载并替换应用，原有设置会保留".into())
 }
 
 /// 与库存目标共用目录信息，避免 Apple Watch 的表壳料号跳到不存在的详情页。
@@ -706,6 +875,9 @@ fn target_open_url(app: &AppHandle, target: &Target, destination: OpenOnHit) -> 
     match destination {
         OpenOnHit::None => None,
         OpenOnHit::Bag => region_by_locale(&target.locale).map(|region| region.bag_url()),
+        OpenOnHit::EducationBag => {
+            region_by_locale(&target.locale).map(|region| region.education_bag_url())
+        }
         OpenOnHit::Product => target_purchase_url(app, target),
     }
 }
@@ -714,6 +886,7 @@ fn destination_title(destination: OpenOnHit) -> &'static str {
     match destination {
         OpenOnHit::None => "",
         OpenOnHit::Bag => "购物袋",
+        OpenOnHit::EducationBag => "教育商店购物袋",
         OpenOnHit::Product => "商品页",
     }
 }
@@ -755,12 +928,18 @@ async fn test_notify(app: AppHandle) -> Result<(), String> {
 
     let jump_url = match settings.open_on_hit {
         OpenOnHit::None => None,
-        OpenOnHit::Bag => {
+        destination @ (OpenOnHit::Bag | OpenOnHit::EducationBag) => {
             let locale = settings
                 .targets
                 .first()
                 .map_or(settings.locale.as_str(), |target| target.locale.as_str());
-            region_by_locale(locale).map(|region| region.bag_url())
+            region_by_locale(locale).map(|region| {
+                if destination == OpenOnHit::EducationBag {
+                    region.education_bag_url()
+                } else {
+                    region.bag_url()
+                }
+            })
         }
         OpenOnHit::Product => settings
             .targets
@@ -813,7 +992,13 @@ async fn dispatch_notification(
             .unwrap_or_default();
         // Bark 每次现构造：地址是用户随时可改的设置项，缓存实例会在改完地址后
         // 继续往旧地址推。共享的 http 客户端一并传进去，连接池仍然复用。
-        channels.push(Bark::new(bark_url.to_owned(), http));
+        let push = BarkPush {
+            level: settings.bark_options.level,
+            sound: settings.bark_options.sound.clone(),
+            volume: settings.bark_options.volume,
+            call: settings.bark_options.call,
+        };
+        channels.push(Bark::new(bark_url.to_owned(), http).with_push(push));
     }
     if channels.is_empty() {
         return Ok(());
@@ -843,12 +1028,331 @@ fn in_stock_notification_body(target: &Target) -> String {
     body
 }
 
+/// 打开下单浏览器，供用户登录 Apple 账户、加购并手动走一次结账。
+#[tauri::command]
+async fn open_checkout_browser(state: tauri::State<'_, AppState>) -> Result<(), String> {
+    state.checkout.open().await.map_err(|e| e.to_string())
+}
+
+/// 试跑自动结账，走到「查看订单」页为止，无论设置如何都不提交订单。
+#[tauri::command]
+async fn test_checkout(
+    app: AppHandle,
+    state: tauri::State<'_, AppState>,
+) -> Result<String, String> {
+    let settings = state.settings_snapshot();
+    if !settings.checkout.has_national_id_suffix() {
+        return Err("请先填写取货人证件号码后四位".into());
+    }
+    let target = settings
+        .targets
+        .iter()
+        .find(|target| settings.is_checkout_target(target))
+        .ok_or("试跑需要先确定要下单的商品：监控列表里要有它的中国大陆监控项，有多件商品时请在自动结账里选一件")?;
+    let plan = CheckoutPlan::new(target, &settings, &state.catalog, false);
+    let progress = move |message: String| {
+        let _ = app.emit(NOTICE_CHANNEL, message);
+    };
+    match state.checkout.run(&plan, &progress).await {
+        Ok(CheckoutOutcome::ReachedReview { store, total }) => Ok(format!(
+            "试跑完成：{store} {} 已到「查看订单」页（总计 {total}），没有提交订单。",
+            target.product_name
+        )),
+        Ok(CheckoutOutcome::OrderSubmitted { .. }) => {
+            Err("试跑不应提交订单，请立即在下单浏览器里检查".into())
+        }
+        Err(error) => Err(error.to_string()),
+    }
+}
+
+/// 到货后执行自动结账，并把结果通知用户。
+///
+/// 成功后是否关闭总开关由用户选择；提交结果不明时仍强制停止自动结账。
+async fn run_checkout_on_hit(app: AppHandle, target: Target) {
+    let Some(state) = app.try_state::<AppState>() else {
+        return;
+    };
+    let settings = state.settings_snapshot();
+    let bark_url = settings.bark_url_for(&target).to_owned();
+    if !settings.checkout.enabled || !settings.is_checkout_target(&target) {
+        return;
+    }
+    if !settings.checkout.has_national_id_suffix() {
+        let _ = app.emit(
+            NOTICE_CHANNEL,
+            "自动结账未执行：还没有填写取货人证件号码后四位。",
+        );
+        return;
+    }
+    let plan = CheckoutPlan::new(
+        &target,
+        &settings,
+        &state.catalog,
+        settings.checkout.place_order,
+    );
+    let attempt = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis();
+    let audit_target = checkout_audit_target(&target);
+    checkout_audit(
+        "attemptStarted",
+        serde_json::json!({"attempt": attempt, "target": audit_target}),
+    );
+    let progress = {
+        let app = app.clone();
+        let audit_target = audit_target.clone();
+        move |message: String| {
+            checkout_audit(
+                "checkoutProgress",
+                serde_json::json!({"attempt": attempt, "target": audit_target, "message": message}),
+            );
+            let _ = app.emit(NOTICE_CHANNEL, message);
+        }
+    };
+    let result = state.checkout.run_on_hit(&plan, &progress).await;
+    let audit_result = match &result {
+        Ok(CheckoutOutcome::ReachedReview { .. }) => serde_json::json!({"status": "reachedReview"}),
+        Ok(CheckoutOutcome::OrderSubmitted { order_number, .. }) => {
+            serde_json::json!({"status": "orderSubmitted", "hasOrderNumber": order_number.is_some()})
+        }
+        Err(error) => {
+            serde_json::json!({"status": "failed", "stage": format!("{:?}", error.stage)})
+        }
+    };
+    checkout_audit(
+        "attemptFinished",
+        serde_json::json!({"attempt": attempt, "target": audit_target, "result": audit_result}),
+    );
+    let pause_after_checkout = should_pause_monitoring(&state.settings_snapshot(), Some(&result));
+    let (title, body) = match result {
+        Ok(outcome) => {
+            let mut next = state.settings_snapshot();
+            if should_disable_checkout_after_success(&next, &outcome) {
+                next.checkout.enabled = false;
+                match state.put_settings(next.clone()) {
+                    Ok(()) => {
+                        let _ = app.emit(SETTINGS_CHANNEL, &next);
+                    }
+                    Err(err) => {
+                        let _ = app.emit(NOTICE_CHANNEL, format!("关闭自动结账开关失败：{err}"));
+                    }
+                }
+            } else if next.checkout.enabled {
+                let _ = app.emit(
+                    NOTICE_CHANNEL,
+                    "自动结账：按设置保持开启，监控继续运行时后续有货会再次结账。",
+                );
+            }
+            match outcome {
+                CheckoutOutcome::ReachedReview { store, total } => (
+                    "已到查看订单页",
+                    format!(
+                        "{store} {}，总计 {total}。请在下单浏览器里点「立即下单」并付款。",
+                        target.product_name
+                    ),
+                ),
+                CheckoutOutcome::OrderSubmitted {
+                    store,
+                    order_number: Some(order),
+                    total,
+                } => (
+                    "已提交订单，请尽快付款",
+                    format!(
+                        "{store} {}，总计 {total}，订单 {order}。请在下单浏览器里完成付款。",
+                        target.product_name
+                    ),
+                ),
+                CheckoutOutcome::OrderSubmitted {
+                    store,
+                    order_number: None,
+                    total,
+                } => (
+                    "已点立即下单，请确认结果",
+                    format!(
+                        "{store} {}，总计 {total}。页面上没有读到订单号，已关闭自动结账，请在下单浏览器里确认订单是否成立。",
+                        target.product_name
+                    ),
+                ),
+            }
+        }
+        Err(error) => {
+            // 在「立即下单」这一步出错时，无法确定订单有没有生成。持续有货时下一轮
+            // 还会触发结账，所以先把开关关掉，绝不能在这种状态下再点一次。
+            if should_disable_checkout_after_failure(&error) {
+                let mut next = state.settings_snapshot();
+                next.checkout.enabled = false;
+                if state.put_settings(next.clone()).is_ok() {
+                    let _ = app.emit(SETTINGS_CHANNEL, &next);
+                }
+                (
+                    "提交订单时出错，请确认结果",
+                    format!("{error}。订单可能已经生成，请在下单浏览器里确认。自动结账已关闭。"),
+                )
+            } else if error.stage == checkout::Stage::SignIn {
+                (
+                    "Apple 登录等待验证",
+                    format!(
+                        "{error}。已保留页面，自动结账保持开启。请在当前页面完成登录；后续到货确认登录恢复后自动继续，无需重新开启开关。"
+                    ),
+                )
+            } else if error.stage == checkout::Stage::BagCleanup {
+                (
+                    "购物袋清理将继续重试",
+                    format!(
+                        "{error}。自动结账保持开启；下次有货先继续清理，确认空袋后才加购，不叠加失败商品。"
+                    ),
+                )
+            } else {
+                let cleanup = if error.stage == checkout::Stage::Browser {
+                    ""
+                } else {
+                    "已关闭本次下单页面；"
+                };
+                (
+                    "自动结账没有完成",
+                    format!("{error}。{cleanup}监控继续运行时，下次确认有货会重新打开购物袋尝试。"),
+                )
+            }
+        }
+    };
+    if pause_after_checkout && state.watcher.is_running().await {
+        state.watcher.stop().await;
+        let _ = app.emit(NOTICE_CHANNEL, "本次自动结账已结束，已按设置暂停监控。");
+    }
+    let _ = app.emit(NOTICE_CHANNEL, format!("{title}：{body}"));
+    if let Err(err) = dispatch_notification(&app, Notification::new(title, body), &bark_url).await {
+        let _ = app.emit(NOTICE_CHANNEL, format!("发送结账提醒时出错：{err}"));
+    }
+}
+
+fn should_disable_checkout_after_failure(error: &checkout::CheckoutError) -> bool {
+    error.stage == checkout::Stage::PlaceOrder
+}
+
+fn should_disable_checkout_after_success(settings: &Settings, outcome: &CheckoutOutcome) -> bool {
+    settings.checkout.disable_after_success
+        || matches!(
+            outcome,
+            CheckoutOutcome::OrderSubmitted {
+                order_number: None,
+                ..
+            }
+        )
+}
+
+/// 自动结账开启时，要等流程完成或需要人工确认才暂停，失败不能截断后续重试。
+fn should_pause_monitoring(
+    settings: &Settings,
+    checkout_result: Option<&Result<CheckoutOutcome, checkout::CheckoutError>>,
+) -> bool {
+    settings.stop_on_hit
+        && match checkout_result {
+            None => !settings.checkout.enabled,
+            Some(Ok(_)) => true,
+            Some(Err(error)) => error.stage == checkout::Stage::PlaceOrder,
+        }
+}
+
+/// 一次到货提醒要发送的内容，以及发送成功后写进活动日志的说明。
+struct HitAlert {
+    notification: Notification,
+    bark_url: String,
+    has_product_bark: bool,
+    sound_enabled: bool,
+    opened_destination: Option<OpenOnHit>,
+    store_title: String,
+    product_name: String,
+}
+
+/// 发送一次到货提醒，并把结果写进活动日志。
+async fn send_hit_alert(app: &AppHandle, alert: HitAlert) {
+    if let Err(err) = dispatch_notification(app, alert.notification, &alert.bark_url).await {
+        // 提醒没发出去是遗憾，但绝不能让监控本身停下来。
+        let _ = app.emit(NOTICE_CHANNEL, format!("发送提醒时出错：{err}"));
+        return;
+    }
+    let mut actions = Vec::new();
+    if alert.sound_enabled {
+        actions.push("提示音");
+    }
+    if !alert.bark_url.trim().is_empty() {
+        actions.push(if alert.has_product_bark {
+            "Bark（型号专属）"
+        } else {
+            "Bark"
+        });
+    }
+    if let Some(destination) = alert.opened_destination {
+        match destination {
+            OpenOnHit::Bag => actions.push("已打开购物袋"),
+            OpenOnHit::EducationBag => actions.push("已打开教育商店购物袋"),
+            OpenOnHit::Product => actions.push("已打开商品页"),
+            OpenOnHit::None => {}
+        }
+    }
+    if actions.is_empty() {
+        return;
+    }
+    let _ = app.emit(
+        NOTICE_CHANNEL,
+        format!(
+            "到货提醒已执行：{} {}（{}）",
+            alert.store_title,
+            alert.product_name,
+            actions.join("、")
+        ),
+    );
+}
+
 /// 消费引擎事件：转发给前端，并在有货时发提醒。
 async fn pump_events(app: AppHandle, mut events: tokio::sync::mpsc::Receiver<Event>) {
+    // 到货提醒交给单独的发送队列：Bark 服务器慢时要等满超时，提示音也要等播完，
+    // 原地等待会拖住事件循环，引擎往通道里发下一条事件时跟着被卡住。队列只有
+    // 一个消费者，提醒仍按到货顺序逐条发送，与原来串行发送的效果一致。
+    let (alerts, mut queue) = tokio::sync::mpsc::unbounded_channel::<HitAlert>();
+    let sender_app = app.clone();
+    tauri::async_runtime::spawn(async move {
+        while let Some(alert) = queue.recv().await {
+            send_hit_alert(&sender_app, alert).await;
+        }
+    });
+
     while let Some(event) = events.recv().await {
         // 先原样转发。前端拿到的事件流应当与引擎发出的完全一致，
         // 中间少一层可能出错的翻译。
         let _ = app.emit(EVENT_CHANNEL, &event);
+
+        match &event {
+            Event::InStock { state } => {
+                checkout_audit("inStock", checkout_audit_target(&state.target))
+            }
+            Event::CycleStarted {
+                cycle,
+                store_count,
+                target_count,
+            } => checkout_audit(
+                "cycleStarted",
+                serde_json::json!({"cycle": cycle, "storeCount": store_count, "targetCount": target_count}),
+            ),
+            Event::CycleComplete {
+                cycle,
+                elapsed_ms,
+                healthy,
+                snapshot,
+                ..
+            } => checkout_audit(
+                "cycleComplete",
+                serde_json::json!({"cycle": cycle, "elapsedMs": elapsed_ms, "healthy": healthy, "targetCount": snapshot.len(), "inStockCount": snapshot.iter().filter(|s| s.availability.is_in_stock()).count()}),
+            ),
+            Event::RunStateChanged { running } => {
+                checkout_audit("runStateChanged", serde_json::json!({"running": running}))
+            }
+            Event::Trouble { .. } => {
+                checkout_audit("trouble", serde_json::json!({"needsInspection": true}))
+            }
+            Event::StateChanged { .. } => {}
+        }
 
         if let Event::InStock { state } = &event {
             let target = &state.target;
@@ -856,6 +1360,35 @@ async fn pump_events(app: AppHandle, mut events: tokio::sync::mpsc::Receiver<Eve
                 .try_state::<AppState>()
                 .map(|s| s.settings_snapshot())
                 .unwrap_or_default();
+            // 自动加购模式按本次到货型号结账；旧模式仍只匹配选定商品。
+            // 持续有货时每一轮都会再收到到货事件；上一次结账还在进行就不再触发，
+            // 否则每一轮都会多一条「已有结账在进行」的失败提醒。
+            if settings.checkout.enabled
+                && settings.is_checkout_target(target)
+                && let Some(reservation) = app
+                    .try_state::<AppState>()
+                    .and_then(|s| s.checkout.try_reserve())
+            {
+                let app = app.clone();
+                let target = target.clone();
+                tauri::async_runtime::spawn(async move {
+                    let _reservation = reservation;
+                    run_checkout_on_hit(app, target).await;
+                });
+            }
+            if should_pause_monitoring(&settings, None) {
+                // 放到独立任务里停：引擎可能正等着往这个事件通道里发下一条事件，
+                // 在这里原地等它停下会互相卡住。本轮已经发出的到货事件仍会照常处理。
+                let app = app.clone();
+                tauri::async_runtime::spawn(async move {
+                    if let Some(state) = app.try_state::<AppState>()
+                        && state.watcher.is_running().await
+                    {
+                        state.watcher.stop().await;
+                        let _ = app.emit(NOTICE_CHANNEL, "监控到有货，已按设置暂停监控。");
+                    }
+                });
+            }
             let destination_url = target_open_url(&app, target, settings.open_on_hit);
             let bark_url = settings.bark_url_for(target).to_owned();
             let has_product_bark = settings.product_bark_urls.contains_key(&target.part_number);
@@ -892,41 +1425,15 @@ async fn pump_events(app: AppHandle, mut events: tokio::sync::mpsc::Receiver<Eve
                 }
             }
 
-            if let Err(err) = dispatch_notification(&app, notification, &bark_url).await {
-                // 提醒没发出去是遗憾，但绝不能让监控本身停下来。
-                let _ = app.emit(NOTICE_CHANNEL, format!("发送提醒时出错：{err}"));
-            } else {
-                let mut actions = Vec::new();
-                if settings.sound_enabled {
-                    actions.push("提示音");
-                }
-                if !bark_url.trim().is_empty() {
-                    actions.push(if has_product_bark {
-                        "Bark（型号专属）"
-                    } else {
-                        "Bark"
-                    });
-                }
-                if let Some(destination) = opened_destination {
-                    match destination {
-                        OpenOnHit::Bag => actions.push("已打开购物袋"),
-                        OpenOnHit::Product => actions.push("已打开商品页"),
-                        OpenOnHit::None => {}
-                    }
-                }
-                if actions.is_empty() {
-                    continue;
-                }
-                let _ = app.emit(
-                    NOTICE_CHANNEL,
-                    format!(
-                        "到货提醒已执行：{} {}（{}）",
-                        target.store_title,
-                        target.product_name,
-                        actions.join("、")
-                    ),
-                );
-            }
+            let _ = alerts.send(HitAlert {
+                notification,
+                bark_url,
+                has_product_bark,
+                sound_enabled: settings.sound_enabled,
+                opened_destination,
+                store_title: target.store_title.clone(),
+                product_name: target.product_name.clone(),
+            });
         }
     }
 }
@@ -951,7 +1458,15 @@ fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
         .show_menu_on_left_click(false)
         .on_menu_event(|app, event| match event.id().as_ref() {
             "show" => reveal_window(app),
-            "quit" => app.exit(0),
+            "quit" => {
+                // `app.exit()` 会立即结束事件循环，不能指望托管状态的析构顺序替
+                // Chromium 收尾。先停掉可能正在查询的一轮，再显式释放浏览器树。
+                let app = app.clone();
+                tauri::async_runtime::spawn(async move {
+                    release_browsers(&app).await;
+                    app.exit(0);
+                });
+            }
             _ => {}
         })
         .on_tray_icon_event(|tray, event| {
@@ -1047,22 +1562,36 @@ fn load_settings(notices: &mut Vec<String>) -> (Settings, Option<SettingsStore>)
 
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app, _, _| {
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.unminimize();
+                let _ = window.set_focus();
+            }
+        }))
         .plugin(tauri_plugin_opener::init())
-        .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
             let mut notices = Vec::new();
             let (mut settings, store) = load_settings(&mut notices);
-            let catalog = Catalog::new();
+            // 在线刷新过的门店和型号缓存在设置目录旁边，重启后优先使用。
+            let catalog = Catalog::with_cache_dir(
+                dirs::config_dir()
+                    .unwrap_or_else(std::env::temp_dir)
+                    .join("apple-store-inventory-monitor-us")
+                    .join("catalog-cache"),
+            );
             let saved_targets = settings.targets.clone();
             catalog.hydrate_watch_targets(&mut settings.targets);
+            catalog.hydrate_store_targets(&mut settings.targets);
             if settings.targets != saved_targets
                 && let Some(store) = store.as_ref()
                 && let Err(error) = store.save(&settings)
             {
                 notices.push(format!(
-                    "Watch 型号名称已在本次运行修复，但暂时无法保存：{error}"
+                    "监控项的型号或门店名称已在本次运行修复，但暂时无法保存：{error}"
                 ));
             }
+            catalog.attach_pickup_locations(&mut settings.targets);
 
             // 用 Watcher::new 而不是 Watcher::spawn：setup 回调跑在主线程上，
             // 并不处在 tokio 运行时上下文里，在这里 tokio::spawn 会 panic，
@@ -1072,22 +1601,31 @@ pub fn run() {
                 delivery_region: settings.delivery_region.clone(),
                 ..WatcherConfig::default()
             };
-            let (watcher, events, engine) =
-                Watcher::new(AppleChromiumFetcher::new(), watcher_config);
+            let fetcher = AppleChromiumFetcher::new();
+            let (watcher, events, engine) = Watcher::new(fetcher.clone(), watcher_config);
             tauri::async_runtime::spawn(engine);
 
             {
                 let watcher = watcher.clone();
+                let fetcher = fetcher.clone();
+                let network = settings.network.clone();
                 let targets = settings.targets.clone();
                 let interval = settings.interval();
                 tauri::async_runtime::spawn(async move {
+                    fetcher.set_network(network).await;
                     watcher.set_targets(targets).await;
                     watcher.set_interval(interval).await;
+                    // 仅本地验收启动命令显式指定时恢复原有监控，普通启动仍保持暂停。
+                    if std::env::var_os("APW_MONITOR_AUTOSTART").is_some_and(|v| v == "1") {
+                        watcher.start().await;
+                    }
                 });
             }
 
             app.manage(AppState {
                 watcher,
+                fetcher,
+                checkout: CheckoutRunner::new(),
                 catalog,
                 http: reqwest::Client::new(),
                 settings: RwLock::new(settings),
@@ -1133,28 +1671,196 @@ pub fn run() {
             refresh_products,
             get_settings,
             save_settings,
+            test_clash_route,
+            list_clash_nodes,
+            select_clash_node,
             get_snapshot,
             set_targets,
             set_interval,
             start_watching,
             stop_watching,
+            retry_watching_now,
             is_running,
             test_notify,
+            open_checkout_browser,
+            test_checkout,
+            checkout_login::checkout_login_status,
+            checkout_login::save_checkout_login,
+            checkout_login::clear_checkout_login,
             open_target_product,
             check_for_update,
             install_update,
         ])
-        .run(tauri::generate_context!())
-        .expect("Tauri 应用启动失败");
+        .build(tauri::generate_context!())
+        .expect("Tauri 应用启动失败")
+        .run(|app, event| match event {
+            // 关窗口只是收进托盘。之后点 Dock 图标或在访达里再打开一次，macOS
+            // 只激活已在运行的进程、发出 Reopen，不经过单实例插件，不在这里把
+            // 窗口叫回来就什么都看不到。
+            #[cfg(target_os = "macos")]
+            RunEvent::Reopen { .. } => reveal_window(app),
+            RunEvent::Exit => {
+                // Dock 图标的「退出」、Cmd+Q 和应用菜单的退出都不经过托盘菜单，
+                // 系统直接结束进程。这里是所有退出方式的最后一站：不在这里收尾，
+                // 查询用的无头浏览器和下单浏览器都会留在后台。托盘退出已经清理
+                // 过一遍，再走到这里时两个会话都是空的，立即返回。
+                tauri::async_runtime::block_on(async {
+                    let _ = tokio::time::timeout(EXIT_CLEANUP_TIMEOUT, release_browsers(app)).await;
+                });
+            }
+            _ => {}
+        });
+}
+
+/// 停掉监控并关闭查询与下单两个浏览器。可以重复调用。
+async fn release_browsers(app: &AppHandle) {
+    let Some(state) = app.try_state::<AppState>() else {
+        return;
+    };
+    state.watcher.stop().await;
+    state.fetcher.shutdown().await;
+    state.checkout.shutdown().await;
 }
 
 #[cfg(test)]
 mod tests {
     use super::{
         in_stock_notification_body, parse_delivery_localities, parse_watch_band_choices,
-        parse_watch_band_sizes,
+        parse_watch_band_sizes, should_disable_checkout_after_failure,
+        should_disable_checkout_after_success, should_pause_monitoring,
     };
+    use crate::checkout::{CheckoutError, CheckoutOutcome, Stage};
+    use apw_core::config::Settings;
     use apw_core::model::Target;
+
+    #[test]
+    fn 成功后是否关闭由用户选择但提交结果不明必须关闭() {
+        let mut settings = Settings::default();
+        let review = CheckoutOutcome::ReachedReview {
+            store: "test".into(),
+            total: "100".into(),
+        };
+        let submitted = CheckoutOutcome::OrderSubmitted {
+            store: "test".into(),
+            total: "100".into(),
+            order_number: Some("W12345678".into()),
+        };
+        let uncertain = CheckoutOutcome::OrderSubmitted {
+            store: "test".into(),
+            total: "100".into(),
+            order_number: None,
+        };
+        for disable in [true, false] {
+            settings.checkout.disable_after_success = disable;
+            assert_eq!(
+                should_disable_checkout_after_success(&settings, &review),
+                disable
+            );
+            assert_eq!(
+                should_disable_checkout_after_success(&settings, &submitted),
+                disable
+            );
+            assert!(should_disable_checkout_after_success(&settings, &uncertain));
+        }
+    }
+
+    #[test]
+    fn 只有提交结果不明才因失败关闭自动结账() {
+        for stage in [
+            Stage::Browser,
+            Stage::Bag,
+            Stage::BagCleanup,
+            Stage::SignIn,
+            Stage::SignInLoading,
+            Stage::Fulfillment,
+            Stage::PickupContact,
+            Stage::Billing,
+            Stage::Review,
+            Stage::PlaceOrder,
+        ] {
+            let error = CheckoutError {
+                stage,
+                message: "test".into(),
+            };
+            assert_eq!(
+                should_disable_checkout_after_failure(&error),
+                stage == Stage::PlaceOrder
+            );
+        }
+    }
+
+    #[test]
+    fn 到货后暂停监控不会截断自动结账失败重试() {
+        let mut settings = Settings {
+            stop_on_hit: true,
+            ..Settings::default()
+        };
+        assert!(
+            should_pause_monitoring(&settings, None),
+            "普通监控到货即暂停"
+        );
+
+        settings.checkout.enabled = true;
+        assert!(
+            !should_pause_monitoring(&settings, None),
+            "自动结账到货后先保持监控"
+        );
+        for stage in [
+            Stage::Browser,
+            Stage::Bag,
+            Stage::BagCleanup,
+            Stage::SignIn,
+            Stage::SignInLoading,
+            Stage::Fulfillment,
+            Stage::PickupContact,
+            Stage::Billing,
+            Stage::Review,
+        ] {
+            let failure = Err(CheckoutError {
+                stage,
+                message: "失败".into(),
+            });
+            assert!(
+                !should_pause_monitoring(&settings, Some(&failure)),
+                "{stage:?} 失败应继续监控"
+            );
+        }
+
+        let completed = [
+            Ok(CheckoutOutcome::ReachedReview {
+                store: "test".into(),
+                total: "100".into(),
+            }),
+            Ok(CheckoutOutcome::OrderSubmitted {
+                store: "test".into(),
+                order_number: Some("W12345678".into()),
+                total: "100".into(),
+            }),
+            Ok(CheckoutOutcome::OrderSubmitted {
+                store: "test".into(),
+                order_number: None,
+                total: "100".into(),
+            }),
+            Err(CheckoutError {
+                stage: Stage::PlaceOrder,
+                message: "结果不明".into(),
+            }),
+        ];
+        for result in &completed {
+            assert!(
+                should_pause_monitoring(&settings, Some(result)),
+                "完成或需确认后才暂停"
+            );
+        }
+        settings.stop_on_hit = false;
+        assert!(!should_pause_monitoring(&settings, None));
+        for result in &completed {
+            assert!(
+                !should_pause_monitoring(&settings, Some(result)),
+                "未开启暂停时继续监控"
+            );
+        }
+    }
 
     #[test]
     fn apple地区响应过滤占位项并保留三级选项() {
@@ -1184,6 +1890,7 @@ mod tests {
             companion_part: Some("MKDY4FE/A".into()),
             companion_name: None,
             kit_part: Some("Z0YQ".into()),
+            pickup_location: None,
         };
         let body = in_stock_notification_body(&target);
         assert!(body.contains("Apple Watch Ultra 4"));
@@ -1196,7 +1903,7 @@ mod tests {
             .iter()
             .map(|region| region.locale)
             .collect();
-        assert_eq!(locales, vec!["en_US", "en_CA"]);
+        assert_eq!(locales, vec!["en_US", "en_CA", "en_AE"]);
     }
 
     #[test]

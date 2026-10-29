@@ -2,10 +2,59 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { describeAvailability, describeAdvice, isUntrusted } from "../src/lib/types.ts";
 
-test("空取货数据保持不可信并指导核对型号，不要求等待程序更新", () => {
-  const state = { kind: "unknown", reason: "no_pickup_data", store_number: "R581" };
-  assert.equal(describeAvailability(state).label, "暂无数据");
+test("浏览器启动失败保留原因和重试间隔，不归为网络故障或无货", () => {
+  const state = {kind: "unknown", reason: "browser_unavailable", detail: "浏览器专属资料目录被占用，或无法取得目录锁（退出码 21）"};
+  const presentation = describeAvailability(state);
+  assert.equal(presentation.label, "浏览器未连接");
   assert.equal(isUntrusted(state), true);
-  assert.match(describeAdvice("check_product"), /刷新型号目录/);
-  assert.doesNotMatch(describeAdvice("check_product"), /等程序更新/);
+  assert.match(presentation.detail, /目录锁.*退出码 21/);
+  assert.match(presentation.detail, /按设置的间隔/);
+  assert.doesNotMatch(presentation.detail, /网络请求失败|无货/);
+});
+
+test("门店未接入在线取货显示为暂停服务而不是查询故障", () => {
+  const state = { kind: "unknown", reason: "store_pickup_unavailable", store_number: "R384" };
+  assert.equal(describeAvailability(state).label, "暂停取货");
+  assert.equal(describeAvailability(state).tone, "comingSoon");
+  assert.equal(isUntrusted(state), false);
+});
+
+test("保护冷却明确显示等待时间且不建议用户重启", () => {
+  const state = {
+    kind: "unknown",
+    reason: "cooling_down",
+    remaining_seconds: 299,
+    detail: "HTTP 541",
+  };
+  const presentation = describeAvailability(state);
+  assert.equal(presentation.label, "冷却中");
+  assert.match(presentation.detail, /299 秒后自动探测/);
+  assert.match(describeAdvice("wait_for_retry"), /无需手动重启/);
+});
+
+test("Apple 拒绝查询后明确保持用户设置的重试频率", () => {
+  const advice = describeAdvice("try_another_network");
+  assert.match(advice, /按你设置的查询间隔重试/);
+  assert.match(advice, /直到手动暂停/);
+  assert.match(advice, /不会自动弹出页面/);
+  assert.doesNotMatch(advice, /延长重试间隔/);
+});
+
+test("浏览器页面请求失败会保留真实原因和原始重试频率", () => {
+  const presentation = describeAvailability({
+    kind: "unknown",
+    reason: "transport",
+    detail: "Apple 页面请求失败：TypeError: Failed to fetch",
+  });
+  assert.match(presentation.detail, /TypeError: Failed to fetch/);
+  assert.match(presentation.detail, /下一轮按设置的间隔自动重试/);
+  assert.doesNotMatch(presentation.detail, /冷却|延长/);
+});
+
+test("新品 default 状态显示待开放取货且不计为故障", () => {
+  const state = { kind: "unknown", reason: "pickup_pending" };
+  const presentation = describeAvailability(state);
+  assert.equal(presentation.label, "待开放取货");
+  assert.equal(presentation.tone, "comingSoon");
+  assert.equal(isUntrusted(state), false);
 });

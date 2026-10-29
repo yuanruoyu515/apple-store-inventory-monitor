@@ -1,18 +1,21 @@
 {
   "name": "apple-store-inventory-monitor",
   "private": true,
-  "version": "1.0.9",
+  "version": "1.0.27",
   "type": "module",
   "scripts": {
-    "generate:us": "node scripts/generate-us-data.mjs",
-    "generate:ca": "node scripts/generate-ca-data.mjs",
-    "generate:na": "node scripts/generate-us-data.mjs && node scripts/generate-ca-data.mjs",
-    "refresh:ca": "node scripts/refresh-canada-data.mjs",
     "dev": "vite",
     "build": "tsc && vite build",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "generate:us": "node scripts/generate-us-data.mjs",
+    "generate:ca": "node scripts/generate-ca-data.mjs",
+    "generate:ae": "node scripts/generate-ae-data.mjs",
+    "generate:na": "node scripts/generate-us-data.mjs && node scripts/generate-ca-data.mjs",
+    "generate:regions": "pnpm generate:na && pnpm generate:ae",
+    "refresh:ca": "node scripts/refresh-canada-data.mjs",
+    "refresh:ae": "node scripts/refresh-uae-data.mjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",

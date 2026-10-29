@@ -1,0 +1,376 @@
+name: Release
+
+# 打包并发布 Tauri 桌面端安装包。
+#
+# 两条触发路径：
+#   1. push 一个 v* 标签 —— 正式发版，会创建 GitHub Release（草稿，见下面 releaseDraft 的说明）。
+#   2. 手动 workflow_dispatch —— 只构建、不发布，用来验证这条流水线本身还能跑通。
+#      改动了这个文件之后请先手动跑一次，别拿真实发版当测试。
+#
+# 关于「草稿」：产物是四个作业并行上传的，同时 tauri-action 会把各平台的签名信息
+# 合并进同一个 latest.json。如果 Release 一创建就是公开的，GitHub 会立刻把它标成
+# Latest，而这时 `releases/latest/download/latest.json` 要么 404，要么只包含已经跑完
+# 的那一两个平台 —— 用户的自动更新会在这个窗口里拿到半成品。所以这里固定发草稿，
+# 四个作业全绿之后由人到 Releases 页面点一下 “Publish release”。
+# **不点就没人能收到更新**，这一步不能忘。
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+# 默认只读；需要写 Release 的权限在 build 作业里单独提权。
+permissions:
+  contents: read
+
+concurrency:
+  # 同一个标签重复触发时排队而不是互相取消：四个作业都要往同一个 Release 里塞
+  # 产物和 latest.json，中途被砍掉会留下一个残缺的 Release。
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: write
+
+    # Tauri 的产物必须在目标平台上原生构建：Windows 要 MSVC 工具链和 WebView2，
+    # macOS 要 Xcode 的 SDK 与 codesign，Linux 要 webkit2gtk 的一堆 C 头文件。
+    # 这里刻意不做交叉编译 —— 每个 runner 只出它自己架构的包，所以下面也不给
+    # `tauri build` 传 --target，用宿主机默认目标即可。
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: macOS (Apple Silicon)
+            runner: macos-latest
+
+          # macos-15-intel 是 GitHub 当前提供的 Intel runner。
+          # 上一代标签 macos-13 已于 2025-12-04 退役，写它会让作业在初始化阶段直接
+          # 失败 —— 这个坑本仓库踩过一次，整条发布流水线因此空转。
+          # 换标签前先去 actions/runner-images 的 README 确认它还在列表里。
+          - label: macOS (Intel)
+            runner: macos-15-intel
+
+          - label: Windows (x64)
+            runner: windows-latest
+
+          # 固定 24.04 而不是写 ubuntu-latest：Linux 产物的 glibc 下限由构建机决定，
+          # 用浮动标签会在 GitHub 把 ubuntu-latest 挪到 26.04 的那天悄悄抬高门槛，
+          # 老发行版上的用户只会看到「GLIBC_2.xx not found」。
+          # 24.04 对应 glibc 2.39，这一点写进了下面的 Release 说明。
+          - label: Linux (x64)
+            runner: ubuntu-24.04
+
+    defaults:
+      run:
+        # Windows runner 默认是 pwsh。统一成 bash，四个平台共用同一套脚本。
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # pnpm 必须装在 setup-node 之前：setup-node 的 `cache: pnpm` 要靠调用
+      # `pnpm store path` 才知道该缓存哪个目录，PATH 里没有 pnpm 它会直接报错。
+      #
+      # version 也不能省。package.json 里没有 packageManager 字段，
+      # pnpm/action-setup 在两者都缺的情况下会失败退出而不是挑个默认值。
+      # 反过来，将来如果给 package.json 加了 packageManager，就要把这里的 version 删掉，
+      # 两边都写且对不上会被判成版本冲突而报错。
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v7
+        with:
+          # lts/* = 当前最新的 LTS。本项目不锁具体小版本，Vite 7 只要求 Node 20.19+。
+          node-version: lts/*
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      # 缓存整个 target/ 与 cargo registry。Tauri 的依赖树很大（webkit/wry/tao 一层层
+      # 下来上千个 crate），冷编译在免费 runner 上是十几分钟起步。
+      # 缓存键里已经含有作业名与 rustc 版本，四个平台不会互相污染。
+      - uses: Swatinem/rust-cache@v2
+        with:
+          # 显式声明工作区根目录与 target 目录的对应关系。Cargo.toml 在仓库根，
+          # 默认值本来就是这个，写出来是为了将来把 workspace 挪走时能一眼看到要改哪。
+          workspaces: ". -> target"
+
+      # 这些包一个都不能省，缺任何一个都是在**编译期**报 C 头文件找不到，
+      # 而不是在运行时才暴露，日志里只有一行 fatal error，很难对上是缺哪个包：
+      #
+      #   libwebkit2gtk-4.1-dev  —— WebView 后端（wry）。Tauri v2 用的是 4.1，
+      #                             不是 v1 时代的 4.0，装错版本 pkg-config 直接找不到。
+      #   libgtk-3-dev           —— 窗口、菜单。通常由 webkit2gtk 依赖带进来，
+      #                             显式列出是为了它哪天不再被带进来时报错能指向明处。
+      #   libayatana-appindicator3-dev
+      #                          —— 系统托盘。src-tauri 开了 tauri 的 "tray-icon" 特性，
+      #                             这个项目就是要常驻托盘盯库存的，删了直接编不过。
+      #   librsvg2-dev           —— 图标栅格化。
+      #   libxdo-dev / libssl-dev
+      #                          —— Tauri v2 官方前置依赖清单里的项，见
+      #                             https://v2.tauri.app/start/prerequisites/
+      #   libasound2-dev         —— **本项目特有**：apw-core 依赖 rodio → cpal → alsa-sys，
+      #                             需要 ALSA 的开发头文件。Tauri 官方清单里没有这一条，
+      #                             照着官网抄会漏掉它，然后卡在 alsa-sys 的 build 脚本上。
+      #   patchelf               —— 打 AppImage 时改可执行文件的 rpath，缺了 bundler 会中途失败。
+      #   file / wget / xdg-utils
+      #                          —— AppImage 的打包脚本在运行时会调用这几个命令行工具。
+      #                             ubuntu runner 上一般已经有了，列出来只是为了自证完整。
+      - name: 安装 Tauri 与音频的系统依赖（仅 Linux）
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libwebkit2gtk-4.1-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            libxdo-dev \
+            libssl-dev \
+            libasound2-dev \
+            rpm \
+            patchelf \
+            file \
+            wget \
+            xdg-utils
+
+      # tauri-action 不会替我们装前端依赖，得自己来。
+      # CI 环境下 pnpm 本来就默认 --frozen-lockfile，写出来是为了让「锁文件没跟着
+      # package.json 一起提交」这种情况明确地失败，而不是让 CI 悄悄改锁文件。
+      - name: 安装前端依赖
+        run: pnpm install --frozen-lockfile
+
+      # ── 签名密钥缺失时的降级处理 ────────────────────────────────────────────
+      # tauri.conf.json 里配了 updater 的 pubkey，Tauri CLI 因此会在打包结束后强制
+      # 对所有「可用于更新」的产物（.app.tar.gz / NSIS / AppImage / deb / rpm）
+      # 签名，找不到私钥就直接报错退出：
+      #   "A public key has been found, but no private key. Make sure to set
+      #    `TAURI_SIGNING_PRIVATE_KEY` environment variable."
+      # 也就是说密钥没配的话，整条流水线连一个安装包都产不出来。
+      #
+      # 解法是给 `tauri build` 加 --no-sign，它会把签名整步跳过（只打印一行 warning），
+      # 安装包照常产出，只是没有 .sig。tauri-action 那边不需要额外设置：它生成
+      # latest.json 前会先找 .sig，一个都没有时打印
+      #   "Signature not found for the updater JSON. Skipping upload..."
+      # 然后跳过，不会让作业失败。
+      #
+      # 注意 --no-sign 同时也会跳过 macOS 应用包的 ad-hoc 签名。Apple Silicon 上从
+      # 浏览器下载的应用若没有完整 bundle 签名，会被 Gatekeeper 误报为“已损坏”。
+      # 因此 macOS 作业不允许降级：缺少更新签名密钥时直接失败；Windows/Linux 才能
+      # 继续产出只能手动安装、不能应用内更新的未签名包。
+      #
+      # --no-sign 是 `tauri build` 的参数，已在 tauri-cli v2.11.4（pnpm-lock.yaml 当前
+      # 锁定的版本）上确认存在。如果哪天把 @tauri-apps/cli 降级到更老的版本，
+      # 先跑 `pnpm exec tauri build --help | grep no-sign` 确认它还在，否则这里的
+      # 降级逻辑会变成「参数不认识」导致构建失败。
+      #
+      # 为什么要绕这么一圈用 output 而不是直接 `if: secrets.X != ''`：
+      # GitHub 的上下文可用性表里，step 的 if: 只认 github/needs/matrix/env/steps 等，
+      # **不包含 secrets**，写了也永远判不出来。secrets 只能出现在 env: / with: / run: 里。
+      - name: 检测更新签名密钥
+        id: signing
+        env:
+          SIGNING_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        run: |
+          set -eu
+          if [ -n "${SIGNING_KEY:-}" ]; then
+            echo "sign=true" >> "$GITHUB_OUTPUT"
+            echo "已配置签名密钥，将产出带签名的更新包与 latest.json。"
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            echo "::error::macOS 发布既需要更新签名密钥，也必须保留应用包的 ad-hoc 签名；禁止使用 --no-sign 降级。"
+            exit 1
+          else
+            echo "sign=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::未配置 TAURI_SIGNING_PRIVATE_KEY，本次产出未签名安装包，且不会生成 latest.json，应用内自动更新在这个版本上不可用。补配仓库 Secret 后重跑本流水线即可。"
+          fi
+
+      - name: 构建、打包并发布
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 两个都留空也没关系：上一步已经把 --no-sign 备好了。
+          # 本项目生成密钥时用的是空密码，密码 Secret 不配也能签（Tauri 在 CI 环境下
+          # 会把缺失的密码当成空字符串）。
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          # 手动触发时这三项留空 —— tauri-action 的约定是：tagName / releaseName /
+          # releaseId 都不给，就只构建、不碰 Release。正好用来空跑验证流水线。
+          tagName: ${{ github.event_name == 'push' && github.ref_name || '' }}
+          releaseName: ${{ github.event_name == 'push' && github.ref_name || '' }}
+
+          # 先发草稿，人工确认四个平台都齐了再发布。理由见文件开头。
+          #
+          # 假设：四个作业并行地「找不到就创建」同一个 Release，靠的是 tauri-action
+          # 自己的去重。这是官方 README 里给出的矩阵写法，理论上仍有极小概率同时创建
+          # 出两个草稿。真遇到了（Releases 里出现两条同名草稿）再拆一个前置作业专门
+          # 建 Release、后续作业用 releaseId 引用即可 —— 但那样 latest.json 里的下载
+          # 地址会退化成 releases/latest/download/<bundle>，代价更大，所以先不这么做。
+          releaseDraft: true
+          prerelease: false
+
+          # 生成并上传 updater 用的 latest.json。tauri.conf.json 里的 endpoint 指向
+          # releases/latest/download/latest.json，靠的就是这个文件。
+          # 四个作业会各自往同一个 latest.json 里合并自己平台的条目，action 内部对
+          # 这个文件有重试逻辑，不需要我们串行化。
+          uploadUpdaterJson: true
+
+          # 中文 productName 在部分打包器里无法生成稳定的文件名。公开资产统一用
+          # ASCII 主二进制名，latest.json 会同步采用重命名后的下载地址。
+          releaseAssetNamePattern: "[mainBinaryName]_[version]_[arch][setup][ext]"
+
+          # Windows 只构建 setup.exe（NSIS），见 tauri.windows.conf.json。
+          # 它配合 tauri.conf.json 里的 windows.installMode = "passive" 能安静地就地升级。
+          # 这里继续显式指定 NSIS，防止未来重新加入其他 Windows 安装格式后更新源漂移。
+          updaterJsonPreferNsis: true
+
+          # 手动空跑时没有 Release 可传，把产物挂成 workflow artifact，
+          # 否则这次运行什么都拿不到、也就验证不了打包结果。
+          # 默认命名是 [platform]-[arch]-[bundle]，四个作业不会撞名。
+          uploadWorkflowArtifacts: ${{ github.event_name == 'workflow_dispatch' }}
+
+          # 刻意保持默认的 0。retryAttempts 会连**构建**一起重试，编译错误重来一遍
+          # 只是白烧十几分钟。latest.json 的上传冲突 action 内部本来就自带一次重试。
+          retryAttempts: 0
+
+          args: ${{ steps.signing.outputs.sign == 'false' && '--no-sign' || '' }}
+
+          # 四个作业传的是同一段文字，后跑完的作业会用它覆盖 Release 说明，
+          # 内容一致所以结果是幂等的。改这里记得别引入 ${{ }}，会被当成表达式求值。
+          releaseBody: |
+            ### v1.0.26 更新内容
+
+            - 修复登录状态下结账时，取货信息表单没有邮箱栏导致自动结账报「取货联系人缺少电子邮件地址」而停下的问题；现在只核对和填写页面上实际出现的栏目。
+
+            完整逐项记录见 [CHANGELOG.md](https://github.com/suversal/apple-store-inventory-monitor/blob/v1.0.26/CHANGELOG.md)。
+
+            ### 下载哪一个
+
+            | 系统 | 文件 |
+            | --- | --- |
+            | macOS（Apple Silicon）| `*_aarch64.dmg` |
+            | macOS（Intel）| `*_x64.dmg` |
+            | Windows | `*-setup.exe` |
+            | Linux | `*_amd64.deb` 或 `*_amd64.AppImage` |
+
+            ### macOS：首次打开被拦下
+
+            应用包使用完整的 ad-hoc 签名，但没有 Developer ID 证书且尚未经过 Apple 公证。
+            如果 Gatekeeper 拦截，请在 Finder 中按住 Control 点击应用并选择「打开」，
+            或到「系统设置 → 隐私与安全性」确认被拦截的是本应用，再选择「仍要打开」。
+
+            若确认文件来自本仓库 Release 后仍需移除下载隔离标记，可执行：
+
+            ```sh
+            xattr -cr "/Applications/果到雷达.app"
+            ```
+
+            这条命令只移除该应用的下载隔离标记，不会关闭系统的全局安全功能。
+
+            ### Linux：运行库要求
+
+            产物在 Ubuntu 24.04 上构建，需要 glibc ≥ 2.39，更老的发行版请自行从源码编译。
+
+            - `.deb`：`sudo apt install ./apple-store-inventory-monitor_*_amd64.deb` 会自动拉齐依赖。
+              手动装的话需要 `libwebkit2gtk-4.1-0`、`libayatana-appindicator3-1`（托盘图标）、
+              以及 ALSA 运行库 `libasound2t64`（播放到货提示音要用）。
+            - `.AppImage`：需要系统里有 FUSE 2（Ubuntu 24.04 上是 `libfuse2t64`）。
+              不想装的话可以用 `./apple-store-inventory-monitor_*.AppImage --appimage-extract-and-run` 运行。
+
+            ### 关于自动更新
+
+            应用会向本仓库的 Releases 查询新版本。如果本次发布的资产里没有 `latest.json`，
+            说明构建时仓库未配置更新签名密钥，这个版本只能手动下载升级。
+
+            ### 许可与来源
+
+            本项目直接基于 [ENCHIGO/apple-pickup-watcher](https://github.com/ENCHIGO/apple-pickup-watcher)
+            继续开发；该项目是 [hteen/apple-store-helper](https://github.com/hteen/apple-store-helper)
+            的 GPL-3.0 重写版本。详见仓库内的 `LICENSE` 与 `NOTICE`。
+
+      - name: 验证并安装 Linux 发布包
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+
+          deb_path="$(find target/release/bundle/deb -maxdepth 1 -name '*.deb' -print -quit)"
+          rpm_path="$(find target/release/bundle/rpm -maxdepth 1 -name '*.rpm' -print -quit)"
+          appimage_path="$(find target/release/bundle/appimage -maxdepth 1 -name '*.AppImage' -print -quit)"
+          test -n "$deb_path"
+          test -n "$rpm_path"
+          test -n "$appimage_path"
+
+          deb_name="$(dpkg-deb -f "$deb_path" Package)"
+          rpm_name="$(rpm -qp --queryformat '%{NAME}' "$rpm_path")"
+          package_name_pattern='^[a-z0-9][a-z0-9+.-]*$'
+          [[ "$deb_name" =~ $package_name_pattern ]]
+          [[ "$rpm_name" =~ $package_name_pattern ]]
+          test "$deb_name" = "guodao-radar"
+          test "$rpm_name" = "guodao-radar"
+          test -x "$appimage_path"
+
+          sudo apt-get install -y "./$deb_path"
+          dpkg-query -W -f='${Status}\n' guodao-radar | grep -qx 'install ok installed'
+
+      - name: 静默安装并启动 Windows 发布包
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem target/release/bundle/nsis -Filter '*.exe' | Select-Object -First 1
+          if (-not $installer) { throw '没有找到 NSIS 安装包' }
+          $installDir = Join-Path $env:RUNNER_TEMP 'guodao-radar-install'
+          $install = Start-Process -FilePath $installer.FullName -ArgumentList @('/S', "/D=$installDir") -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "NSIS 安装失败：$($install.ExitCode)" }
+          $app = Get-ChildItem $installDir -Filter '*.exe' -Recurse |
+            Where-Object { $_.Name -notmatch 'uninstall' } |
+            Select-Object -First 1
+          if (-not $app) { throw '安装完成后没有找到应用程序' }
+          $running = Start-Process -FilePath $app.FullName -PassThru
+          Start-Sleep -Seconds 8
+          if ($running.HasExited) { throw "应用启动后提前退出：$($running.ExitCode)" }
+          Stop-Process -Id $running.Id -Force
+
+      # tauri-action 会在这一步之前把产物上传到草稿 Release，但草稿不会对用户可见。
+      # 如果更新归档或 DMG 内的应用签名无效，这里让作业失败，发布者就不能把这批
+      # 资产误当成可用版本公开。不能用 spctl 验证：ad-hoc 签名没有 Developer ID，
+      # Gatekeeper 仍可能要求用户手动允许；这里检查的是 bundle 结构与资源封印是否完整。
+      - name: 验证 macOS 更新包与 DMG 签名
+        if: runner.os == 'macOS'
+        run: |
+          set -euo pipefail
+
+          verify_app() {
+            local app_path="$1"
+            codesign --verify --deep --strict --verbose=4 "$app_path"
+            local signature_info
+            signature_info="$(codesign -d --verbose=4 "$app_path" 2>&1)"
+            echo "$signature_info"
+            grep -q "Identifier=com.suversal.apple-store-inventory-monitor" <<< "$signature_info"
+            grep -q "Signature=adhoc" <<< "$signature_info"
+          }
+
+          dmg_path="$(find target/release/bundle/dmg -maxdepth 1 -name '*.dmg' -print -quit)"
+          test -n "$dmg_path"
+          mount_path="$(mktemp -d)"
+          archive_path="$(find target/release/bundle/macos -maxdepth 1 -name '*.app.tar.gz' -print -quit)"
+          test -n "$archive_path"
+          archive_dir="$(mktemp -d)"
+          cleanup() {
+            hdiutil detach "$mount_path" >/dev/null 2>&1 || true
+            rmdir "$mount_path" >/dev/null 2>&1 || true
+            rm -rf "$archive_dir"
+          }
+          trap cleanup EXIT
+          hdiutil attach -readonly -nobrowse -mountpoint "$mount_path" "$dmg_path" >/dev/null
+          verify_app "$mount_path/果到雷达.app"
+
+          tar -xzf "$archive_path" -C "$archive_dir"
+          archived_app="$(find "$archive_dir" -maxdepth 1 -name '*.app' -print -quit)"
+          test -n "$archived_app"
+          verify_app "$archived_app"

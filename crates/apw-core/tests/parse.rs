@@ -68,6 +68,17 @@ fn 无法识别的取值绝不能变成无货() {
 }
 
 #[test]
+fn 新品默认状态是待开放而不是解析失败或无货() {
+    let raw = response(&part("default"));
+    let got = parse_pickup_message(raw.as_bytes(), "R683").expect("default 是已知业务状态");
+    assert_eq!(
+        got.parts["MG724CH/A"].availability,
+        Availability::Unknown(UnknownReason::PickupPending)
+    );
+    assert!(!got.parts["MG724CH/A"].availability.is_failure());
+}
+
+#[test]
 fn 信封里的错误优先于门店数据() {
     // 这条是独立审查找出来的：errorMessage 非空但 stores 也非空时，Go 版会
     // 无视错误照常解析，最终得出「无货」。
@@ -274,6 +285,22 @@ fn 已知取货节点为空是暂无数据而不是接口损坏或无货() {
                 .unwrap()
                 .contains("暂无数据不等于无货")
         );
+    }
+}
+
+#[test]
+fn 澳洲未接入在线取货的门店是暂无数据而不是查询失败() {
+    for raw in [
+        r#"{"head":{"status":"200"},"body":{"errorMessage":"There is no store associated with this search. Please try another search value."}}"#,
+        r#"{"head":{"status":"200"},"body":{"errorMessage":"没有与此搜索相关的零售店。请尝试其他搜索内容。"}}"#,
+    ] {
+        let err = parse_pickup_message(raw.as_bytes(), "R384").unwrap_err();
+
+        assert!(matches!(
+            &err,
+            ApiError::StorePickupUnavailable { store_number } if store_number == "R384"
+        ));
+        assert!(!err.is_retryable());
     }
 }
 

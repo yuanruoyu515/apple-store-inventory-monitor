@@ -13,29 +13,36 @@ use tokio::time::Instant;
 
 use crate::model::{Availability, DeliveryRegion, PickupDetails, Region, Target, UnknownReason};
 
-/// Shared by HTTP and Chromium transports. Canada's public purchase pages use
-/// /ca/shop/fulfillment-messages without the US-only carrier-policy parameter.
-pub fn pickup_query(
+/// Query the current retail pickup endpoint with each region's own policy.
+/// Only the US store uses the unlocked carrier policy; Canada/UAE must omit it.
+pub fn pickup_query_for_scope(
     region: &Region,
-    store_number: &str,
+    scope: (&str, &str),
     parts: &[String],
 ) -> Vec<(String, String)> {
-    let mut query = vec![
-        ("fae".into(), "true".into()),
+    let mut pairs = vec![
         ("pl".into(), "true".into()),
         ("mts.0".into(), "regular".into()),
     ];
-    query.extend(
+    pairs.push((scope.0.into(), scope.1.into()));
+    pairs.extend(
         parts
             .iter()
             .enumerate()
             .map(|(index, part)| (format!("parts.{index}"), part.clone())),
     );
     if region.locale == "en_US" {
-        query.push(("cppart".into(), "UNLOCKED/US".into()));
+        pairs.push(("cppart".into(), "UNLOCKED/US".into()));
     }
-    query.push(("store".into(), store_number.to_string()));
-    query
+    pairs
+}
+
+pub fn pickup_query(
+    region: &Region,
+    store_number: &str,
+    parts: &[String],
+) -> Vec<(String, String)> {
+    pickup_query_for_scope(region, ("store", store_number), parts)
 }
 
 /// 请求失败的分类。
@@ -56,6 +63,17 @@ pub enum ApiError {
     #[error("请求过于频繁被限流：{0}")]
     RateLimited(String),
 
+    /// 查询器正在主动保护当前地区，本次没有向 Apple 发出请求。
+    ///
+    /// `newly_started` 只供调度层决定是否发一次顶部告警；同一冷却期内其余门店
+    /// 仍会进入明确的「冷却中」未知状态，但不会重复刷屏。
+    #[error("Apple 查询保护冷却中，约 {remaining_seconds} 秒后自动探测：{detail}")]
+    CoolingDown {
+        remaining_seconds: u64,
+        detail: String,
+        newly_started: bool,
+    },
+
     /// 响应能解析成 JSON，但结构与预期不符，通常意味着 Apple 又改了接口。
     #[error("接口返回结构与预期不符：字段 {field} 的取值为 {raw:?}")]
     SchemaDrift { field: String, raw: String },
@@ -66,6 +84,10 @@ pub enum ApiError {
     )]
     NoPickupData { store_number: String },
 
+    /// Apple 明确表示当前搜索没有关联的在线取货门店。
+    #[error("Apple 当前未将门店 {store_number} 接入在线取货")]
+    StorePickupUnavailable { store_number: String },
+
     /// Apple 明确返回了一条业务错误信息。
     #[error("Apple 返回错误：{0}")]
     Apple(String),
@@ -73,6 +95,10 @@ pub enum ApiError {
     /// 网络层面的失败。
     #[error("网络请求失败：{0}")]
     Transport(String),
+
+    /// 本机查询浏览器没有成功建立会话，并非 Apple 返回的库存结果。
+    #[error("查询浏览器未连接：{0}")]
+    BrowserUnavailable(String),
 }
 
 impl ApiError {
@@ -84,18 +110,30 @@ impl ApiError {
         match self {
             Self::Blocked(detail) => UnknownReason::Blocked { detail },
             Self::RateLimited(_) => UnknownReason::RateLimited,
+            Self::CoolingDown {
+                remaining_seconds,
+                detail,
+                ..
+            } => UnknownReason::CoolingDown {
+                remaining_seconds,
+                detail,
+            },
             Self::SchemaDrift { field, raw } => UnknownReason::SchemaDrift { field, raw },
             Self::NoPickupData { store_number } => UnknownReason::NoPickupData { store_number },
+            Self::StorePickupUnavailable { store_number } => {
+                UnknownReason::StorePickupUnavailable { store_number }
+            }
             Self::Apple(message) => UnknownReason::AppleError { message },
             Self::Transport(detail) => UnknownReason::Transport { detail },
+            Self::BrowserUnavailable(detail) => UnknownReason::BrowserUnavailable { detail },
         }
     }
 
     /// 是否适合在同一次调用里快速重试。
     ///
     /// 541/403 表示当前请求特征或会话已被拒绝。原样重放只会在几秒内连续制造
-    /// 更多拦截，因此交给监控层退避并在下一轮重建会话。网络瞬断、429 和服务端
-    /// 临时错误才适合在这里重试。
+    /// 更多拦截，因此由监控层在下一轮按用户设置的间隔重试。网络瞬断、429 和
+    /// 服务端临时错误才适合在同一次调用内快速重试。
     pub fn is_retryable(&self) -> bool {
         matches!(self, Self::RateLimited(_) | Self::Transport(_))
     }
@@ -471,6 +509,47 @@ fn looks_like_json(content_type: &str, body: &[u8]) -> bool {
 /// 用泛型约束而不是 trait object：async fn in trait 在泛型位置可以直接写，
 /// 做成 `dyn` 还得引第三方宏来装箱 future，而引擎只需要一个具体实现，不值得。
 pub trait Fetcher: Clone + Send + Sync + 'static {
+    /// 开始新轮次。真实查询器用它清空只允许在单轮内复用的响应缓存。
+    fn begin_cycle(&self) -> impl std::future::Future<Output = ()> + Send {
+        async {}
+    }
+
+    /// 在并发查询开始前提供本轮的门店批次，供支持地点查询的实现合并型号。
+    /// 每个批次已满足单次型号数量上限；这里只规划，不发出网络请求。
+    fn plan_cycle(&self, _groups: &[Vec<Target>]) -> impl std::future::Future<Output = ()> + Send {
+        async {}
+    }
+
+    /// 读取上次送货结果，不发请求。缓存到期后刷新失败时仍可保留已有信息。
+    fn cached_delivery(
+        &self,
+        _target: &Target,
+        _location: Option<&DeliveryRegion>,
+    ) -> impl std::future::Future<Output = Option<DeliveryInfo>> + Send {
+        async { None }
+    }
+
+    /// 当前轮次实际发出的请求数与响应复用次数。
+    fn cycle_stats(&self) -> impl std::future::Future<Output = CycleStats> + Send {
+        async { CycleStats::default() }
+    }
+
+    /// 按地区保护冷却计算下一轮至少还要等待多久。
+    fn schedule_hint(
+        &self,
+        _locales: &[String],
+    ) -> impl std::future::Future<Output = ScheduleHint> + Send {
+        async { ScheduleHint::default() }
+    }
+
+    /// 用户主动要求立即重试时，解除查询器内部的等待状态。
+    ///
+    /// 默认查询器没有地区冷却，因此默认实现无需处理。带保护冷却的实现应当只
+    /// 清除等待，不伪造成功；下一轮仍按 Apple 的真实响应重新判断状态。
+    fn retry_now(&self) -> impl std::future::Future<Output = ()> + Send {
+        async {}
+    }
+
     fn pickup_message(
         &self,
         region: &'static Region,
@@ -478,6 +557,50 @@ pub trait Fetcher: Clone + Send + Sync + 'static {
         targets: &[Target],
         delivery_region: Option<&DeliveryRegion>,
     ) -> impl std::future::Future<Output = Result<StoreAvailability, ApiError>> + Send;
+}
+
+/// 一轮内查询器真正产生的网络负载。
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct CycleStats {
+    pub request_count: u32,
+    pub reused_response_count: u32,
+    /// 本轮使用的出口线路说明，例如「Clash 节点 香港01（本轮切换 1 次）」。
+    /// 跟随系统代理时为 `None`。
+    pub route: Option<String>,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct DeliveryInfo {
+    pub sale_reason: Option<String>,
+    pub sale_message: Option<String>,
+}
+
+impl DeliveryInfo {
+    /// 只补充配送字段，不保留过期的门店取货结论或文案。
+    pub fn merge_into(self, details: &mut Option<PickupDetails>) {
+        let details = details.get_or_insert_with(|| PickupDetails {
+            pickup_display: String::new(),
+            pickup_quote: None,
+            sale_reason: None,
+            sale_message: None,
+            delivery_date: None,
+        });
+        if self.sale_reason.is_some() {
+            details.sale_reason = self.sale_reason;
+        }
+        details.sale_message = self.sale_message;
+    }
+}
+
+/// 查询器对下一轮开始时间的最低要求。
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct ScheduleHint {
+    pub delay: Duration,
+    /// 当前目标地区中是否仍有 Apple 查询保护冷却。
+    ///
+    /// 这和 `delay` 是否最终拉长下一轮不是一回事：冷却剩余时间可能短于用户
+    /// 配置的普通间隔，但界面仍应如实展示冷却状态并允许用户立即重试。
+    pub cooling: bool,
 }
 
 impl Fetcher for AppleClient {
@@ -602,6 +725,20 @@ pub fn parse_pickup_message(raw: &[u8], want_store: &str) -> Result<StoreAvailab
         raw: format!("无法解析成 JSON：{e}"),
     })?;
 
+    // Apple 会用中英文业务文案表示当前搜索没有关联门店：澳洲站可能针对单店
+    // 返回，中国大陆站也可能针对地点搜索返回。它不是网络故障或无货；具体应该
+    // 回退单店还是显示暂停取货，由知道本次查询范围的 Chromium 层决定。
+    if resp
+        .body
+        .error_message
+        .as_deref()
+        .is_some_and(is_no_store_search_error)
+    {
+        return Err(ApiError::StorePickupUnavailable {
+            store_number: want_store.to_string(),
+        });
+    }
+
     check_envelope(&resp)?;
 
     let stores = resp
@@ -711,6 +848,12 @@ pub fn parse_pickup_message(raw: &[u8], want_store: &str) -> Result<StoreAvailab
     })
 }
 
+fn is_no_store_search_error(message: &str) -> bool {
+    let normalized = message.trim().to_ascii_lowercase();
+    normalized.contains("no store associated with this search")
+        || normalized.contains("没有与此搜索相关的零售店")
+}
+
 /// 在读取门店数据之前先校验响应信封。
 ///
 /// 必须先做这一步。Go 版只在 `stores` 为空时才看 `errorMessage`，也从不检查
@@ -739,7 +882,8 @@ fn check_envelope(resp: &PickupResponse) -> Result<(), ApiError> {
 /// 把 Apple 的 `pickupDisplay` 字段翻译成三态。
 ///
 /// 已实际观测到的取值：`available`（可取货）、`unavailable`（不可取货）、
-/// `ineligible`（该型号在此门店不支持到店取货）、`default`（取货待公布）。
+/// `ineligible`（该型号在此门店不支持到店取货）、`default`（新品的取货状态
+/// 尚待开放或公布，具体说明由 `pickupQuote` 提供）。
 ///
 /// 未知取值一律归为 `Unknown` 并带上原始值，而不是 `OutOfStock` —— 猜错成
 /// 「无货」会让用户错过机会，猜错成「未知」只是让用户多看一眼。同样重要的是，

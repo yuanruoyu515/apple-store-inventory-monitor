@@ -1,8 +1,10 @@
+> 当前版本为 **v1.0.27-us.1**，已基于上游 v1.0.26 更新，支持美国、加拿大和阿联酋。安装与当前查询行为以 [README.md](README.md) 为准。下文保留先前版本的地区数据来源及实现记录；旧的 fulfillment 取货路径已换成 `shop/retail/pickup-message`，请求调度与 541 处理已更新。
+
 # 果到雷达 · 美国版技术说明
 
 完整介绍、界面截图与下载安装入口见 **[美加修改版首页](README.md)**。v1.0.9 起同一应用增加加拿大支持，详见 [加拿大说明](README_CA.md)。本版由 [yuanruoyu515](https://github.com/yuanruoyu515) 维护，联系与反馈：[Threads @realtimyry](https://www.threads.com/@realtimyry)。下文保留美国适配细节、SKU 与构建说明。
 
-当前美加版为 **v1.0.9-us.1**，基于上游 `Apple Store Inventory Monitor` v1.0.6，美国部分继续支持 iPhone Duo、iPhone 18 Pro 与 iPhone 18 Pro Max 到店取货库存监控。保留 `US` 文件名、Bundle ID 与配置目录，兼容旧版覆盖升级。
+当前美加阿版为 **v1.0.27-us.1**，基于上游 `Apple Store Inventory Monitor` v1.0.26，美国部分继续支持 iPhone Duo、iPhone 18 Pro 与 iPhone 18 Pro Max 到店取货库存监控。保留 `US` 文件名、Bundle ID 与配置目录，兼容旧版覆盖升级。
 
 从 [GitHub Release](https://github.com/yuanruoyu515/apple-store-inventory-monitor/releases/latest) 下载：Apple 芯片 Mac 选择 `macOS-arm64`，Intel Mac 选择 `macOS-Intel`，解压后把应用放进“应用程序”。
 
@@ -20,7 +22,7 @@
 5. 可填写 Bark 地址（例如 `https://api.day.app/你的密钥`），再点“测试提醒与跳转”。
 6. 点击“开始监控”。关闭主窗口后应用会留在菜单栏继续监控；彻底退出、电脑休眠或关机后会停止。
 
-应用查询时会启动一个隔离的临时 Chromium 会话完成 Apple 的浏览器验证，不读取日常浏览器资料。库存变化和 Apple 的风控策略都可能很快变化，最终能否取货以 Apple 官网下单结果为准。
+应用查询时会启动一个应用专属的持久 Chromium 会话完成 Apple 的浏览器验证，不读取日常浏览器资料。库存变化和 Apple 的风控策略都可能很快变化，最终能否取货以 Apple 官网下单结果为准。
 
 ## 美国版变更
 
@@ -36,7 +38,7 @@
 
 截至 2026-10-16，Apple 的 Duo 预购取货响应可能为 `pickupDisplay: default`，并附带 `Check back for availability on 10.24`。新版将其显示为“取货待公布 / 10/24 再查”：这是 Apple 建议再查询的日期，不是保证可取货的日期，也不代表门店有货或无货。程序会继续按设定间隔查询，不把这个合法状态当解析错误或触发有货通知；真正返回可取货后才提醒。提示日期来自每次响应，不硬编码 10/24。
 
-送货时间与门店取货分开显示；美式英文日期使用 Apple 提供的完整年月日解析，跨年日期也可正确显示。Apple 的 HTTP 541 拦截仍可能发生，查询失败会保留为未知状态并延长重试间隔。
+送货时间与门店取货分开显示；美式英文日期使用 Apple 提供的完整年月日解析，跨年日期也可正确显示。Apple 的 HTTP 541 拦截仍可能发生，查询失败会保留为未知状态；系统或指定节点模式按设定间隔重试，Clash 轮换模式对被拒节点冷却并换线。
 
 ## iPhone Duo 美国配置
 
@@ -53,7 +55,7 @@
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm generate:na
+pnpm generate:regions
 pnpm test
 cargo test --workspace
 pnpm tauri build --bundles app
@@ -65,4 +67,4 @@ pnpm tauri build --bundles app
 
 ## 许可
 
-本分支是 GPL-3.0-or-later 衍生作品，直接基于 suversal/apple-store-inventory-monitor v1.0.6。原项目与来源说明见 [README](README.md#来源与开源许可)、[NOTICE](NOTICE) 和 [LICENSE](LICENSE)；上游原版文档归档在 [README_UPSTREAM.md](README_UPSTREAM.md)。分发应用时请同时保留对应源代码与许可证。
+本分支是 GPL-3.0-or-later 衍生作品，基于 suversal/apple-store-inventory-monitor v1.0.26。原项目与来源说明见 [README](README.md#来源与反馈)、[NOTICE](NOTICE) 和 [LICENSE](LICENSE)；上游原版文档归档在 [README_UPSTREAM.md](README_UPSTREAM.md)。分发应用时请同时保留对应源代码与许可证。

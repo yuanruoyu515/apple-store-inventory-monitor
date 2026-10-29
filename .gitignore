@@ -18,6 +18,8 @@ pnpm-debug.log*
 # 一个"合法签名"的更新包。
 *.key
 /.tauri/
+# 本机自动登录配置含明文密码，不能提交。
+checkout-login.json
 
 # 编辑器与系统
 .vscode/*

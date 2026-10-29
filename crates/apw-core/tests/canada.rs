@@ -62,7 +62,7 @@ fn 加拿大请求与结账链接始终在加拿大站且不带美国运营商�
     assert_eq!(ca.accept_language(), "en-CA,en;q=0.9");
     assert_eq!(
         ca.pickup_message_url(),
-        "https://www.apple.com/ca/shop/fulfillment-messages"
+        "https://www.apple.com/ca/shop/retail/pickup-message"
     );
     assert_eq!(ca.bag_url(), "https://www.apple.com/ca/shop/bag");
     for family in ca.families_in(Category::Iphone) {
@@ -98,6 +98,7 @@ fn 加拿大请求与结账链接始终在加拿大站且不带美国运营商�
         companion_part: None,
         companion_name: None,
         kit_part: None,
+        pickup_location: None,
     };
     assert_eq!(
         target.purchase_url(None).unwrap(),

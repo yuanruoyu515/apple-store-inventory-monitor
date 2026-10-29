@@ -11,12 +11,15 @@
  */
 
 export type UnknownReason =
+  | { reason: "browser_unavailable"; detail: string }
   | { reason: "not_yet_checked" }
   | { reason: "pickup_pending" }
   | { reason: "blocked"; detail: string }
   | { reason: "rate_limited" }
+  | { reason: "cooling_down"; remaining_seconds: number; detail: string }
   | { reason: "schema_drift"; field: string; raw: string }
   | { reason: "no_pickup_data"; store_number: string }
+  | { reason: "store_pickup_unavailable"; store_number: string }
   | { reason: "product_not_returned"; part_number: string }
   | { reason: "apple_error"; message: string }
   | { reason: "transport"; detail: string };
@@ -120,7 +123,110 @@ export interface Store {
 }
 
 /** 检测到有货时自动打开的页面，与 Rust 侧 `OpenOnHit` 一一对应。 */
-export type OpenOnHit = "none" | "bag" | "product";
+export type OpenOnHit = "none" | "bag" | "education_bag" | "product";
+
+export type NetworkMode = "system" | "pinned" | "clash";
+
+export interface ClashSettings {
+  controller: string;
+  secret: string;
+  group: string;
+  proxyPort: number;
+  /** 节点名关键词，用 | 分隔；为空表示全部节点。 */
+  nodeFilter: string;
+  /** 「指定节点」模式固定使用的节点。 */
+  pinnedNode: string;
+}
+
+export interface NetworkSettings {
+  mode: NetworkMode;
+  clash: ClashSettings;
+}
+
+/** Bark 推送的中断级别，与 Rust 侧 `BarkLevel` 一一对应。 */
+export type BarkLevel = "default" | "active" | "time_sensitive" | "passive" | "critical";
+
+/** Bark 推送的增强参数，与 Rust 侧 `BarkOptions` 一一对应。 */
+export interface BarkOptions {
+  /** 通知等级；default 表示不指定，与旧版行为一致。 */
+  level: BarkLevel;
+  /** 铃声名；空表示用 Bark 默认铃声。 */
+  sound: string;
+  /** 重要警告（critical）的通知音量 0-10；null 表示不指定。 */
+  volume: number | null;
+  /** 持续响铃：重复播放铃声约 30 秒。 */
+  call: boolean;
+}
+
+/** 自动结账使用的付款方式，与 Rust 侧 `CheckoutPayment` 一一对应。 */
+export type CheckoutPayment = "alipay" | "wechat" | "installment";
+
+/** Apple 结账页提供的分期期数。 */
+export const INSTALLMENT_PERIODS = [1, 3, 6, 12, 24] as const;
+
+/** 到货后自动结账的设置。目前只支持中国大陆的直营店取货。 */
+export interface CheckoutSettings {
+  enabled: boolean;
+  /** 成功后关闭自动结账；关闭此项允许后续到货继续触发。 */
+  disableAfterSuccess: boolean;
+  /** 自动加入本次到货的型号，允许监控列表中的不同商品触发。 */
+  autoAddToBag: boolean;
+  /** 自动加购时同时加 AppleCare+ 服务计划；关闭时选「不加 AppleCare+」。 */
+  addAppleCare: boolean;
+  /** 取货人证件号码后四位；Apple 每次结账都要求重新填写。 */
+  nationalIdSuffix: string;
+  payment: CheckoutPayment;
+  /** 分期方案名称，按结账页上的名称匹配。 */
+  installmentBank: string;
+  installmentPeriods: number;
+  /** 核对通过后是否自动点「立即下单」。 */
+  placeOrder: boolean;
+  /** 结账页默认选中的最近有货门店可取货时直接用它，不换到监控到货的那一家。 */
+  acceptNearestStore: boolean;
+  /** 预先准备购物袋模式的商品标识；自动加购时忽略。 */
+  product: string;
+  /** 是否用下面的联系信息覆盖结账页上 Apple 预填的内容。 */
+  fillContact: boolean;
+  contactLastName: string;
+  contactFirstName: string;
+  contactEmail: string;
+  /** 中国大陆手机号，不带 +86。 */
+  contactPhone: string;
+}
+
+/** 本机 Clash 线路检查结果，不代表 Apple 一定接受这些节点。 */
+export interface ClashRouteCheck {
+  version: string;
+  now: string | null;
+  nodes: string[];
+  skipped: number;
+  portOpen: boolean;
+  /** 批量测速超时的节点数；切换时会逐个复测，超时节点不会被切换过去。 */
+  timeoutCount: number;
+}
+
+/** 一次门店与型号目录刷新的结果。 */
+export interface CatalogRefresh {
+  /** 抓到的型号数（不同零件号）。 */
+  products: number;
+  /** 刷新到的门店数；门店刷新失败时为 null。 */
+  stores: number | null;
+  errors: string[];
+}
+
+/** 专用策略组中的一个节点。 */
+export interface RouteInfo {
+  name: string;
+  /** 批量测速延迟（毫秒）；超时或 DIRECT 为 null。 */
+  delay: number | null;
+  /** 被 Apple 拒绝后冷却中，或暂时连不通。 */
+  resting: boolean;
+}
+
+export interface RouteList {
+  now: string | null;
+  nodes: RouteInfo[];
+}
 
 export interface Settings {
   locale: string;
@@ -130,8 +236,13 @@ export interface Settings {
   /** 按商品零件号覆盖默认 Bark；同一型号在不同门店共用。 */
   productBarkUrls: Record<string, string>;
   barkUrl: string;
+  barkOptions: BarkOptions;
   soundEnabled: boolean;
   openOnHit: OpenOnHit;
+  /** 监控到有货后是否暂停监控；关闭时持续有货会每轮重复提醒。 */
+  stopOnHit: boolean;
+  network: NetworkSettings;
+  checkout: CheckoutSettings;
 }
 
 /** 监控目标的唯一键，与 Rust 侧 Target::key 的构成保持一致。 */
@@ -152,7 +263,11 @@ export interface UpdateInfo {
  * 由引擎判定并传过来，而不是让界面去匹配那句中文里有没有「拦截」两个字 ——
  * 那种写法在文案改动或加了别的语言之后会静默失效，而且不会有任何东西报错。
  */
-export type TroubleAdvice = "try_another_network" | "wait_for_update" | "check_product";
+export type TroubleAdvice =
+  | "try_another_network"
+  | "wait_for_retry"
+  | "wait_for_update"
+  | "check_product";
 
 export interface Trouble {
   reason: string;
@@ -163,7 +278,19 @@ export type WatcherEvent =
   | { type: "stateChanged"; state: TargetState }
   | { type: "inStock"; state: TargetState }
   | { type: "cycleStarted"; cycle: number; storeCount: number; targetCount: number }
-  | { type: "cycleComplete"; cycle: number; elapsedMs: number; healthy: boolean; snapshot: TargetState[] }
+  | {
+      type: "cycleComplete";
+      cycle: number;
+      elapsedMs: number;
+      requestCount: number;
+      reusedResponseCount: number;
+      nextCheckInSecs: number;
+      cooling: boolean;
+      /** 本轮使用的出口线路；跟随系统代理时省略。 */
+      route?: string;
+      healthy: boolean;
+      snapshot: TargetState[];
+    }
   | { type: "trouble"; reason: string; advice: TroubleAdvice | null }
   | { type: "runStateChanged"; running: boolean };
 
@@ -172,9 +299,12 @@ export function describeAdvice(advice: TroubleAdvice): string {
   switch (advice) {
     case "try_another_network":
       return (
-        "Apple 拒绝了这次查询，尚不能确定是会话、请求频率还是网络原因。" +
-        "程序会延长重试间隔；若持续失败，可重启应用后重试，并对照官网或其他网络检查。"
+        "Apple 拒绝了这次查询。程序会保留专属后台浏览器会话，且不会自动弹出页面；" +
+        "随后会复用同一会话，按你设置的查询间隔重试，" +
+        "直到手动暂停，不会延长等待；若仍持续失败，再对照官网或切换网络检查。"
       );
+    case "wait_for_retry":
+      return "程序已暂停当前地区的真实请求，冷却结束后会自动进行一次恢复探测，无需手动重启。";
     case "wait_for_update":
       return "返回数据与当前解析规则不一致；如果持续出现，需要进一步排查或更新程序。";
     case "check_product":
@@ -225,7 +355,7 @@ function describeUnknown(a: { kind: "unknown" } & UnknownReason): {
     case "not_yet_checked":
       return { label: "待查询", tone: "pending", detail: "尚未轮到这一项" };
     case "pickup_pending":
-      return { label: "取货待公布", tone: "pending", detail: "Apple 尚未公布此门店的取货情况，不代表有货或无货；程序将继续监控。" };
+      return { label: "待开放取货", tone: "comingSoon", detail: "Apple 尚未公布明确的门店取货状态" };
     case "blocked":
       return {
         label: "未知",
@@ -238,6 +368,12 @@ function describeUnknown(a: { kind: "unknown" } & UnknownReason): {
         tone: "unknown",
         detail: "请求过于频繁被限流，正在退避",
       };
+    case "cooling_down":
+      return {
+        label: "冷却中",
+        tone: "unknown",
+        detail: `约 ${a.remaining_seconds} 秒后自动探测；${a.detail}。当前没有向 Apple 发出请求`,
+      };
     case "schema_drift":
       return {
         label: "未知",
@@ -248,10 +384,14 @@ function describeUnknown(a: { kind: "unknown" } & UnknownReason): {
       return { label: "未返回型号", tone: "unknown", detail: "Apple 本次门店响应未包含该 SKU；暂无库存结论，不能视为无货。" };
     case "no_pickup_data":
       return { label: "暂无数据", tone: "unknown", detail: "Apple 暂未返回该门店的取货数据；型号可能已下架、尚未开放取货或暂时不可查询，请刷新型号目录并核对官网。" };
+    case "store_pickup_unavailable":
+      return { label: "暂停取货", tone: "comingSoon", detail: "Apple 当前未将该门店接入在线取货；门店可能临时关闭或暂停取货，不能据此判断库存。" };
     case "apple_error":
       return { label: "未知", tone: "unknown", detail: `Apple 返回错误：${compactDiagnostic(a.message)}` };
     case "transport":
       return { label: "未知", tone: "unknown", detail: describeTransportFailure(a.detail) };
+    case "browser_unavailable":
+      return { label: "浏览器未连接", tone: "unknown", detail: `${compactDiagnostic(a.detail)}。当前库存尚未更新；运行中会按设置的间隔再次尝试连接。` };
     default:
       return assertNever(a);
   }
@@ -285,17 +425,23 @@ function describeTransportFailure(raw: string): string {
     return "浏览器安全限制阻止了本次 Apple 页面访问，程序将在下一轮自动重试";
   }
   if (lower.includes("chromium") && lower.includes("超时")) {
-    return "等待 Apple 页面响应超时，程序将在下一轮自动重试";
+    return `${detail || "等待 Apple 页面响应超时"}，程序将在下一轮按设置的间隔自动重试`;
   }
   if (lower.includes("chromium") || lower.includes("浏览器")) {
-    return "浏览器会话未能完成本次 Apple 查询，程序将在下一轮自动重试";
+    return `${detail || "浏览器会话未能完成本次 Apple 查询"}，程序将在下一轮按设置的间隔自动重试`;
+  }
+  if (detail.includes("Apple 页面请求失败")) {
+    return `${detail}，本轮不更新该门店；程序将在下一轮按设置的间隔自动重试`;
   }
   return `网络请求失败：${detail || "暂时无法连接 Apple"}，程序将在下一轮自动重试`;
 }
 
 /** 这一行的数据是否已经不可信。 */
 export function isUntrusted(a: Availability): boolean {
-  return a.kind === "unknown" && a.reason !== "not_yet_checked";
+  return a.kind === "unknown"
+    && a.reason !== "not_yet_checked"
+    && a.reason !== "pickup_pending"
+    && a.reason !== "store_pickup_unavailable";
 }
 
 export function formatTime(ms: number | null): string {

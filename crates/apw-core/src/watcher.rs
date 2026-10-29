@@ -30,10 +30,16 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::{Semaphore, mpsc, oneshot};
 use tokio::task::JoinSet;
 
-use crate::apple::{ApiError, Fetcher};
+use crate::apple::{ApiError, CycleStats, Fetcher, ScheduleHint};
 use crate::model::{
     Availability, DeliveryRegion, PickupDetails, Target, TargetKey, UnknownReason, region_by_locale,
 };
+
+/// Apple 取货接口单次请求稳定返回的最大零件号数量。
+///
+/// 实测请求 21 个及以上零件号时，接口可能只返回前 20 个而不报错。调度层必须在
+/// 发请求之前分批，不能把被静默截断的型号长期留在「未返回」状态。
+pub const MAX_PARTS_PER_REQUEST: usize = 20;
 
 /// 单个监控目标的当前状态。
 ///
@@ -100,7 +106,21 @@ pub enum Event {
         /// 从开始调度到所有门店查询结束的耗时，包含限速与会话暖场。
         #[serde(rename = "elapsedMs")]
         elapsed_ms: u64,
-        /// 本轮是否没有查询故障。合法的取货待公布状态不算故障，仍不代表有货。
+        /// 本轮真正发往 Apple 的请求数；响应缓存命中不计入。
+        #[serde(rename = "requestCount")]
+        request_count: u32,
+        /// 本轮有多少个门店直接复用了同地区响应。
+        #[serde(rename = "reusedResponseCount")]
+        reused_response_count: u32,
+        /// 调度器实际采用的下一轮等待秒数。
+        #[serde(rename = "nextCheckInSecs")]
+        next_check_in_secs: u64,
+        /// 当前目标地区中是否仍有 Apple 查询保护冷却。
+        cooling: bool,
+        /// 本轮使用的出口线路说明；跟随系统代理时省略。
+        #[serde(skip_serializing_if = "Option::is_none")]
+        route: Option<String>,
+        /// 本轮是否所有目标都拿到了明确答复。
         ///
         /// 界面需要一个明确的「恢复」信号才能收起故障告警。用「所有行都没有
         /// 错误」去反推是不可靠的：某些故障路径下状态根本没被更新，旧的错误
@@ -140,7 +160,7 @@ impl Default for WatcherConfig {
     fn default() -> Self {
         Self {
             interval: Duration::from_secs(30),
-            jitter: 0.2,
+            jitter: 0.0,
             concurrency: 4,
             event_buffer: 256,
             delivery_region: None,
@@ -154,6 +174,7 @@ enum Command {
     SetDeliveryRegion(Option<DeliveryRegion>),
     Start(oneshot::Sender<()>),
     Stop(oneshot::Sender<()>),
+    RetryNow(oneshot::Sender<bool>),
     Snapshot(oneshot::Sender<Vec<TargetState>>),
     IsRunning(oneshot::Sender<bool>),
 }
@@ -231,6 +252,16 @@ impl Watcher {
         }
     }
 
+    /// 用户主动要求立即查询。运行中返回 `true`，并唤醒当前轮次等待；暂停时
+    /// 返回 `false`，不会擅自启动监控。
+    pub async fn retry_now(&self) -> bool {
+        let (tx, rx) = oneshot::channel();
+        if self.cmd.send(Command::RetryNow(tx)).await.is_err() {
+            return false;
+        }
+        rx.await.unwrap_or(false)
+    }
+
     /// 取当前全部状态的快照。
     pub async fn snapshot(&self) -> Vec<TargetState> {
         let (tx, rx) = oneshot::channel();
@@ -263,6 +294,8 @@ pub enum TroubleAdvice {
     ///
     /// HTTP 541 本身不能证明网络被封锁，更不能保证换网络就能恢复。
     TryAnotherNetwork,
+    /// 已进入保护冷却，用户无需操作，等待程序自动探测。
+    WaitForRetry,
     /// 用户做什么都没用，只能等新版本。
     ///
     /// 接口结构变了、或者程序内部出错时给这条。明说「你没法解决」也是一种有用的
@@ -294,7 +327,7 @@ struct StoreOutcome {
     store_number: String,
     /// 每个**请求过**的零件号对应的判定结果。
     parts: Vec<(String, Availability, Option<PickupDetails>)>,
-    /// 这次门店查询是否算成功，用于全局退避判断。
+    /// 这次门店查询是否算成功，用于判断整轮是否健康。
     ok: bool,
     /// 本次遇到的异常数量，用于判断整轮是否健康。
     problems: usize,
@@ -328,13 +361,20 @@ async fn run_queries<F: Fetcher>(
     concurrency: usize,
     delivery_region: Option<DeliveryRegion>,
 ) -> Vec<StoreOutcome> {
+    client.begin_cycle().await;
+    let query_targets: Vec<_> = groups.iter().map(|group| group.targets.clone()).collect();
+    client.plan_cycle(&query_targets).await;
     let sem = Arc::new(Semaphore::new(concurrency.max(1)));
     let mut set = JoinSet::new();
 
     for group in groups {
         let client = client.clone();
         let sem = Arc::clone(&sem);
-        let delivery_region = delivery_region.clone();
+        // 省、市、区是中国大陆站专用参数。设置本身保留，方便用户切回大陆地区；
+        // 但绝不能带到香港、日本等地区的送货请求里。
+        let delivery_region = (group.locale == "zh_CN")
+            .then(|| delivery_region.clone())
+            .flatten();
         set.spawn(async move {
             // 拿不到许可只可能是信号量被关闭，这里不会发生；真发生了也只是
             // 少查一个门店，不该让整轮崩掉。
@@ -416,11 +456,16 @@ async fn query_one_store<F: Fetcher>(
         .await
     {
         Err(err) => {
+            let pickup_unavailable = matches!(&err, ApiError::StorePickupUnavailable { .. });
             // 只有这两类值得打断用户：被拦截是他能动手解决的，结构漂移是他
             // 必须知道「现在看到的一切都不作数」的。网络超时之类的过一会儿
             // 自己就好了，弹出来只是噪音。
             let advice = match &err {
                 ApiError::Blocked(_) => Some(TroubleAdvice::TryAnotherNetwork),
+                ApiError::CoolingDown {
+                    newly_started: true,
+                    ..
+                } => Some(TroubleAdvice::WaitForRetry),
                 ApiError::SchemaDrift { .. } => Some(TroubleAdvice::WaitForUpdate),
                 ApiError::NoPickupData { .. } => Some(TroubleAdvice::CheckProduct),
                 _ => None,
@@ -450,15 +495,17 @@ async fn query_one_store<F: Fetcher>(
                     .collect(),
                 locale: group.locale,
                 store_number: group.store_number,
-                ok: false,
-                problems: n,
+                // Apple 的业务响应已明确说明该门店当前不参与在线取货。这是可解释的
+                // 暂停状态，不是查询器故障；仍保留 Unknown，绝不伪装成“无货”。
+                ok: pickup_unavailable,
+                problems: if pickup_unavailable { 0 } else { n },
                 trouble,
             }
         }
         Ok(result) => {
             let mut parts = Vec::with_capacity(group.targets.len());
             let mut problems = 0usize;
-            // 返回已识别业务状态（包括取货待公布）的型号数。
+            // 真正拿到明确答复（有货或无货）的型号数。
             let mut resolved = 0usize;
             let mut omitted = 0usize;
 
@@ -542,11 +589,6 @@ struct Engine<F: Fetcher> {
     targets: Vec<Target>,
     states: BTreeMap<TargetKey, TargetState>,
     running: bool,
-    /// 连续「整轮全败」的次数，用于全局退避。
-    ///
-    /// 不用单个目标的失败次数来驱动：某个零件号下架会让它永远失败，据此退避
-    /// 的话，一条陈旧的监控项就能把所有正常门店的查询频率拖慢八倍。
-    cycle_failures: u32,
     /// 当前监控会话已经开始的轮次数。暂停后重新开始会从 1 重新计数。
     cycle_number: u64,
 }
@@ -560,7 +602,6 @@ impl<F: Fetcher> Engine<F> {
             targets: Vec::new(),
             states: BTreeMap::new(),
             running: false,
-            cycle_failures: 0,
             cycle_number: 0,
         }
     }
@@ -581,14 +622,24 @@ impl<F: Fetcher> Engine<F> {
             // 在飞的 HTTP 请求会跟着一起停。
             let groups = self.group_targets();
             let expected = expected_keys(&groups);
+            let store_count = groups
+                .iter()
+                .map(|group| (&group.locale, &group.store_number))
+                .collect::<BTreeSet<_>>()
+                .len();
+            let mut locales: Vec<String> =
+                groups.iter().map(|group| group.locale.clone()).collect();
+            locales.sort_unstable();
+            locales.dedup();
             self.cycle_number = self.cycle_number.saturating_add(1);
             let cycle = self.cycle_number;
             let started_at = Instant::now();
             self.emit_droppable(Event::CycleStarted {
                 cycle,
-                store_count: groups.len(),
+                store_count,
                 target_count: expected.len(),
             });
+            let queried_delivery_region = self.config.delivery_region.clone();
             let queries = run_queries(
                 self.client.clone(),
                 groups,
@@ -615,7 +666,12 @@ impl<F: Fetcher> Engine<F> {
                 }
             };
 
-            let Some(outcomes) = outcomes else { continue };
+            let Some(mut outcomes) = outcomes else {
+                continue;
+            };
+
+            let stats = self.client.cycle_stats().await;
+            let schedule_hint = self.client.schedule_hint(&locales).await;
 
             // 写状态之前先把已经排队的命令处理掉。
             //
@@ -634,23 +690,35 @@ impl<F: Fetcher> Engine<F> {
                     other => self.handle_command(other).await,
                 }
             }
+            if queried_delivery_region != self.config.delivery_region {
+                for outcome in &mut outcomes {
+                    for (_, _, details) in &mut outcome.parts {
+                        if let Some(details) = details {
+                            details.sale_reason = None;
+                            details.sale_message = None;
+                        }
+                    }
+                }
+            }
             if aborted {
                 continue;
             }
 
-            self.apply(
-                cycle,
-                started_at.elapsed().as_millis().min(u128::from(u64::MAX)) as u64,
-                expected,
-                outcomes,
-            )
-            .await;
+            let delay = self
+                .apply(
+                    cycle,
+                    started_at.elapsed().as_millis().min(u128::from(u64::MAX)) as u64,
+                    expected,
+                    outcomes,
+                    stats,
+                    schedule_hint,
+                )
+                .await;
 
             if !self.running {
                 continue;
             }
 
-            let delay = self.next_delay();
             tokio::select! {
                 () = tokio::time::sleep(delay) => {}
                 maybe = cmd_rx.recv() => match maybe {
@@ -669,7 +737,17 @@ impl<F: Fetcher> Engine<F> {
                     self.config.interval = d;
                 }
             }
-            Command::SetDeliveryRegion(region) => self.config.delivery_region = region,
+            Command::SetDeliveryRegion(region) => {
+                if region != self.config.delivery_region {
+                    for state in self.states.values_mut() {
+                        if let Some(details) = &mut state.pickup_details {
+                            details.sale_reason = None;
+                            details.sale_message = None;
+                        }
+                    }
+                }
+                self.config.delivery_region = region;
+            }
             Command::Start(reply) => {
                 self.set_running(true).await;
                 let _ = reply.send(());
@@ -677,6 +755,13 @@ impl<F: Fetcher> Engine<F> {
             Command::Stop(reply) => {
                 self.set_running(false).await;
                 let _ = reply.send(());
+            }
+            Command::RetryNow(reply) => {
+                let accepted = self.running;
+                if accepted {
+                    self.client.retry_now().await;
+                }
+                let _ = reply.send(accepted);
             }
             Command::Snapshot(reply) => {
                 let _ = reply.send(self.snapshot());
@@ -694,9 +779,6 @@ impl<F: Fetcher> Engine<F> {
         self.running = running;
         if running {
             self.cycle_number = 0;
-        } else {
-            // 重新启动时应当从干净的节奏开始，不背着上一轮的退避。
-            self.cycle_failures = 0;
         }
         self.emit_droppable(Event::RunStateChanged { running });
     }
@@ -725,7 +807,10 @@ impl<F: Fetcher> Engine<F> {
         self.states.values().cloned().collect()
     }
 
-    /// 把目标按 (地区, 门店) 聚合，使每个门店每轮只发一次请求。
+    /// 按 (地区, 门店) 聚合，并把每个请求控制在 Apple 的 20 个零件号上限内。
+    ///
+    /// 普通商品通常一条目标占一个零件号；Watch 取货还可能同时携带表带零件号，
+    /// 因此不能只按目标条数切片，必须按最终会发出的唯一零件号数量分批。
     fn group_targets(&self) -> Vec<StoreGroup> {
         let mut order: Vec<(String, String)> = Vec::new();
         let mut index: BTreeMap<(String, String), Vec<Target>> = BTreeMap::new();
@@ -738,17 +823,51 @@ impl<F: Fetcher> Engine<F> {
             index.entry(k).or_default().push(t.clone());
         }
 
-        order
-            .into_iter()
-            .map(|(locale, store_number)| {
-                let targets = index.remove(&(locale.clone(), store_number.clone()));
-                StoreGroup {
+        let mut groups = Vec::new();
+        for (locale, store_number) in order {
+            let targets = index
+                .remove(&(locale.clone(), store_number.clone()))
+                .unwrap_or_default();
+            let mut batch = Vec::new();
+            let mut parts = BTreeSet::new();
+
+            for target in targets {
+                let mut target_parts = vec![target.part_number.as_str()];
+                if let Some(companion) = target
+                    .companion_part
+                    .as_deref()
+                    .map(str::trim)
+                    .filter(|part| !part.is_empty())
+                {
+                    target_parts.push(companion);
+                }
+                let additional = target_parts
+                    .iter()
+                    .filter(|part| !parts.contains::<str>(*part))
+                    .count();
+
+                if !batch.is_empty() && parts.len() + additional > MAX_PARTS_PER_REQUEST {
+                    groups.push(StoreGroup {
+                        locale: locale.clone(),
+                        store_number: store_number.clone(),
+                        targets: std::mem::take(&mut batch),
+                    });
+                    parts.clear();
+                }
+
+                parts.extend(target_parts.into_iter().map(str::to_string));
+                batch.push(target);
+            }
+
+            if !batch.is_empty() {
+                groups.push(StoreGroup {
                     locale,
                     store_number,
-                    targets: targets.unwrap_or_default(),
-                }
-            })
-            .collect()
+                    targets: batch,
+                });
+            }
+        }
+        groups
     }
 
     /// 把一轮的结果写进状态，并发出相应事件。
@@ -758,17 +877,16 @@ impl<F: Fetcher> Engine<F> {
         elapsed_ms: u64,
         mut missing: BTreeSet<TargetKey>,
         outcomes: Vec<StoreOutcome>,
-    ) {
+        stats: CycleStats,
+        schedule_hint: ScheduleHint,
+    ) -> Duration {
         let mut ok = 0usize;
-        let mut failed = 0usize;
         let mut problems = 0usize;
         let now = now_ms();
 
         for outcome in outcomes {
             if outcome.ok {
                 ok += 1;
-            } else {
-                failed += 1;
             }
             problems += outcome.problems;
 
@@ -779,7 +897,7 @@ impl<F: Fetcher> Engine<F> {
                 });
             }
 
-            for (part, availability, pickup_details) in outcome.parts {
+            for (part, availability, mut pickup_details) in outcome.parts {
                 let key = TargetKey(format!(
                     "{}|{}|{}",
                     outcome.locale, outcome.store_number, part
@@ -789,6 +907,14 @@ impl<F: Fetcher> Engine<F> {
                 let Some(state) = self.states.get_mut(&key) else {
                     continue;
                 };
+
+                if let Some(delivery) = self
+                    .client
+                    .cached_delivery(&state.target, self.config.delivery_region.as_ref())
+                    .await
+                {
+                    delivery.merge_into(&mut pickup_details);
+                }
 
                 let previous = std::mem::replace(&mut state.availability, availability);
                 let previous_details = std::mem::replace(&mut state.pickup_details, pickup_details);
@@ -826,6 +952,13 @@ impl<F: Fetcher> Engine<F> {
                 });
                 let previous = std::mem::replace(&mut state.availability, unknown);
                 state.pickup_details = None;
+                if let Some(delivery) = self
+                    .client
+                    .cached_delivery(&state.target, self.config.delivery_region.as_ref())
+                    .await
+                {
+                    delivery.merge_into(&mut state.pickup_details);
+                }
                 state.last_checked_ms = Some(now);
                 state.consecutive_failures = state.consecutive_failures.saturating_add(1);
                 (previous != state.availability).then(|| state.clone())
@@ -834,13 +967,6 @@ impl<F: Fetcher> Engine<F> {
             if let Some(snapshot) = changed {
                 self.emit_droppable(Event::StateChanged { state: snapshot });
             }
-        }
-
-        // 只有一个门店都没查成功，才认为是全局故障，进入退避。
-        if failed > 0 && ok == 0 {
-            self.cycle_failures = self.cycle_failures.saturating_add(1);
-        } else {
-            self.cycle_failures = 0;
         }
 
         // 这条不能丢。emit_droppable 的理由是「信息都能从 CycleComplete 带的快照里
@@ -852,25 +978,29 @@ impl<F: Fetcher> Engine<F> {
         // 目标数超过通道容量时，排在最后的 CycleComplete 必然被丢，界面就会一直
         // 停在上一轮的取值上 —— 而那很可能正是「无货」。实测 260 个目标时连续
         // 18 轮一条都没送达。
+        let normal_delay = self.next_delay();
+        let delay = normal_delay.max(schedule_hint.delay);
+        let next_check_in_secs = delay
+            .as_secs()
+            .saturating_add(u64::from(delay.subsec_nanos() > 0));
         self.emit_critical(Event::CycleComplete {
             cycle,
             elapsed_ms,
+            request_count: stats.request_count,
+            reused_response_count: stats.reused_response_count,
+            next_check_in_secs,
+            cooling: schedule_hint.cooling,
+            route: stats.route,
             healthy: problems == 0 && ok > 0,
             snapshot: self.snapshot(),
         })
         .await;
+        delay
     }
 
-    /// 下一轮的等待时长，含抖动与全局退避。
+    /// 下一轮的等待时长，只由用户设置的间隔与抖动决定。
     fn next_delay(&self) -> Duration {
-        let mut base = self.config.interval;
-
-        // 整轮全败时逐步拉长间隔，最多放大到 8 倍。被拦截还按原频率猛冲，
-        // 只会让风控更严。
-        if self.cycle_failures > 0 {
-            let factor = 1u32 << self.cycle_failures.min(3);
-            base = base.saturating_mul(factor);
-        }
+        let base = self.config.interval;
 
         if self.config.jitter <= 0.0 {
             return base;

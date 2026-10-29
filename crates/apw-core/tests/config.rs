@@ -11,10 +11,16 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{SystemTime, UNIX_EPOCH};
 
+#[cfg(unix)]
+use std::os::unix::fs::PermissionsExt;
+
 use apw_core::config::{
-    ConfigError, DEFAULT_INTERVAL_SECONDS, MAX_SETTINGS_BYTES, OpenOnHit, Settings, SettingsStore,
+    BarkOptions, CheckoutPayment, CheckoutSettings, ClashSettings, ConfigError,
+    DEFAULT_INTERVAL_SECONDS, MAX_SETTINGS_BYTES, NetworkMode, NetworkSettings, OpenOnHit,
+    Settings, SettingsStore,
 };
 use apw_core::model::Target;
+use apw_core::notify::BarkLevel;
 
 /// 用完自动删掉的临时目录。
 ///
@@ -79,6 +85,7 @@ fn 目标(store: &str, part: &str) -> Target {
         companion_part: None,
         companion_name: None,
         kit_part: None,
+        pickup_location: None,
     }
 }
 
@@ -92,8 +99,44 @@ fn 样例设置() -> Settings {
         product_bark_urls: [("MG724CH/A".into(), "https://api.day.app/friend".into())]
             .into_iter()
             .collect(),
+        bark_options: BarkOptions {
+            level: BarkLevel::Critical,
+            sound: "alarm".into(),
+            volume: Some(8),
+            call: true,
+        },
         sound_enabled: false,
         open_on_hit: OpenOnHit::Product,
+        stop_on_hit: true,
+        network: NetworkSettings {
+            mode: NetworkMode::Clash,
+            clash: ClashSettings {
+                controller: "http://127.0.0.1:9097".into(),
+                secret: "s3cret".into(),
+                group: "果到雷达".into(),
+                proxy_port: 7899,
+                node_filter: "香港|日本".into(),
+                pinned_node: "DIRECT".into(),
+            },
+        },
+        checkout: CheckoutSettings {
+            enabled: true,
+            disable_after_success: false,
+            auto_add_to_bag: false,
+            add_apple_care: false,
+            national_id_suffix: "123X".into(),
+            payment: CheckoutPayment::Installment,
+            installment_bank: "招商银行".into(),
+            installment_periods: 24,
+            place_order: false,
+            accept_nearest_store: true,
+            product: "MG724CH/A||".into(),
+            fill_contact: true,
+            contact_last_name: "张".into(),
+            contact_first_name: "三".into(),
+            contact_email: "someone@example.com".into(),
+            contact_phone: "13800000000".into(),
+        },
     }
 }
 
@@ -119,6 +162,58 @@ fn 保存会顺手创建不存在的配置目录() {
     let store = SettingsStore::at(dir.join("nested").join("settings.v2.json"));
     store.save(&样例设置()).expect("保存失败");
     assert_eq!(store.load().expect("读取失败"), 样例设置());
+}
+
+#[cfg(unix)]
+#[test]
+fn 保存后的配置目录和文件仅当前用户可访问() {
+    let dir = 临时目录::new("private-permissions");
+    let path = dir.设置路径();
+    SettingsStore::at(path.clone())
+        .save(&样例设置())
+        .expect("保存失败");
+
+    let dir_mode = fs::metadata(&dir.path)
+        .expect("读目录元数据失败")
+        .permissions()
+        .mode()
+        & 0o777;
+    let file_mode = fs::metadata(&path)
+        .expect("读文件元数据失败")
+        .permissions()
+        .mode()
+        & 0o777;
+    assert_eq!(dir_mode, 0o700);
+    assert_eq!(file_mode, 0o600);
+}
+
+#[cfg(unix)]
+#[test]
+fn 读取旧配置时会修复过宽的权限() {
+    let dir = 临时目录::new("repair-permissions");
+    let path = dir.设置路径();
+    fs::write(
+        &path,
+        serde_json::to_vec_pretty(&样例设置()).expect("序列化失败"),
+    )
+    .expect("写测试设置失败");
+    fs::set_permissions(&dir.path, fs::Permissions::from_mode(0o755)).expect("改目录权限失败");
+    fs::set_permissions(&path, fs::Permissions::from_mode(0o644)).expect("改文件权限失败");
+
+    SettingsStore::at(path.clone()).load().expect("读取失败");
+
+    let dir_mode = fs::metadata(&dir.path)
+        .expect("读目录元数据失败")
+        .permissions()
+        .mode()
+        & 0o777;
+    let file_mode = fs::metadata(&path)
+        .expect("读文件元数据失败")
+        .permissions()
+        .mode()
+        & 0o777;
+    assert_eq!(dir_mode, 0o700);
+    assert_eq!(file_mode, 0o600);
 }
 
 #[test]
@@ -224,12 +319,12 @@ fn 恰好卡在上限的文件仍然能读出来() {
 fn 读出来的设置会被规范化() {
     let dir = 临时目录::new("normalize");
     let path = dir.设置路径();
-    // 手工编辑或旧版本留下的非法内容：地区认不出、间隔小到必被风控、目标重复。
+    // 手工编辑或旧版本留下的非法内容：地区认不出、间隔为 0、目标重复。
     fs::write(
         &path,
         r#"{
           "locale": "de_DE",
-          "intervalSeconds": 1,
+          "intervalSeconds": 0,
           "targets": [
             {"locale":"zh_CN","storeNumber":"R683","storeTitle":"上海-环球港","partNumber":"MG724CH/A","productName":"x"},
             {"locale":"zh_CN","storeNumber":"R683","storeTitle":"上海-环球港","partNumber":"MG724CH/A","productName":"x"}
@@ -265,7 +360,7 @@ fn 保存不改动调用方持有的数据() {
 
     let mine = Settings {
         locale: "de_DE".into(),
-        interval_seconds: 1,
+        interval_seconds: 0,
         targets: vec![
             目标("R683", "MG724CH/A"),
             目标("R683", "MG724CH/A"),
@@ -502,15 +597,43 @@ fn 设置的线上格式是小驼峰() {
         "intervalSeconds",
         "barkUrl",
         "productBarkUrls",
+        "barkOptions",
         "soundEnabled",
         "openOnHit",
+        "stopOnHit",
+        "network",
+        "checkout",
     ] {
         assert!(obj.contains_key(key), "缺少字段 {key}：{value}");
     }
     assert!(!obj.contains_key("interval_seconds"), "不该有蛇形字段");
     assert_eq!(obj.get("openOnHit"), Some(&serde_json::json!("product")));
     assert!(!obj.contains_key("openBagOnHit"));
-    assert_eq!(obj.len(), 8);
+    assert_eq!(obj.len(), 12);
+    assert_eq!(
+        obj.get("network"),
+        Some(&serde_json::json!({
+            "mode": "clash",
+            "clash": {
+                "controller": "http://127.0.0.1:9097",
+                "secret": "s3cret",
+                "group": "果到雷达",
+                "proxyPort": 7899,
+                "nodeFilter": "香港|日本",
+                "pinnedNode": "DIRECT"
+            }
+        }))
+    );
+    assert_eq!(
+        obj.get("barkOptions"),
+        Some(&serde_json::json!({
+            "level": "critical",
+            "sound": "alarm",
+            "volume": 8,
+            "call": true
+        }))
+    );
+    assert!(!obj.contains_key("bark_options"), "不该有蛇形字段");
 }
 
 #[test]
@@ -577,4 +700,231 @@ fn 配置文件路径落在用户配置目录下() {
             .path()
             .ends_with(Path::new("apple-store-inventory-monitor-us").join("settings.v2.json"))
     );
+}
+
+#[test]
+fn 旧设置缺少线路字段时继续跟随系统代理() {
+    let settings: Settings =
+        serde_json::from_str(r#"{"locale":"zh_CN","intervalSeconds":30}"#).expect("旧设置应可读取");
+    assert_eq!(settings.network.mode, NetworkMode::System);
+    assert_eq!(settings.network.clash, ClashSettings::default());
+    assert_eq!(
+        settings.bark_options,
+        BarkOptions::default(),
+        "旧设置没有 Bark 增强参数时全部保持默认"
+    );
+}
+
+#[test]
+fn 铃声与音量设置会被规范化() {
+    let mut settings = Settings::default();
+    settings.bark_options.volume = Some(25); // 音量封顶 10
+    settings.bark_options.sound = "  alarm  ".into(); // 铃声去空白
+    settings.normalize();
+    assert_eq!(settings.bark_options.volume, Some(10));
+    assert_eq!(settings.bark_options.sound, "alarm");
+}
+
+#[test]
+fn 线路设置规范化去掉空白与控制地址结尾斜杠() {
+    let mut settings = Settings {
+        network: NetworkSettings {
+            mode: NetworkMode::Clash,
+            clash: ClashSettings {
+                controller: "  http://127.0.0.1:9097/ ".into(),
+                secret: " key ".into(),
+                group: " 果到雷达 ".into(),
+                proxy_port: 7899,
+                node_filter: " 香港|日本 ".into(),
+                pinned_node: "  ".into(),
+            },
+        },
+        ..Settings::default()
+    };
+    settings.normalize();
+    let clash = &settings.network.clash;
+    assert_eq!(clash.controller, "http://127.0.0.1:9097");
+    assert_eq!(clash.secret, "key");
+    assert_eq!(clash.group, "果到雷达");
+    assert_eq!(clash.node_filter, "香港|日本");
+    assert_eq!(clash.pinned_node, "DIRECT", "空的指定节点回到 DIRECT");
+}
+
+#[test]
+fn 控制接口地址缺少协议时自动补上_http() {
+    let mut settings = Settings::default();
+    settings.network.clash.controller = " 127.0.0.1:9097 ".into();
+    settings.normalize();
+    assert_eq!(settings.network.clash.controller, "http://127.0.0.1:9097");
+
+    settings.network.clash.controller = "https://example.invalid:9090/".into();
+    settings.normalize();
+    assert_eq!(
+        settings.network.clash.controller,
+        "https://example.invalid:9090"
+    );
+}
+
+#[test]
+fn 自动结账默认关闭且不会自动提交订单() {
+    let checkout = Settings::default().checkout;
+    let mut huabei = Settings::default();
+    huabei.checkout.installment_bank = "花呗分期".into();
+    huabei.checkout.installment_periods = 24;
+    huabei.normalize();
+    assert_eq!(huabei.checkout.installment_periods, 12);
+    assert!(!checkout.enabled);
+    assert!(checkout.disable_after_success);
+    assert!(!checkout.place_order);
+    assert!(!checkout.accept_nearest_store);
+    assert!(!checkout.fill_contact);
+    assert!(!checkout.has_national_id_suffix());
+}
+
+#[test]
+fn 自动结账规范化只保留四位证件后缀并收敛期数() {
+    let mut settings = Settings::default();
+    settings.checkout.national_id_suffix = " 12-3x9 ".into();
+    settings.checkout.installment_bank = " 招商银行 ".into();
+    settings.checkout.installment_periods = 5;
+    settings.checkout.contact_last_name = " 张 ".into();
+    settings.checkout.contact_email = " someone@example.com ".into();
+    settings.checkout.contact_phone = "+86 138-0000-0000".into();
+    settings.normalize();
+
+    assert_eq!(settings.checkout.national_id_suffix, "123X");
+    assert!(settings.checkout.has_national_id_suffix());
+    assert_eq!(settings.checkout.installment_bank, "招商银行");
+    assert_eq!(settings.checkout.installment_periods, 24);
+    assert_eq!(settings.checkout.contact_last_name, "张");
+    assert_eq!(settings.checkout.contact_email, "someone@example.com");
+    assert_eq!(settings.checkout.contact_phone, "13800000000");
+}
+
+#[test]
+fn 旧配置缺少自动结账字段时保持关闭() {
+    let settings: Settings = serde_json::from_str(r#"{"locale":"zh_CN"}"#).expect("解析失败");
+    assert_eq!(settings.checkout, CheckoutSettings::default());
+}
+
+#[test]
+fn 成功后关闭选项兼容旧配置且保留用户持续结账选择() {
+    let old: CheckoutSettings = serde_json::from_str(r#"{"enabled":true}"#).unwrap();
+    assert!(old.disable_after_success);
+    let mut settings = Settings::default();
+    settings.checkout.disable_after_success = false;
+    settings.normalize();
+    let loaded: Settings =
+        serde_json::from_value(serde_json::to_value(&settings).unwrap()).unwrap();
+    assert!(!loaded.checkout.disable_after_success);
+}
+
+#[test]
+fn 只监控一件商品时自动认定它为下单商品() {
+    let mut settings = Settings {
+        targets: vec![目标("R683", "MG724CH/A"), 目标("R448", "MG724CH/A")],
+        ..Default::default()
+    };
+    // 同一件商品在两家门店各有一条监控项，仍然只算一件。
+    settings.checkout.enabled = true;
+    settings.normalize();
+    assert_eq!(settings.checkout_product().as_deref(), Some("MG724CH/A||"));
+    assert!(settings.checkout.enabled);
+    assert!(settings.is_checkout_target(&settings.targets[1]));
+}
+
+#[test]
+fn 监控多件商品时只有选中的那件会触发结账() {
+    let mut settings = Settings {
+        targets: vec![目标("R683", "MG724CH/A"), 目标("R683", "MG0A4CH/A")],
+        ..Default::default()
+    };
+    settings.checkout.enabled = true;
+    settings.checkout.product = "MG0A4CH/A||".into();
+    settings.normalize();
+    assert!(settings.checkout.enabled);
+    assert!(!settings.is_checkout_target(&settings.targets[0]));
+    assert!(settings.is_checkout_target(&settings.targets[1]));
+}
+
+#[test]
+fn 自动加购允许不同型号到货且仍排除其他地区() {
+    let mut overseas = 目标("R409", "MG724ZP/A");
+    overseas.locale = "zh_HK".into();
+    let mut settings = Settings {
+        targets: vec![
+            目标("R683", "MG724CH/A"),
+            目标("R448", "MG0A4CH/A"),
+            overseas,
+        ],
+        ..Default::default()
+    };
+    settings.checkout.auto_add_to_bag = true;
+    settings.checkout.enabled = true;
+    // 即使保留了旧模式的单商品选择，也不能挡住新模式中的另一件商品。
+    settings.checkout.product = "MG724CH/A||".into();
+    settings.normalize();
+    assert!(settings.checkout.enabled);
+    assert!(settings.is_checkout_target(&settings.targets[0]));
+    assert!(settings.is_checkout_target(&settings.targets[1]));
+    assert!(!settings.is_checkout_target(&settings.targets[2]));
+    settings.targets.remove(0);
+    settings.normalize();
+    assert!(settings.checkout.enabled);
+    settings.targets.remove(0);
+    settings.normalize();
+    assert!(!settings.checkout.enabled);
+}
+
+#[test]
+fn 没有明确的下单商品时自动结账会被关掉() {
+    // 监控了两件却没选。
+    let mut settings = Settings {
+        targets: vec![目标("R683", "MG724CH/A"), 目标("R683", "MG0A4CH/A")],
+        ..Default::default()
+    };
+    settings.checkout.enabled = true;
+    settings.normalize();
+    assert_eq!(settings.checkout_product(), None);
+    assert!(!settings.checkout.enabled);
+    assert!(!settings.is_checkout_target(&settings.targets[0]));
+
+    // 选中的那件被从监控列表里删掉：选择清空；剩下唯一的一件不会被悄悄顶替成下单商品后继续开着。
+    let mut settings = Settings {
+        targets: vec![
+            目标("R683", "MG724CH/A"),
+            目标("R683", "MG0A4CH/A"),
+            目标("R683", "MG0B4CH/A"),
+        ],
+        ..Default::default()
+    };
+    settings.checkout.enabled = true;
+    settings.checkout.product = "MG724CH/A||".into();
+    settings.targets.remove(0);
+    settings.normalize();
+    assert!(settings.checkout.product.is_empty());
+    assert!(!settings.checkout.enabled);
+
+    // 删到只剩一件也一样：不能因为「只剩一件」就自动改成为它下单。
+    let mut settings = Settings {
+        targets: vec![目标("R683", "MG724CH/A"), 目标("R683", "MG0A4CH/A")],
+        ..Default::default()
+    };
+    settings.checkout.enabled = true;
+    settings.checkout.product = "MG724CH/A||".into();
+    settings.targets.remove(0);
+    settings.normalize();
+    assert!(!settings.checkout.enabled);
+}
+
+#[test]
+fn 其他地区的监控项不会触发自动结账() {
+    let mut settings = Settings::default();
+    let mut abroad = 目标("R409", "MG724ZP/A");
+    abroad.locale = "zh_HK".into();
+    settings.targets = vec![abroad];
+    settings.checkout.enabled = true;
+    settings.normalize();
+    assert_eq!(settings.checkout_product(), None);
+    assert!(!settings.checkout.enabled);
 }

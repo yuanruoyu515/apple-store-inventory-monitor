@@ -25,8 +25,18 @@ registerHooks({
 const defaults = {
   locale: "zh_CN", targets: [], intervalSeconds: 30,
   deliveryRegion: null,
-  barkUrl: "https://example.invalid/old", soundEnabled: true, openOnHit: "bag",
+  barkUrl: "https://example.invalid/old", soundEnabled: true, openOnHit: "bag", stopOnHit: false,
   productBarkUrls: {},
+  barkOptions: { level: "default", sound: "", volume: null, call: false },
+  network: {
+    mode: "system",
+    clash: { controller: "http://127.0.0.1:9097", secret: "", group: "果到雷达", proxyPort: 7899, nodeFilter: "", pinnedNode: "DIRECT" },
+  },
+  checkout: {
+    enabled: false, nationalIdSuffix: "", payment: "alipay",
+    installmentBank: "招商银行", installmentPeriods: 24, placeOrder: false, acceptNearestStore: false, product: "",
+    fillContact: false, contactLastName: "", contactFirstName: "", contactEmail: "", contactPhone: "",
+  },
 };
 let generation = 0;
 async function setup() {
@@ -57,6 +67,20 @@ async function setup() {
   };
 }
 const tick = () => new Promise((resolve) => setImmediate(resolve));
+
+test("送货地区固定读取中国大陆官网且不跟随当前监控地区", async () => {
+  let received;
+  invoke = async (command, args) => {
+    received = { command, args };
+    return { states: [], cities: [], districts: [] };
+  };
+  const store = await import(`../src/lib/store.ts?delivery=${++generation}`);
+  await store.loadDeliveryLocalities("四川", "成都");
+  assert.deepEqual(received, {
+    command: "list_delivery_localities",
+    args: { locale: "zh_CN", stateName: "四川", cityName: "成都" },
+  });
+});
 
 test("overlapping edits merge with the last saved settings", async () => {
   const ctx = await setup();
@@ -90,6 +114,31 @@ test("interval and target commands cannot be overwritten by queued settings", as
   ctx.release();
   await Promise.all([interval, updated, saved]);
   assert.deepEqual(ctx.persisted(), { ...defaults, intervalSeconds: 15, targets, soundEnabled: false });
+});
+
+test("rapid removals use the latest queued target list", async () => {
+  const ctx = await setup();
+  const target = (partNumber) => ({
+    locale: "zh_CN", storeNumber: "R390", storeTitle: "Test",
+    partNumber, productName: partNumber,
+  });
+  const firstTarget = target("FIRST/A");
+  const secondTarget = target("SECOND/A");
+  const retainedTarget = target("RETAINED/A");
+  await ctx.store.setTargets([firstTarget, secondTarget, retainedTarget]);
+  ctx.calls.length = 0;
+
+  ctx.block();
+  const firstRemoval = ctx.store.removeTarget(firstTarget);
+  await tick();
+  const secondRemoval = ctx.store.removeTarget(secondTarget);
+  await tick();
+  assert.deepEqual(ctx.calls, ["set_targets"]);
+
+  ctx.release();
+  await Promise.all([firstRemoval, secondRemoval]);
+  assert.deepEqual(ctx.calls, ["set_targets", "set_targets"]);
+  assert.deepEqual(ctx.persisted().targets, [retainedTarget]);
 });
 
 test("test notification waits for the cleared Bark address to finish saving", async () => {

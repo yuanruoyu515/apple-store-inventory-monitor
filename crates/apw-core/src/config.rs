@@ -24,9 +24,13 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+#[cfg(unix)]
+use std::os::unix::fs::{OpenOptionsExt, PermissionsExt};
+
 use serde::{Deserialize, Serialize};
 
 use crate::model::{DeliveryRegion, REGIONS, Target, region_by_locale};
+use crate::notify::BarkLevel;
 
 /// 检测到有货时自动打开的 Apple 页面。
 ///
@@ -38,6 +42,7 @@ pub enum OpenOnHit {
     None,
     #[default]
     Bag,
+    EducationBag,
     Product,
 }
 
@@ -51,6 +56,7 @@ impl<'de> Deserialize<'de> for OpenOnHit {
         enum Current {
             None,
             Bag,
+            EducationBag,
             Product,
         }
 
@@ -64,6 +70,7 @@ impl<'de> Deserialize<'de> for OpenOnHit {
         Ok(match Wire::deserialize(deserializer)? {
             Wire::Legacy(true) | Wire::Current(Current::Bag) => Self::Bag,
             Wire::Legacy(false) | Wire::Current(Current::None) => Self::None,
+            Wire::Current(Current::EducationBag) => Self::EducationBag,
             Wire::Current(Current::Product) => Self::Product,
         })
     }
@@ -74,10 +81,10 @@ impl<'de> Deserialize<'de> for OpenOnHit {
 /// 上游写死 500 毫秒一轮，即每个门店每秒两次请求。这个频率对一个公开的商品
 /// 查询接口来说过高，是触发风控的直接原因，也是上游 issue 里 503 / 541 反复
 /// 出现的背景。30 秒足够应付抢购，同时不会把自己送进黑名单。
-pub const DEFAULT_INTERVAL_SECONDS: u64 = 30;
+pub const DEFAULT_INTERVAL_SECONDS: u64 = 60;
 
-/// 允许设置的间隔下限（秒）。保留手动调快的余地，但不允许低到必然触发风控。
-pub const MIN_INTERVAL_SECONDS: u64 = 5;
+/// 允许设置的间隔下限（秒）。频率交给用户决定，只排除 0 秒的无间隔连发。
+pub const MIN_INTERVAL_SECONDS: u64 = 1;
 
 /// 读取设置文件时接受的字节上限。
 ///
@@ -162,6 +169,242 @@ impl ConfigError {
     }
 }
 
+/// Apple 查询使用的出口线路。
+///
+/// 默认跟随系统代理，与引入线路设置之前的行为完全一致：已有用户升级后不会
+/// 悄悄换一条出口。
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum NetworkMode {
+    /// 不给查询浏览器指定代理，由系统代理设置决定出口。
+    #[default]
+    System,
+    /// 通过 Clash / mihomo 的专用端口，固定使用 `pinned_node`，不自动切换。
+    ///
+    /// 选 DIRECT 时经 Clash 直连出去。即使 Clash 开着 TUN 也能真正用上本机
+    /// 网络，这是只给浏览器加 `--no-proxy-server` 做不到的。
+    Pinned,
+    /// 通过 Clash / mihomo 的专用端口查询，被拦时经控制接口切换节点。
+    Clash,
+}
+
+/// Clash / mihomo 线路设置。
+///
+/// 应用只切换 `group` 这一个策略组的节点，并且只让查询浏览器走 `proxy_port`。
+/// 这要求用户为果到雷达单独配置策略组和监听端口，切换节点才不会改变电脑上
+/// 其他软件的代理出口。
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct ClashSettings {
+    /// 外部控制接口地址，例如 `http://127.0.0.1:9097`。
+    pub controller: String,
+    /// 外部控制接口密钥，可为空。
+    pub secret: String,
+    /// 专用 select 策略组名。
+    pub group: String,
+    /// 只转发到 `group` 的本机代理端口。
+    pub proxy_port: u16,
+    /// 节点名关键词，用 `|` 分隔；为空表示使用组内全部节点。
+    pub node_filter: String,
+    /// 「指定节点」模式固定使用的节点。
+    pub pinned_node: String,
+}
+
+impl Default for ClashSettings {
+    fn default() -> Self {
+        Self {
+            controller: "http://127.0.0.1:9097".into(),
+            secret: String::new(),
+            group: "果到雷达".into(),
+            proxy_port: 7899,
+            node_filter: String::new(),
+            pinned_node: "DIRECT".into(),
+        }
+    }
+}
+
+/// 查询网络设置。
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct NetworkSettings {
+    pub mode: NetworkMode,
+    pub clash: ClashSettings,
+}
+
+impl NetworkSettings {
+    fn normalize(&mut self) {
+        let clash = &mut self.clash;
+        clash.controller = clash.controller.trim().trim_end_matches('/').to_string();
+        // Clash 界面显示的监听地址不带协议（如 127.0.0.1:9097），用户会直接照抄。
+        if !clash.controller.is_empty() && !clash.controller.contains("://") {
+            clash.controller = format!("http://{}", clash.controller);
+        }
+        clash.secret = clash.secret.trim().to_string();
+        clash.group = clash.group.trim().to_string();
+        clash.node_filter = clash.node_filter.trim().to_string();
+        clash.pinned_node = clash.pinned_node.trim().to_string();
+        if clash.pinned_node.is_empty() {
+            clash.pinned_node = "DIRECT".into();
+        }
+    }
+}
+
+/// 自动下单使用的付款方式。
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CheckoutPayment {
+    #[default]
+    Alipay,
+    Wechat,
+    /// 银行或平台分期，具体方案由 `installment_bank` 与 `installment_periods` 决定。
+    Installment,
+}
+
+/// Apple 结账页提供的分期期数。
+pub const INSTALLMENT_PERIODS: [u8; 5] = [1, 3, 6, 12, 24];
+
+/// 自动结账目前只支持中国大陆的结账页，其他地区的页面结构没有验证过。
+pub const CHECKOUT_LOCALE: &str = "zh_CN";
+
+/// 自动结账用来区分「是不是同一件商品」的标识。
+///
+/// 同一件商品可以在多家门店各有一条监控项，它们的标识相同。Watch 的表壳要搭配
+/// 表带，所以搭配件也算进去。前端按同样的规则拼这个字符串，两边必须一致。
+pub fn checkout_product_key(target: &Target) -> String {
+    format!(
+        "{}|{}|{}",
+        target.part_number,
+        target.companion_part.as_deref().unwrap_or_default(),
+        target.kit_part.as_deref().unwrap_or_default()
+    )
+}
+
+/// 到货后自动结账的设置。目前只支持中国大陆的直营店取货。
+///
+/// 默认整体关闭；即使开启，也默认停在「查看订单」页由用户自己点「立即下单」。
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct CheckoutSettings {
+    pub enabled: bool,
+    /// 成功后是否关闭自动结账。旧配置保持原来的单次行为。
+    pub disable_after_success: bool,
+    /// 按本次到货的型号自动加购；开启后，所有中国大陆监控型号均可触发。
+    /// 旧配置保持关闭，继续使用预先准备的购物袋和指定商品。
+    pub auto_add_to_bag: bool,
+    /// 自动加购时是否同时选 AppleCare+ 服务计划。关闭时选「不加 AppleCare+」。
+    pub add_apple_care: bool,
+    /// 取货人证件号码后四位。Apple 每次结账都要求重新填写，不会预填。
+    pub national_id_suffix: String,
+    pub payment: CheckoutPayment,
+    /// 分期方案名称，按结账页上的名称匹配，例如「招商银行」「花呗分期」。
+    pub installment_bank: String,
+    pub installment_periods: u8,
+    /// 核对通过后是否自动点「立即下单」。付款始终由用户自己完成。
+    pub place_order: bool,
+    /// 结账页默认选中的门店（离取货地区最近的有货门店）可取货时，直接在那里取货，
+    /// 即使它不是监控到货的那一家。换门店要多等 Apple 一轮加载，约十几秒。
+    pub accept_nearest_store: bool,
+    /// 预先准备购物袋模式的指定商品（[`checkout_product_key`]）。自动加购时忽略，
+    /// 否则只有它到货才触发。留空且只有一种商品时自动认定为那一件。
+    pub product: String,
+    /// 是否用下面这组联系信息覆盖结账页上 Apple 预填的内容。关闭时只核对预填内容。
+    pub fill_contact: bool,
+    /// 取货人姓名须与取货时出示的证件一致。留空的项不填，沿用页面上已有的值。
+    pub contact_last_name: String,
+    pub contact_first_name: String,
+    pub contact_email: String,
+    /// 中国大陆手机号，不带 +86。
+    pub contact_phone: String,
+}
+
+impl Default for CheckoutSettings {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            disable_after_success: true,
+            auto_add_to_bag: false,
+            add_apple_care: false,
+            national_id_suffix: String::new(),
+            payment: CheckoutPayment::Alipay,
+            installment_bank: "招商银行".into(),
+            installment_periods: 24,
+            place_order: false,
+            accept_nearest_store: false,
+            product: String::new(),
+            fill_contact: false,
+            contact_last_name: String::new(),
+            contact_first_name: String::new(),
+            contact_email: String::new(),
+            contact_phone: String::new(),
+        }
+    }
+}
+
+impl CheckoutSettings {
+    fn normalize(&mut self) {
+        // 身份证末位可能是 X；港澳台通行证与护照号也只含字母数字。
+        self.national_id_suffix = self
+            .national_id_suffix
+            .chars()
+            .filter(char::is_ascii_alphanumeric)
+            .map(|c| c.to_ascii_uppercase())
+            .take(4)
+            .collect();
+        self.installment_bank = self.installment_bank.trim().to_string();
+        self.contact_last_name = self.contact_last_name.trim().to_string();
+        self.contact_first_name = self.contact_first_name.trim().to_string();
+        self.contact_email = self.contact_email.trim().to_string();
+        // 结账页的区号是固定的 +86，输入框里只要号码本身。
+        let digits: String = self
+            .contact_phone
+            .chars()
+            .filter(char::is_ascii_digit)
+            .collect();
+        self.contact_phone = match digits.strip_prefix("86") {
+            Some(rest) if rest.len() == 11 => rest.to_string(),
+            _ => digits,
+        };
+        if !INSTALLMENT_PERIODS.contains(&self.installment_periods) {
+            self.installment_periods = 24;
+        }
+        // 花呗分期最多 12 期，结账页上没有 24 期这个选项。
+        if self.installment_bank == "花呗分期" && self.installment_periods > 12 {
+            self.installment_periods = 12;
+        }
+    }
+
+    /// 证件后四位是否已填完整。没填完时自动结账必然卡在取货信息页。
+    pub fn has_national_id_suffix(&self) -> bool {
+        self.national_id_suffix.chars().count() == 4
+    }
+}
+
+/// Bark 推送的增强参数。
+///
+/// 全部字段都有「不改变旧行为」的默认值：等级不指定、铃声为空、音量为
+/// `None`、不持续响铃。只有用户显式设置过的项才会进入推送请求。
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct BarkOptions {
+    /// 通知中断级别；`default` 表示不指定（等同于 Bark 默认的 `active`）。
+    pub level: BarkLevel,
+    /// 铃声名；空表示用 Bark 默认铃声。
+    pub sound: String,
+    /// 重要警告（critical）的通知音量 0-10；`None` 表示不指定。
+    pub volume: Option<u8>,
+    /// 持续响铃（`call=1`）：重复播放铃声约 30 秒。
+    pub call: bool,
+}
+
+impl BarkOptions {
+    fn normalize(&mut self) {
+        self.sound = self.sound.trim().to_string();
+        if let Some(volume) = &mut self.volume {
+            *volume = (*volume).min(10);
+        }
+    }
+}
+
 /// 持久化的用户设置。
 ///
 /// 字段名跨 IPC 边界要和前端对齐，所以统一小驼峰，与 [`Target`]、
@@ -185,11 +428,20 @@ pub struct Settings {
     pub bark_url: String,
     /// 按商品零件号覆盖默认 Bark；同一型号在不同门店共用一条路由。
     pub product_bark_urls: BTreeMap<String, String>,
+    /// Bark 推送的增强参数。
+    pub bark_options: BarkOptions,
     /// 有货时是否播放提示音。
     pub sound_enabled: bool,
     /// 有货时自动打开的页面；旧字段 `openBagOnHit` 通过别名兼容。
     #[serde(alias = "openBagOnHit")]
     pub open_on_hit: OpenOnHit,
+    /// 监控到任意一条有货后是否暂停监控。关闭时只要持续有货，每一轮都会重新提醒
+    /// （并重新触发自动结账）。
+    pub stop_on_hit: bool,
+    /// Apple 查询的出口线路。
+    pub network: NetworkSettings,
+    /// 到货后自动结账。
+    pub checkout: CheckoutSettings,
 }
 
 /// 内置地区表里的第一个 locale，作为兜底取值。
@@ -208,8 +460,12 @@ impl Default for Settings {
             interval_seconds: DEFAULT_INTERVAL_SECONDS,
             bark_url: String::new(),
             product_bark_urls: BTreeMap::new(),
+            bark_options: BarkOptions::default(),
             sound_enabled: true,
             open_on_hit: OpenOnHit::Bag,
+            stop_on_hit: false,
+            network: NetworkSettings::default(),
+            checkout: CheckoutSettings::default(),
         }
     }
 }
@@ -230,8 +486,8 @@ impl Settings {
             .as_ref()
             .and_then(DeliveryRegion::normalized);
 
-        // 注意是「小于下限就回到默认值」，不是「夹到下限」。手抖填了 1 秒的人
-        // 想要的是快，但 5 秒同样会被风控盯上；退回 30 秒才是安全的那一侧。
+        // 注意是「小于下限就回到默认值」，不是「夹到下限」。0 秒多半是没填或填错，
+        // 退回 30 秒才是安全的那一侧。
         if self.interval_seconds < MIN_INTERVAL_SECONDS {
             self.interval_seconds = DEFAULT_INTERVAL_SECONDS;
         }
@@ -275,6 +531,61 @@ impl Settings {
             *bark_url = bark_url.trim().to_string();
             active_parts.contains(part_number) && !bark_url.is_empty()
         });
+
+        self.network.normalize();
+        self.bark_options.normalize();
+        self.checkout.normalize();
+        // 旧模式仍要求明确的单商品；自动加购模式由每次到货的目标决定商品。
+        if !self.checkout.auto_add_to_bag
+            && !self.checkout.product.is_empty()
+            && !self.checkout_candidates().contains(&self.checkout.product)
+        {
+            self.checkout.product.clear();
+            // 选定的商品没了就整体停用，不让剩下的某一件悄悄顶替它继续自动下单。
+            self.checkout.enabled = false;
+        }
+        if !self
+            .targets
+            .iter()
+            .any(|target| self.is_checkout_target(target))
+        {
+            self.checkout.enabled = false;
+        }
+    }
+
+    /// 监控列表里可以自动结账的不同商品，按出现顺序排列。
+    fn checkout_candidates(&self) -> Vec<String> {
+        let mut keys: Vec<String> = Vec::new();
+        for target in &self.targets {
+            if target.locale != CHECKOUT_LOCALE {
+                continue;
+            }
+            let key = checkout_product_key(target);
+            if !keys.contains(&key) {
+                keys.push(key);
+            }
+        }
+        keys
+    }
+
+    /// 自动结账要下单的商品：用户选中的那件；没选但监控列表里只有一件时就是它。
+    pub fn checkout_product(&self) -> Option<String> {
+        let mut candidates = self.checkout_candidates();
+        if candidates.contains(&self.checkout.product) {
+            return Some(self.checkout.product.clone());
+        }
+        if candidates.len() == 1 {
+            return candidates.pop();
+        }
+        None
+    }
+
+    /// 这条监控项到货时是否应当触发自动结账。
+    pub fn is_checkout_target(&self, target: &Target) -> bool {
+        target.locale == CHECKOUT_LOCALE
+            && (self.checkout.auto_add_to_bag
+                || self.checkout_product().as_deref()
+                    == Some(checkout_product_key(target).as_str()))
     }
 
     /// 查询间隔。
@@ -347,6 +658,7 @@ impl SettingsStore {
     /// **文件不存在**返回默认设置且不算错误；文件存在却读不出来一律返回错误。
     /// 这个区分是刻意的，理由见模块文档。
     pub fn load(&self) -> Result<Settings, ConfigError> {
+        harden_existing_config(&self.path)?;
         let file = match File::open(&self.path) {
             Ok(f) => f,
             // 只有「确实没有这个文件」才等于「用户还没有配置」。
@@ -522,11 +834,11 @@ fn create_temp_file(dir: &Path) -> Result<(TempFile, File), ConfigError> {
     for _ in 0..32 {
         let seq = TEMP_SEQ.fetch_add(1, Ordering::Relaxed);
         let candidate = dir.join(format!(".apw-settings-{}-{seq}.tmp", std::process::id()));
-        match OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            .open(&candidate)
-        {
+        let mut options = OpenOptions::new();
+        options.write(true).create_new(true);
+        #[cfg(unix)]
+        options.mode(0o600);
+        match options.open(&candidate) {
             Ok(file) => {
                 return Ok((
                     TempFile {
@@ -553,6 +865,7 @@ fn create_temp_file(dir: &Path) -> Result<(TempFile, File), ConfigError> {
 fn write_atomically(path: &Path, data: &[u8]) -> Result<(), ConfigError> {
     let dir = parent_dir(path);
     fs::create_dir_all(dir).map_err(|e| ConfigError::io("创建配置目录", dir, e))?;
+    harden_config_dir(dir)?;
 
     let (mut guard, mut file) = create_temp_file(dir)?;
 
@@ -574,6 +887,43 @@ fn write_atomically(path: &Path, data: &[u8]) -> Result<(), ConfigError> {
     if let Ok(handle) = File::open(dir) {
         let _ = handle.sync_all();
     }
+    Ok(())
+}
+
+/// Unix 上把配置目录与设置文件收紧到当前用户可读写。
+///
+/// Bark 地址里含设备密钥，不能依赖系统 umask 恰好足够严格。Windows 的用户配置
+/// 目录由 ACL 保护，因此这里不额外改动。
+#[cfg(unix)]
+fn harden_config_dir(dir: &Path) -> Result<(), ConfigError> {
+    // 裸文件名会退回当前目录，测试或嵌入方不应因此被修改整个工作目录权限。
+    if dir == Path::new(".") {
+        return Ok(());
+    }
+    fs::set_permissions(dir, fs::Permissions::from_mode(0o700))
+        .map_err(|source| ConfigError::io("收紧配置目录权限", dir, source))
+}
+
+#[cfg(not(unix))]
+fn harden_config_dir(_dir: &Path) -> Result<(), ConfigError> {
+    Ok(())
+}
+
+#[cfg(unix)]
+fn harden_existing_config(path: &Path) -> Result<(), ConfigError> {
+    match fs::symlink_metadata(path) {
+        Ok(_) => {
+            harden_config_dir(parent_dir(path))?;
+            fs::set_permissions(path, fs::Permissions::from_mode(0o600))
+                .map_err(|source| ConfigError::io("收紧设置文件权限", path, source))
+        }
+        Err(error) if error.kind() == ErrorKind::NotFound => Ok(()),
+        Err(source) => Err(ConfigError::io("检查设置文件权限", path, source)),
+    }
+}
+
+#[cfg(not(unix))]
+fn harden_existing_config(_path: &Path) -> Result<(), ConfigError> {
     Ok(())
 }
 
@@ -626,6 +976,7 @@ impl LegacyTarget {
             companion_part: None,
             companion_name: None,
             kit_part: None,
+            pickup_location: None,
         }
     }
 }
@@ -649,12 +1000,16 @@ impl LegacySettings {
                 .unwrap_or(fallback.interval_seconds),
             bark_url: self.bark_url.unwrap_or(fallback.bark_url),
             product_bark_urls: BTreeMap::new(),
+            bark_options: fallback.bark_options,
             sound_enabled: self.sound_enabled.unwrap_or(fallback.sound_enabled),
             open_on_hit: match self.open_bag_on_hit {
                 Some(true) => OpenOnHit::Bag,
                 Some(false) => OpenOnHit::None,
                 None => fallback.open_on_hit,
             },
+            stop_on_hit: fallback.stop_on_hit,
+            network: fallback.network,
+            checkout: fallback.checkout,
         };
         settings.normalize();
         settings
@@ -675,6 +1030,7 @@ mod tests {
             companion_part: None,
             companion_name: None,
             kit_part: None,
+            pickup_location: None,
         }
     }
 
@@ -712,17 +1068,15 @@ mod tests {
 
     #[test]
     fn 规范化把过小的间隔退回默认值() {
-        for bad in [0, 1, MIN_INTERVAL_SECONDS - 1] {
-            let mut s = Settings {
-                interval_seconds: bad,
-                ..Settings::default()
-            };
-            s.normalize();
-            assert_eq!(
-                s.interval_seconds, DEFAULT_INTERVAL_SECONDS,
-                "间隔 {bad} 秒应当退回默认值"
-            );
-        }
+        let mut s = Settings {
+            interval_seconds: 0,
+            ..Settings::default()
+        };
+        s.normalize();
+        assert_eq!(
+            s.interval_seconds, DEFAULT_INTERVAL_SECONDS,
+            "间隔 0 秒应当退回默认值"
+        );
 
         // 下限本身是允许的，用户有意调快的余地要留着。
         let mut s = Settings {

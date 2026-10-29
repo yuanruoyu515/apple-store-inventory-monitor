@@ -260,3 +260,21 @@ when switching countries, and keeps existing US settings and targets intact.
 This release adds Canadian data generation and regression tests and updates
 the documentation. The application identifier and US bundle filename remain
 unchanged for upgrade compatibility. All earlier notices and GPL terms remain.
+
+United States, Canada and United Arab Emirates edition (2026-10-29)
+------------------------------------------------------------
+
+Modified by yuanruoyu515. Version 1.0.27 (tag v1.0.27-us.1) incorporates
+suversal/apple-store-inventory-monitor v1.0.26, preserving upstream copyright,
+contributor notices and GPL-3.0-or-later terms. It carries forward the earlier
+US/Canada catalog, pending-pickup, encoded-date and country-switching changes.
+
+This release adds five UAE stores and 40 independently sourced AH/A part
+numbers, region-safe pickup policies, maintainer GitHub and Threads links,
+isolated browser/cache directories and macOS release packaging. The app's
+existing US bundle identity and settings directory are retained for upgrades.
+The UI exposes US/Canada/UAE iPhone monitoring; mainland-only checkout controls
+remain unavailable for those regions. Upstream automatic update installation
+is disabled. New installs default to 60-second polling; existing settings stay.
+UAE source URLs, checked time and page hashes are recorded in
+ae-source/catalog.json. Earlier notices remain historical statements.

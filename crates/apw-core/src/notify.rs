@@ -31,6 +31,7 @@ use reqwest::Url;
 use rodio::Source;
 use rodio::buffer::SamplesBuffer;
 use rodio::source::UniformSourceIterator;
+use serde::{Deserialize, Serialize};
 
 /// 内嵌的提示音。
 ///
@@ -173,12 +174,57 @@ const BARK_TIMEOUT: Duration = Duration::from_secs(10);
 /// 响应体读取上限。错误信息通常只有几十字节，出错的服务器却可能返回整页 HTML。
 const BARK_MAX_BODY: usize = 8 << 10;
 
+/// Bark 推送的中断级别（对应 Bark 的 `level` 参数）。
+///
+/// `Default` 表示不指定：查询参数里不带 `level`，行为等同于 Bark 默认的
+/// `active`（立即亮屏显示）；它同时是缺省值，保证旧设置升级后行为不变。
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum BarkLevel {
+    #[default]
+    Default,
+    Active,
+    TimeSensitive,
+    Passive,
+    Critical,
+}
+
+impl BarkLevel {
+    /// 对应的 Bark 查询参数值；`Default` 不携带参数。
+    fn wire_value(self) -> Option<&'static str> {
+        match self {
+            Self::Default => None,
+            Self::Active => Some("active"),
+            Self::TimeSensitive => Some("timeSensitive"),
+            Self::Passive => Some("passive"),
+            Self::Critical => Some("critical"),
+        }
+    }
+}
+
+/// Bark 推送的增强参数。
+///
+/// 都是「可选增强」：用户没设置的项不会进入请求，Bark 地址里自带的同名参数
+/// 也会被保留；只有显式设置过的项才会覆盖地址里的同名段。音量只对
+/// 「重要警告」（critical）生效。
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct BarkPush {
+    pub level: BarkLevel,
+    /// 铃声名；空表示不指定，用 Bark 默认铃声。
+    pub sound: String,
+    /// 重要警告的通知音量（0-10）；`None` 表示不指定。
+    pub volume: Option<u8>,
+    /// 持续响铃（`call=1`）：重复播放铃声约 30 秒。
+    pub call: bool,
+}
+
 /// 通过 Bark 服务器向 iOS 设备推送通知。
 #[derive(Debug, Clone)]
 pub struct Bark {
     base_url: String,
     http: reqwest::Client,
     timeout: Duration,
+    push: BarkPush,
 }
 
 impl Bark {
@@ -195,7 +241,14 @@ impl Bark {
             base_url: base_url.trim().to_string(),
             http,
             timeout: BARK_TIMEOUT,
+            push: BarkPush::default(),
         }
+    }
+
+    /// 附加推送增强参数（等级、铃声、音量、持续响铃）。
+    pub fn with_push(mut self, push: BarkPush) -> Self {
+        self.push = push;
+        self
     }
 
     /// 覆盖默认的单次请求超时。
@@ -220,7 +273,7 @@ impl Notifier for Bark {
             return Ok(());
         }
 
-        let url = build_bark_url(&self.base_url, n)?;
+        let url = build_bark_url(&self.base_url, n, &self.push)?;
 
         let mut resp = self
             .http
@@ -231,7 +284,7 @@ impl Notifier for Bark {
             .await
             .map_err(|e| NotifyError::Transport {
                 channel: BARK.to_string(),
-                detail: e.to_string(),
+                detail: safe_transport_detail(&e),
             })?;
 
         let status = resp.status();
@@ -243,7 +296,7 @@ impl Notifier for Bark {
             return Err(NotifyError::Rejected {
                 channel: BARK.to_string(),
                 status: status.as_u16(),
-                body: summarize(&body),
+                body: redact_bark_secret(&summarize(&body), &self.base_url),
             });
         }
 
@@ -252,7 +305,7 @@ impl Notifier for Bark {
             return Err(NotifyError::Remote {
                 channel: BARK.to_string(),
                 code,
-                message,
+                message: redact_bark_secret(&message, &self.base_url),
             });
         }
         Ok(())
@@ -310,6 +363,35 @@ fn summarize(body: &[u8]) -> String {
     }
 }
 
+/// reqwest 的错误文本通常会附带完整请求 URL，而 Bark 的路径里就是设备密钥。
+/// 对用户只保留可操作的网络分类，不把 URL 搬进日志和界面。
+fn safe_transport_detail(error: &reqwest::Error) -> String {
+    if error.is_timeout() {
+        "请求超时".to_string()
+    } else if error.is_connect() {
+        "无法连接推送服务器".to_string()
+    } else if error.is_redirect() {
+        "推送服务器重定向异常".to_string()
+    } else if let Some(status) = error.status() {
+        format!("HTTP {}", status.as_u16())
+    } else {
+        "网络请求异常".to_string()
+    }
+}
+
+/// 防止 Bark 服务端把请求地址或设备 key 原样回显到错误响应中。
+fn redact_bark_secret(detail: &str, base_url: &str) -> String {
+    let mut redacted = detail.replace(base_url, "[Bark 地址已隐藏]");
+    if let Ok(url) = Url::parse(base_url) {
+        for segment in url.path_segments().into_iter().flatten() {
+            if !segment.is_empty() {
+                redacted = redacted.replace(segment, "***");
+            }
+        }
+    }
+    redacted
+}
+
 /// 组装 Bark 推送地址。
 ///
 /// Bark 的路径形式是 `/<设备key>/<标题>/<正文>`，另把要打开的链接放进 `url`
@@ -317,13 +399,13 @@ fn summarize(body: &[u8]) -> String {
 /// 空格、斜杠一概不转义 —— 拼出来的 URL 本身就是非法的，标题里只要有一个「/」
 /// 整条路径的语义就变了（正文被顶到标题位置），末尾的购物袋地址也没转义，
 /// 其中的 `&` 会把后面的参数整段截断。
-fn build_bark_url(base_url: &str, n: &Notification) -> Result<Url, NotifyError> {
+fn build_bark_url(base_url: &str, n: &Notification, push: &BarkPush) -> Result<Url, NotifyError> {
     let mut u = Url::parse(base_url).map_err(|e| config_err(format!("地址无法解析：{e}")))?;
 
     if !matches!(u.scheme(), "http" | "https") || u.host_str().unwrap_or_default().is_empty() {
-        return Err(config_err(format!(
-            "地址必须是以 http:// 或 https:// 开头的完整地址，当前为 {base_url:?}"
-        )));
+        return Err(config_err(
+            "地址必须是以 http:// 或 https:// 开头的完整地址".to_string(),
+        ));
     }
 
     // 已经是转义形态的路径，原样拿来当前缀，不重新编码。
@@ -353,10 +435,37 @@ fn build_bark_url(base_url: &str, n: &Notification) -> Result<Url, NotifyError> 
         .map(str::trim)
         .filter(|s| !s.is_empty())
         .map(percent_encode);
-    let query = merge_query(u.query(), link.as_deref());
+    let extras = bark_extras(push);
+    let extras_ref: Vec<(&str, &str)> = extras
+        .iter()
+        .map(|(key, value)| (*key, value.as_str()))
+        .collect();
+    let query = merge_query_with_params(u.query(), link.as_deref(), &extras_ref);
     u.set_query(query.as_deref());
 
     Ok(u)
+}
+
+/// 组装要附加到 Bark 请求上的增强参数。
+///
+/// 只包含用户显式设置过的项：等级为默认、铃声为空、音量为 `None`、未开持续
+/// 响铃时一个参数都不加，请求与旧版完全一致。
+fn bark_extras(push: &BarkPush) -> Vec<(&'static str, String)> {
+    let mut extras: Vec<(&'static str, String)> = Vec::new();
+    if let Some(level) = push.level.wire_value() {
+        extras.push(("level", level.to_string()));
+    }
+    let sound = push.sound.trim();
+    if !sound.is_empty() {
+        extras.push(("sound", sound.to_string()));
+    }
+    if let Some(volume) = push.volume {
+        extras.push(("volume", volume.to_string()));
+    }
+    if push.call {
+        extras.push(("call", "1".to_string()));
+    }
+    extras
 }
 
 fn config_err(detail: String) -> NotifyError {
@@ -402,7 +511,13 @@ fn encode_path_segment(s: &str) -> String {
     encoded
 }
 
-/// 把用户地址里自带的查询参数与我们要加的 `url` 参数合并。
+/// 测试用的便捷包装：合并查询参数，不附加任何增强参数。
+#[cfg(test)]
+fn merge_query(existing: Option<&str>, encoded_link: Option<&str>) -> Option<String> {
+    merge_query_with_params(existing, encoded_link, &[])
+}
+
+/// 把用户地址里自带的查询参数与我们要加的 `url`、增强参数合并。
 ///
 /// 用户经常在 Bark 地址里带上 `?group=库存`、`?sound=alarm` 之类的设置，必须
 /// 原样留住。这里刻意**不**用 `Url::query_pairs_mut()`：它会先按
@@ -412,31 +527,42 @@ fn encode_path_segment(s: &str) -> String {
 /// 另一个形态上：`u.Query()` 把 `ParseQuery` 的错误直接吞掉并返回空集合，
 /// 于是同样的地址会让用户写的全部参数被静默丢弃。
 ///
-/// 这里只按 `&` 切段、逐段原样保留，唯一的改动是在要设置链接时去掉已有的
-/// `url` 段 —— 不解码就不可能解错。
-fn merge_query(existing: Option<&str>, encoded_link: Option<&str>) -> Option<String> {
+/// 这里只按 `&` 切段、逐段原样保留：要设置链接时去掉已有的 `url` 段；
+/// `params` 里的增强参数会替换地址里已有的同名段（用户在界面里显式设置的项
+/// 优先于地址里手写的），没有设置的项不会触碰地址里原有的同名段。参数值统一
+/// 按严格转义处理，铃声名里出现 `&`、`=` 也不会截断查询串 —— 不解码就不可能
+/// 解错。
+fn merge_query_with_params(
+    existing: Option<&str>,
+    encoded_link: Option<&str>,
+    params: &[(&str, &str)],
+) -> Option<String> {
     let existing = existing.unwrap_or_default();
-    let Some(link) = encoded_link else {
-        return (!existing.is_empty()).then(|| existing.to_string());
-    };
-
-    let mut parts: Vec<&str> = Vec::new();
+    let mut parts: Vec<String> = Vec::new();
     for segment in existing.split('&') {
         if segment.is_empty() {
             continue;
         }
         let key = segment.split_once('=').map_or(segment, |(k, _)| k);
-        if key == "url" {
+        if key == "url" && encoded_link.is_some() {
             continue;
         }
-        parts.push(segment);
+        if params.iter().any(|(param, _)| *param == key) {
+            continue;
+        }
+        parts.push(segment.to_string());
     }
-
-    let appended = format!("url={link}");
+    for (key, value) in params {
+        parts.push(format!("{key}={}", percent_encode(value)));
+    }
+    if let Some(link) = encoded_link {
+        parts.push(format!("url={link}"));
+    }
     if parts.is_empty() {
-        return Some(appended);
+        None
+    } else {
+        Some(parts.join("&"))
     }
-    Some(format!("{}&{appended}", parts.join("&")))
 }
 
 // ---------------------------------------------------------------------------
@@ -938,6 +1064,7 @@ mod tests {
         let url = build_bark_url(
             "https://api.day.app/devkey",
             &n("到货/提醒", "上海-环球港 有货").with_url("https://x.cn/shop/bag?a=1&b=2"),
+            &BarkPush::default(),
         )
         .expect("正常地址必须能组装");
 
@@ -955,8 +1082,12 @@ mod tests {
 
     #[test]
     fn 空标题不会拼出双斜杠() {
-        let url = build_bark_url("https://api.day.app/devkey", &n("  ", "只有正文"))
-            .expect("只有正文也应当能推送");
+        let url = build_bark_url(
+            "https://api.day.app/devkey",
+            &n("  ", "只有正文"),
+            &BarkPush::default(),
+        )
+        .expect("只有正文也应当能推送");
         assert!(!url.path().contains("//"), "实际路径 {}", url.path());
         assert_eq!(url.path().matches('/').count(), 2);
     }
@@ -964,8 +1095,8 @@ mod tests {
     #[test]
     fn 地址不合法时报配置错误() {
         for bad in ["", "不是地址", "ftp://a.b/key", "https://api.day.app"] {
-            let err =
-                build_bark_url(bad, &n("标题", "正文")).expect_err(&format!("{bad:?} 不该被接受"));
+            let err = build_bark_url(bad, &n("标题", "正文"), &BarkPush::default())
+                .expect_err(&format!("{bad:?} 不该被接受"));
             assert_eq!(err.channel(), Some("Bark"), "{bad:?}");
             assert!(matches!(err, NotifyError::Config { .. }), "{bad:?}");
         }
@@ -973,8 +1104,12 @@ mod tests {
 
     #[test]
     fn 标题正文都为空时报错而不是发一条空推送() {
-        let err = build_bark_url("https://api.day.app/devkey", &n(" ", ""))
-            .expect_err("空通知不该发出去");
+        let err = build_bark_url(
+            "https://api.day.app/devkey",
+            &n(" ", ""),
+            &BarkPush::default(),
+        )
+        .expect_err("空通知不该发出去");
         assert!(matches!(err, NotifyError::Config { .. }));
     }
 
@@ -1036,5 +1171,117 @@ mod tests {
             bark_business_error(r#"{"code":400,"message":"key 无效"}"#.as_bytes()),
             Some((400, "key 无效".to_string()))
         );
+    }
+
+    fn 组装带增强参数(push: &BarkPush) -> Url {
+        build_bark_url("https://api.day.app/devkey", &n("标题", "正文"), push)
+            .expect("正常地址必须能组装")
+    }
+
+    #[test]
+    fn 增强参数只附加用户显式设置的项() {
+        // 全部保持默认时一个参数都不加，请求与旧版完全一致。
+        let plain = 组装带增强参数(&BarkPush::default());
+        assert_eq!(plain.query(), None, "默认不应携带任何查询参数：{plain}");
+
+        let push = BarkPush {
+            level: BarkLevel::Critical,
+            sound: "alarm".into(),
+            volume: Some(7),
+            call: true,
+        };
+        let query = 组装带增强参数(&push)
+            .query()
+            .unwrap_or_default()
+            .to_string();
+        assert!(query.contains("level=critical"), "{query}");
+        assert!(query.contains("sound=alarm"), "{query}");
+        assert!(query.contains("volume=7"), "{query}");
+        assert!(query.contains("call=1"), "{query}");
+    }
+
+    #[test]
+    fn 等级默认不携带level参数() {
+        let push = BarkPush {
+            sound: "alarm".into(),
+            ..BarkPush::default()
+        };
+        let query = 组装带增强参数(&push)
+            .query()
+            .unwrap_or_default()
+            .to_string();
+        assert!(!query.contains("level="), "{query}");
+    }
+
+    #[test]
+    fn 增强参数替换地址里的同名段而不是叠加() {
+        let push = BarkPush {
+            sound: "new".into(),
+            ..BarkPush::default()
+        };
+        let url = build_bark_url(
+            "https://api.day.app/devkey?sound=old&group=stock",
+            &n("标题", "正文"),
+            &push,
+        )
+        .expect("正常地址必须能组装");
+        let query = url.query().unwrap_or_default();
+        assert!(query.contains("sound=new"), "{query}");
+        assert!(!query.contains("sound=old"), "{query}");
+        assert!(query.contains("group=stock"), "不该动无关参数：{query}");
+        assert_eq!(query.matches("sound=").count(), 1, "{query}");
+    }
+
+    #[test]
+    fn 未设置的增强参数保留地址里原有的同名段() {
+        let push = BarkPush {
+            level: BarkLevel::TimeSensitive,
+            ..BarkPush::default()
+        };
+        let url = build_bark_url(
+            "https://api.day.app/devkey?level=active&sound=old",
+            &n("标题", "正文"),
+            &push,
+        )
+        .expect("正常地址必须能组装");
+        let query = url.query().unwrap_or_default();
+        assert!(query.contains("level=timeSensitive"), "{query}");
+        assert!(!query.contains("level=active"), "{query}");
+        assert!(
+            query.contains("sound=old"),
+            "没设置的项必须保持地址原样：{query}"
+        );
+    }
+
+    #[test]
+    fn 铃声名会被转义且音量零原样发送() {
+        let push = BarkPush {
+            sound: "a&b=c".into(),
+            volume: Some(0),
+            ..BarkPush::default()
+        };
+        let query = 组装带增强参数(&push)
+            .query()
+            .unwrap_or_default()
+            .to_string();
+        assert!(query.contains("sound=a%26b%3Dc"), "{query}");
+        // 音量 0 是合法值（Bark 支持「重要警告最低音量 0」），不能被吞掉。
+        assert!(query.contains("volume=0"), "{query}");
+    }
+
+    #[test]
+    fn 增强参数排在地址原有参数之后且url仍然最后() {
+        let push = BarkPush {
+            call: true,
+            ..BarkPush::default()
+        };
+        let url = build_bark_url(
+            "https://api.day.app/devkey?group=stock",
+            &n("标题", "正文").with_url("https://x.cn/bag"),
+            &push,
+        )
+        .expect("正常地址必须能组装");
+        let query = url.query().unwrap_or_default();
+        assert!(query.contains("group=stock&call=1&url="), "实际为 {query}");
     }
 }

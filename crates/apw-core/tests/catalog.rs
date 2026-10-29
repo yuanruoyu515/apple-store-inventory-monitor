@@ -47,9 +47,9 @@ const SELECTION: &str = r#"{
 // ---- 内嵌数据 ----
 
 #[test]
-fn 九个地区都能从内嵌数据读出商品与门店() {
+fn 十个地区都能从内嵌数据读出商品与门店() {
     let catalog = Catalog::new();
-    assert_eq!(REGIONS.len(), 9);
+    assert_eq!(REGIONS.len(), 10);
 
     for region in REGIONS {
         let products = catalog
@@ -200,6 +200,17 @@ fn 中国大陆的商品展示名带本地化颜色() {
 }
 
 #[test]
+fn 中国大陆门店包含北京荟聚() {
+    let catalog = Catalog::new();
+    let store = catalog
+        .store_by_number("zh_CN", "R792")
+        .expect("中国大陆门店目录应当包含北京荟聚 R792");
+
+    assert_eq!(store.name, "北京荟聚");
+    assert_eq!(store.title, "北京-北京荟聚");
+}
+
+#[test]
 fn 日本站按零件号去重() {
     let catalog = Catalog::new();
     let products = catalog.products("ja_JP").expect("日本站数据应当可用");
@@ -224,15 +235,25 @@ fn 日本站按零件号去重() {
 }
 
 #[test]
-fn 门店展示名的两种构造方式() {
+fn 门店展示名按地区使用适合用户搜索的层级() {
     let catalog = Catalog::new();
 
-    // hasStates 的地区用 stateName：上海-环球港。
+    // 中国大陆使用实际城市；直辖市的城市名与省级名称相同。
     let cn = catalog
         .store_by_number("zh_CN", "R683")
         .expect("中国大陆应当有 R683");
     assert_eq!(cn.name, "环球港");
     assert_eq!(cn.title, "上海-环球港");
+
+    // 广东省内的深圳门店必须能通过“深圳”搜索到，不能展示成“广东-前海壹方城”。
+    let shenzhen = catalog
+        .store_by_number("zh_CN", "R793")
+        .expect("中国大陆应当有 R793");
+    assert_eq!(shenzhen.title, "深圳-前海壹方城");
+    assert_eq!(
+        shenzhen.pickup_location("zh_CN").as_deref(),
+        Some("广东 深圳")
+    );
 
     // 没有 state 层级的地区（香港、新加坡）用 address.city。
     let hk = catalog
@@ -246,6 +267,12 @@ fn 门店展示名的两种构造方式() {
         .store_by_number("ja_JP", "R718")
         .expect("日本应当有 R718");
     assert_eq!(jp.title, "Tokyo-Marunouchi");
+
+    // 澳大利亚继续使用州名，不能被中国大陆的显示规则带偏。
+    let au = catalog
+        .store_by_number("en_AU", "R466")
+        .expect("澳大利亚应当有 R466");
+    assert_eq!(au.title, "Queensland-Brisbane");
 }
 
 #[test]

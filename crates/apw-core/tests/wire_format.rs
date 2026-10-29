@@ -23,6 +23,7 @@ fn 到货跳转方式的线上格式是稳定字符串() {
     for (destination, want) in [
         (OpenOnHit::None, "none"),
         (OpenOnHit::Bag, "bag"),
+        (OpenOnHit::EducationBag, "education_bag"),
         (OpenOnHit::Product, "product"),
     ] {
         assert_eq!(to_value(&destination), json!(want));
@@ -48,6 +49,12 @@ fn 可用状态的线上格式() {
 fn 未知状态会扁平成两层判别字段() {
     let cases: Vec<(UnknownReason, serde_json::Value)> = vec![
         (
+            UnknownReason::BrowserUnavailable {
+                detail: "资料目录无法取得锁".into(),
+            },
+            json!({"kind": "unknown", "reason": "browser_unavailable", "detail": "资料目录无法取得锁"}),
+        ),
+        (
             UnknownReason::NotYetChecked,
             json!({"kind": "unknown", "reason": "not_yet_checked"}),
         ),
@@ -66,11 +73,24 @@ fn 未知状态会扁平成两层判别字段() {
             json!({"kind": "unknown", "reason": "rate_limited"}),
         ),
         (
+            UnknownReason::CoolingDown {
+                remaining_seconds: 299,
+                detail: "HTTP 541".into(),
+            },
+            json!({"kind": "unknown", "reason": "cooling_down", "remaining_seconds": 299, "detail": "HTTP 541"}),
+        ),
+        (
             UnknownReason::SchemaDrift {
                 field: "pickupDisplay".into(),
                 raw: "weird".into(),
             },
             json!({"kind": "unknown", "reason": "schema_drift", "field": "pickupDisplay", "raw": "weird"}),
+        ),
+        (
+            UnknownReason::StorePickupUnavailable {
+                store_number: "R384".into(),
+            },
+            json!({"kind": "unknown", "reason": "store_pickup_unavailable", "store_number": "R384"}),
         ),
         (
             UnknownReason::AppleError {
@@ -108,6 +128,7 @@ fn 跨边界的结构统一用小驼峰() {
         companion_part: None,
         companion_name: None,
         kit_part: None,
+        pickup_location: None,
     };
     assert_eq!(
         to_value(&target),
@@ -141,8 +162,14 @@ fn 跨边界的结构统一用小驼峰() {
         number: "R683".into(),
         name: "环球港".into(),
         title: "上海-环球港".into(),
+        city: "上海".into(),
+        state: "上海".into(),
+        postal_code: "200062".into(),
+        address: "上海市普陀区中山北路 3300 号".into(),
     };
-    assert!(to_value(&store).get("number").is_some());
+    let value = to_value(&store);
+    assert!(value.get("number").is_some());
+    assert!(value.get("address").is_none());
 }
 
 #[test]
@@ -169,7 +196,9 @@ fn 故障建议的线上格式是小写标识符() {
     // 理由就是让他知道。
     for (advice, want) in [
         (TroubleAdvice::TryAnotherNetwork, "try_another_network"),
+        (TroubleAdvice::WaitForRetry, "wait_for_retry"),
         (TroubleAdvice::WaitForUpdate, "wait_for_update"),
+        (TroubleAdvice::CheckProduct, "check_product"),
     ] {
         assert_eq!(to_value(&advice), json!(want));
     }
@@ -200,12 +229,22 @@ fn 轮询事件携带前端可用的轮次与耗时() {
     let completed = to_value(&Event::CycleComplete {
         cycle: 2,
         elapsed_ms: 2_150,
+        request_count: 1,
+        reused_response_count: 2,
+        next_check_in_secs: 60,
+        cooling: true,
+        route: Some("Clash 节点 香港01".into()),
         healthy: true,
         snapshot: Vec::new(),
     });
     assert_eq!(completed.get("type"), Some(&json!("cycleComplete")));
     assert_eq!(completed.get("cycle"), Some(&json!(2)));
     assert_eq!(completed.get("elapsedMs"), Some(&json!(2_150)));
+    assert_eq!(completed.get("requestCount"), Some(&json!(1)));
+    assert_eq!(completed.get("reusedResponseCount"), Some(&json!(2)));
+    assert_eq!(completed.get("nextCheckInSecs"), Some(&json!(60)));
+    assert_eq!(completed.get("route"), Some(&json!("Clash 节点 香港01")));
+    assert_eq!(completed.get("cooling"), Some(&json!(true)));
     assert!(completed.get("elapsed_ms").is_none());
 }
 
@@ -221,6 +260,7 @@ fn 监控目标能原样往返() {
         companion_part: None,
         companion_name: None,
         kit_part: None,
+        pickup_location: None,
     };
     let json = serde_json::to_string(&target).unwrap();
     let back: Target = serde_json::from_str(&json).expect("反序列化失败");

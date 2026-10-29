@@ -21,17 +21,17 @@ for (const source of storesSource) {
     id: source.storeNumber,
     name: source.storeName,
     slug,
-    telephone: "",
+    telephone: source.telephone ?? "",
     address: {
-      address1: "",
-      address2: "",
+      address1: source.address1 ?? "",
+      address2: source.address2 ?? "",
       city: source.city,
-      postalCode: "",
+      postalCode: source.postalCode ?? "",
       __typename: "PostalAddress",
       // 核心解析器会把 stateName 放进门店标题。这里同时包含州与城市，
       // 让现有的一个搜索框可以按州、城市或店名筛选。
       stateName: `${source.state} · ${source.city}`,
-      stateCode: null,
+      stateCode: source.stateCode ?? null,
     },
     __typename: "RgdsStore",
   });

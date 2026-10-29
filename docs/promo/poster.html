@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>果到雷达 · 海报</title>
+<style>
+  :root {
+    --ink: #05060c;
+    --text: #f4f6fc;
+    --muted: #979eb8;
+    --dim: #5f6682;
+    --line: rgba(255, 255, 255, 0.12);
+    --blue: #6f9bff;
+    --ice: #8fe3ff;
+    --green: #45e093;
+    --red: #ff5d52;
+    --amber: #ffb957;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #000; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: "SF Mono", Menlo, Consolas, monospace; }
+
+  .slide {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 1080px;
+    height: 1440px;
+    padding: 68px 80px 52px;
+    overflow: hidden;
+    background: var(--ink);
+  }
+  .slide::before {
+    content: "";
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(62% 44% at 88% -4%, rgba(84, 126, 255, 0.42), transparent 70%),
+      radial-gradient(46% 36% at -6% 104%, rgba(255, 86, 74, 0.16), transparent 70%),
+      radial-gradient(40% 30% at 50% 58%, rgba(84, 126, 255, 0.10), transparent 70%);
+  }
+  .slide::after {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.085) 1px, transparent 1.4px);
+    background-size: 30px 30px;
+    -webkit-mask-image: linear-gradient(180deg, transparent 4%, #000 34%, #000 62%, transparent 96%);
+  }
+  .slide > * { position: relative; z-index: 1; }
+
+  .top { display: flex; align-items: center; gap: 16px; }
+  .top img { width: 54px; height: 54px; filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.6)); }
+  .top .name { font-size: 27px; font-weight: 700; letter-spacing: 0.04em; }
+  .top .idx { margin-left: auto; color: var(--dim); font-size: 21px; letter-spacing: 0.14em; }
+  .top .idx b { color: var(--text); font-weight: 600; }
+
+  .kicker { display: inline-flex; align-items: center; gap: 14px; margin-top: 70px; color: #a9c1ff; font-size: 24px; font-weight: 600; letter-spacing: 0.2em; }
+  .kicker::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 0 6px rgba(111, 155, 255, 0.18), 0 0 22px var(--blue); }
+  h1 { margin-top: 24px; font-size: 100px; line-height: 1.13; font-weight: 800; letter-spacing: -0.02em; }
+  h1 .g { background: linear-gradient(96deg, #6f9bff 0%, #8fe3ff 78%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  h1 .sl { margin: 0 20px; color: #3d4563; font-style: normal; font-weight: 300; }
+  .sub { margin-top: 26px; max-width: 900px; color: var(--muted); font-size: 29px; line-height: 1.62; }
+  .sub b { color: var(--text); font-weight: 600; }
+
+  .glass {
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.022));
+    box-shadow: 0 44px 90px -40px #000, inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  }
+  .stage { margin-top: 46px; border-radius: 38px; }
+
+  .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 34px; margin-top: auto; }
+  .cols > div { padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.2); }
+  .cols .n { font-size: 31px; font-weight: 700; line-height: 1.3; }
+  .cols .p { margin-top: 10px; color: var(--muted); font-size: 22px; line-height: 1.55; }
+  .foot { display: flex; justify-content: space-between; margin-top: 30px; color: var(--dim); font-size: 19px; letter-spacing: 0.02em; }
+
+  /* 01 封面：雷达 */
+  .radar-wrap { position: relative; height: 560px; margin-top: 30px; }
+  .radar { position: absolute; left: 50%; top: 50%; width: 600px; height: 600px; transform: translate(-50%, -50%) scale(0.9); }
+  .radar svg { position: absolute; inset: 0; }
+  .sweep { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 20deg, rgba(111, 155, 255, 0) 0deg, rgba(111, 155, 255, 0) 280deg, rgba(143, 227, 255, 0.34) 358deg, rgba(111, 155, 255, 0) 360deg); -webkit-mask-image: radial-gradient(circle, transparent 13%, #000 14%, #000 69%, transparent 70%); }
+  .core { position: absolute; left: 50%; top: 50%; width: 132px; height: 132px; transform: translate(-50%, -50%); filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.8)); }
+  .blip { position: absolute; width: 16px; height: 16px; border-radius: 50%; }
+  .blip.on { background: var(--green); box-shadow: 0 0 0 9px rgba(69, 224, 147, 0.16), 0 0 30px var(--green); }
+  .blip.off { background: #4b5270; }
+  .chip { position: absolute; display: flex; align-items: center; gap: 14px; padding: 16px 22px; border-radius: 20px; white-space: nowrap; }
+  .chip .tg { padding: 5px 14px; border-radius: 999px; font-size: 20px; font-weight: 700; }
+  .chip .tx { font-size: 23px; font-weight: 600; }
+  .chip .sm { color: var(--muted); font-size: 19px; font-weight: 400; }
+  .tg.ok { background: rgba(69, 224, 147, 0.18); color: var(--green); }
+  .tg.rt { background: rgba(111, 155, 255, 0.2); color: #a9c1ff; }
+  .tg.od { background: rgba(255, 185, 87, 0.18); color: var(--amber); }
+
+  /* 02 盯货：窗口 */
+  .win { padding: 0 0 8px; overflow: hidden; }
+  .win .bar { display: flex; align-items: center; gap: 10px; padding: 20px 28px; border-bottom: 1px solid var(--line); }
+  .win .bar i { width: 14px; height: 14px; border-radius: 50%; background: #3a4058; }
+  .win .bar span { margin-left: 12px; color: var(--muted); font-size: 21px; }
+  .win .bar em { margin-left: auto; padding: 8px 20px; border-radius: 12px; background: var(--blue); color: #071026; font-style: normal; font-size: 20px; font-weight: 700; }
+  .rowi { display: flex; align-items: center; gap: 22px; padding: 22px 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.07); font-size: 25px; }
+  .rowi:last-child { border-bottom: 0; }
+  .rowi .st { flex: none; width: 124px; padding: 7px 0; border-radius: 999px; text-align: center; font-size: 21px; font-weight: 700; }
+  .rowi .t { margin-left: auto; color: var(--dim); font-size: 21px; }
+  .rowi.hit { background: linear-gradient(90deg, rgba(69, 224, 147, 0.16), rgba(69, 224, 147, 0)); box-shadow: inset 4px 0 0 var(--green); }
+  .st.in { background: rgba(69, 224, 147, 0.18); color: var(--green); }
+  .st.out { background: rgba(255, 120, 160, 0.15); color: #ff93b4; }
+  .st.soon { background: rgba(111, 155, 255, 0.18); color: #a9c1ff; }
+  .rowi .dimtx { color: #c5cadc; }
+  .push { display: flex; align-items: center; gap: 20px; width: 640px; margin: -34px 0 0 auto; padding: 20px 24px; border-radius: 26px; background: linear-gradient(180deg, rgba(40, 46, 72, 0.96), rgba(24, 28, 46, 0.96)); }
+  .push img { width: 60px; height: 60px; flex: none; }
+  .push .a { font-size: 24px; font-weight: 700; }
+  .push .b { margin-top: 4px; color: var(--muted); font-size: 21px; }
+  .push .c { margin-left: auto; align-self: flex-start; color: var(--dim); font-size: 19px; }
+  .steps3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 34px; margin-top: auto; }
+  .steps3 > div { padding-top: 22px; border-top: 1px solid rgba(255, 255, 255, 0.2); }
+  .steps3 .k { color: var(--blue); font-size: 56px; font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
+  .steps3 .n { margin-top: 14px; font-size: 29px; font-weight: 700; line-height: 1.3; }
+  .steps3 .p { margin-top: 8px; color: var(--muted); font-size: 22px; line-height: 1.55; }
+
+  /* 03 换线：节点 */
+  .nodes { padding: 12px 0; }
+  .nodes .hd { display: flex; align-items: center; padding: 18px 32px 20px; color: var(--muted); font-size: 22px; }
+  .nodes .hd b { margin-left: auto; padding: 6px 16px; border-radius: 999px; background: rgba(111, 155, 255, 0.18); color: #a9c1ff; font-size: 20px; font-weight: 600; }
+  .node { display: flex; align-items: center; gap: 22px; margin: 0 16px; padding: 24px 22px; border-radius: 22px; font-size: 27px; font-weight: 600; }
+  .node .dot { flex: none; width: 14px; height: 14px; border-radius: 50%; background: #4b5270; }
+  .node .r { margin-left: auto; color: var(--muted); font-size: 22px; font-weight: 400; }
+  .node.bad { color: #7b8199; }
+  .node.bad .nm { text-decoration: line-through; text-decoration-color: rgba(255, 93, 82, 0.8); }
+  .node.bad .dot { background: var(--red); }
+  .node.bad .r { color: #ff8b82; }
+  .node.now { background: linear-gradient(90deg, rgba(69, 224, 147, 0.17), rgba(69, 224, 147, 0.03)); box-shadow: inset 0 0 0 1px rgba(69, 224, 147, 0.42), 0 20px 50px -24px rgba(69, 224, 147, 0.5); }
+  .node.now .dot { background: var(--green); box-shadow: 0 0 0 7px rgba(69, 224, 147, 0.18), 0 0 22px var(--green); }
+  .node.now .r { color: var(--green); font-weight: 600; }
+  .hop { display: flex; align-items: center; gap: 14px; margin: 6px 0 6px 43px; color: #a9c1ff; font-size: 21px; font-weight: 600; }
+  .hop::before { content: ""; width: 2px; height: 30px; background: linear-gradient(var(--red), var(--green)); }
+
+  /* 04 下单 */
+  .order { padding: 34px 34px 30px; }
+  .rail { display: flex; align-items: center; }
+  .rail .s { flex: 1; text-align: center; }
+  .rail .c { display: grid; place-items: center; width: 52px; height: 52px; margin: 0 auto; border-radius: 50%; background: rgba(69, 224, 147, 0.16); color: var(--green); font-size: 24px; font-weight: 800; }
+  .rail .l { margin-top: 12px; color: #c5cadc; font-size: 21px; }
+  .rail .ln { flex: none; width: 34px; height: 2px; margin-bottom: 38px; background: rgba(69, 224, 147, 0.4); }
+  .rail .s.go .c { width: 64px; height: 64px; background: var(--amber); color: #2a1a00; box-shadow: 0 0 0 9px rgba(255, 185, 87, 0.16), 0 0 34px rgba(255, 185, 87, 0.7); }
+  .rail .s.go .l { color: var(--amber); font-weight: 700; font-size: 23px; margin-top: 6px; }
+  .tog { display: flex; align-items: center; gap: 24px; margin-top: 30px; padding: 26px 28px; border-radius: 24px; background: rgba(0, 0, 0, 0.34); border: 1px solid var(--line); }
+  .tog .a { font-size: 29px; font-weight: 700; }
+  .tog .b { margin-top: 6px; color: var(--muted); font-size: 21px; }
+  .sw { position: relative; flex: none; width: 96px; height: 56px; margin-left: auto; border-radius: 999px; background: linear-gradient(90deg, #5d8bff, #8fe3ff); box-shadow: 0 0 34px rgba(111, 155, 255, 0.7); }
+  .sw::after { content: ""; position: absolute; top: 6px; left: 46px; width: 44px; height: 44px; border-radius: 50%; background: #fff; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); }
+  .done { display: flex; align-items: center; gap: 20px; margin-top: 18px; padding: 22px 26px; border-radius: 24px; background: linear-gradient(180deg, rgba(40, 46, 72, 0.96), rgba(24, 28, 46, 0.96)); border: 1px solid var(--line); }
+  .done img { width: 60px; height: 60px; flex: none; }
+  .done .a { font-size: 25px; font-weight: 700; }
+  .done .b { margin-top: 4px; color: var(--muted); font-size: 21px; }
+</style>
+</head>
+<body>
+
+<!-- 1 封面 -->
+<section class="slide" data-n="1">
+  <div class="top"><img src="../../assets/icon.png" alt=""><span class="name">果到雷达</span><span class="idx mono"><b>01</b> / 04</span></div>
+  <div class="kicker">APPLE 直营店取货监控</div>
+  <h1>盯货<i class="sl">/</i>换线<i class="sl">/</i>下单<br><span class="g">全程自动</span></h1>
+  <p class="sub">选好门店和型号就不用管了。<b>被拦截自动换线路，到货直接下单</b>，不用再守着官网刷新。</p>
+  <div class="radar-wrap">
+    <div class="radar">
+      <svg viewBox="0 0 600 600" fill="none">
+        <circle cx="300" cy="300" r="298" stroke="rgba(255,255,255,0.07)"/>
+        <circle cx="300" cy="300" r="210" stroke="rgba(255,255,255,0.11)"/>
+        <circle cx="300" cy="300" r="124" stroke="rgba(255,255,255,0.15)"/>
+        <path d="M300 2V598M2 300H598" stroke="rgba(255,255,255,0.05)"/>
+      </svg>
+      <div class="sweep"></div>
+      <img class="core" src="../../assets/icon.png" alt="">
+      <span class="blip on" style="left:438px;top:150px"></span>
+      <span class="blip off" style="left:126px;top:212px"></span>
+      <span class="blip off" style="left:214px;top:452px"></span>
+      <span class="blip off" style="left:470px;top:404px"></span>
+    </div>
+    <div class="chip glass" style="right:0;top:68px"><span class="tg ok">有货</span><span class="tx">上海 · 香港广场<span class="sm">　刚刚</span></span></div>
+    <div class="chip glass" style="left:0;top:232px"><span class="tg rt">换线</span><span class="tx">已切换到下一个节点</span></div>
+    <div class="chip glass" style="right:36px;bottom:44px"><span class="tg od">下单</span><span class="tx">已提交订单，请尽快付款</span></div>
+  </div>
+  <div class="cols">
+    <div><div class="n">到货秒知道</div><div class="p">默认 30 秒查一轮，提示音加手机推送</div></div>
+    <div><div class="n">被拦自动换线</div><div class="p">节点被 Apple 拒绝，立刻换下一个</div></div>
+    <div><div class="n">到货立即下单</div><div class="p">打开开关即可，付款由你完成</div></div>
+  </div>
+  <div class="foot"><span>非 Apple 官方软件，与 Apple Inc. 无关</span><span>开源免费 · macOS / Windows / Linux</span></div>
+</section>
+
+<!-- 2 盯货 -->
+<section class="slide" data-n="2">
+  <div class="top"><img src="../../assets/icon.png" alt=""><span class="name">果到雷达</span><span class="idx mono"><b>02</b> / 04</span></div>
+  <div class="kicker">盯货</div>
+  <h1>三步设好<br><span class="g">到货秒知道</span></h1>
+  <p class="sub">iPhone、iPad、Mac、Apple Watch 都能盯，门店和型号都可以多选。</p>
+  <div class="stage glass win">
+    <div class="bar"><i></i><i></i><i></i><span>监控列表</span><em>监控中</em></div>
+    <div class="rowi hit"><span class="st in">有货</span><span>上海-香港广场 · iPhone 256GB 白色</span><span class="t mono">12:29:14</span></div>
+    <div class="rowi"><span class="st out">无货</span><span class="dimtx">上海-环球港 · iPhone 256GB 白色</span><span class="t mono">12:29:14</span></div>
+    <div class="rowi"><span class="st soon">暂未开售</span><span class="dimtx">上海-五角场 · iPhone Pro Max</span><span class="t mono">12:29:14</span></div>
+  </div>
+  <div class="push glass"><img src="../../assets/icon.png" alt=""><div><div class="a">有货：上海-香港广场</div><div class="b">iPhone 256GB 白色 · 今天可取</div></div><span class="c">现在</span></div>
+  <div class="steps3">
+    <div><div class="k mono">1</div><div class="n">选门店和型号</div><div class="p">点「添加监控」，按组合自动生成</div></div>
+    <div><div class="k mono">2</div><div class="n">点「开始监控」</div><div class="p">默认每 30 秒查一轮，关窗口也继续</div></div>
+    <div><div class="k mono">3</div><div class="n">等它叫你</div><div class="p">提示音、Bark 推到 iPhone、自动打开购物袋</div></div>
+  </div>
+  <div class="foot"><span>电脑需保持运行，并装有 Chrome 或 Edge</span><span>非 Apple 官方软件</span></div>
+</section>
+
+<!-- 3 换线 -->
+<section class="slide" data-n="3">
+  <div class="top"><img src="../../assets/icon.png" alt=""><span class="name">果到雷达</span><span class="idx mono"><b>03</b> / 04</span></div>
+  <div class="kicker">换线</div>
+  <h1>被 Apple 拦截？<br><span class="g">自动换线路接着查</span></h1>
+  <p class="sub">Apple 按出口 IP 限制查询次数，查多了会被拒十几分钟。果到雷达接入 Clash，<b>节点被拒就自动换下一个</b>。</p>
+  <div class="stage glass nodes">
+    <div class="hd"><span>查询线路</span><b>Clash 节点轮换</b></div>
+    <div class="node bad"><span class="dot"></span><span class="nm">节点 A</span><span class="r">被 Apple 拒绝 · 冷却 05:00</span></div>
+    <div class="hop">自动切换</div>
+    <div class="node now"><span class="dot"></span><span>节点 B</span><span class="r">当前线路 · 144 ms</span></div>
+    <div class="node"><span class="dot"></span><span>节点 C</span><span class="r">待命 · 98 ms</span></div>
+    <div class="node"><span class="dot"></span><span>DIRECT 本机网络</span><span class="r">待命</span></div>
+  </div>
+  <div class="cols">
+    <div><div class="n">不用你盯着</div><div class="p">被拒的节点自动冷却，恢复后再用</div></div>
+    <div><div class="n">只换查询的线路</div><div class="p">电脑上其他软件用的节点不受影响</div></div>
+    <div><div class="n">也能手动指定</div><div class="p">固定某个节点，或固定用本机网络</div></div>
+  </div>
+  <div class="foot"><span>需要本机已安装 Clash；不用 Clash 保持默认即可</span><span>非 Apple 官方软件</span></div>
+</section>
+
+<!-- 4 下单 -->
+<section class="slide" data-n="4">
+  <div class="top"><img src="../../assets/icon.png" alt=""><span class="name">果到雷达</span><span class="idx mono"><b>04</b> / 04</span></div>
+  <div class="kicker">下单</div>
+  <h1>到货立即下单<br><span class="g">打开开关就行</span></h1>
+  <p class="sub">到货后自动走完结账页面，核对无误<b>直接点「立即下单」</b>，全程约 1 分钟。你只需要付款。</p>
+  <div class="stage glass order">
+    <div class="rail">
+      <div class="s"><div class="c">✓</div><div class="l">购物袋</div></div><span class="ln"></span>
+      <div class="s"><div class="c">✓</div><div class="l">取货门店</div></div><span class="ln"></span>
+      <div class="s"><div class="c">✓</div><div class="l">取货信息</div></div><span class="ln"></span>
+      <div class="s"><div class="c">✓</div><div class="l">付款方式</div></div><span class="ln"></span>
+      <div class="s go"><div class="c">✓</div><div class="l">立即下单</div></div>
+    </div>
+    <div class="tog"><div><div class="a">核对通过后自动点「立即下单」</div><div class="b">不打开时，停在「查看订单」页等你自己点</div></div><span class="sw"></span></div>
+    <div class="done"><img src="../../assets/icon.png" alt=""><div><div class="a">已提交订单，请尽快付款</div><div class="b">请在下单浏览器里完成付款</div></div></div>
+  </div>
+  <div class="cols">
+    <div><div class="n">只买指定的一件</div><div class="p">购物袋对不上就停下，不会买错</div></div>
+    <div><div class="n">只点一次</div><div class="p">成功后自动关闭开关，不重复下单</div></div>
+    <div><div class="n">付款由你完成</div><div class="p">任何情况下都不会替你付款</div></div>
+  </div>
+  <div class="foot"><span>自动结账默认关闭，仅支持中国大陆直营店取货</span><span>github.com/suversal/apple-store-inventory-monitor</span></div>
+</section>
+
+<script>
+  // 加 ?s=N 只显示第 N 张，便于逐张截图导出。
+  const only = new URLSearchParams(location.search).get("s");
+  if (only) document.querySelectorAll(".slide").forEach((el) => { if (el.dataset.n !== only) el.remove(); });
+</script>
+</body>
+</html>

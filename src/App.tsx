@@ -6,6 +6,7 @@ import {
   BellRing,
   Clock3,
   Download,
+  LoaderCircle,
   MapPin,
   PackageCheck,
   PackageX,
@@ -20,6 +21,7 @@ import {
   SquareTerminal,
   Trash2,
   Truck,
+  CirclePause,
   Volume2,
   X,
 } from "lucide-react";
@@ -27,6 +29,10 @@ import {
 import { describeUpdateProgress, updatePercent } from "@/lib/updateStatus";
 import { Combobox } from "@/components/Combobox";
 import { MultiCombobox } from "@/components/MultiCombobox";
+import { CollapsiblePanel } from "@/components/CollapsiblePanel";
+import { BarkPushSettings } from "@/components/BarkPushSettings";
+import { CheckoutSettings } from "@/components/CheckoutSettings";
+import { NetworkSettings } from "@/components/NetworkSettings";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -74,9 +80,12 @@ import {
   loadWatchBandSizes,
   openAuthorPage,
   openProjectPage,
+  openUpstreamPage,
   openReleasePage,
   openTargetProduct,
   refreshProducts,
+  removeTarget,
+  retryWatchingNow,
   saveSettings,
   setCategory,
   setIntervalSeconds,
@@ -104,7 +113,7 @@ import {
   targetKey,
 } from "@/lib/types";
 
-import { describeDelivery, describeMonitorStatus, describePickupDate, describePickupRecheckDate, type DeliveryTone } from "@/lib/monitorLog";
+import { describeBrowserFailure, describeBrowserRecovery, describeDelivery, describeMonitorStatus, describePickupDate, describePickupRecheckDate, type DeliveryTone } from "@/lib/monitorLog";
 import { compareNewestProducts, sortMonitorsNewestFirst } from "@/lib/productOrder";
 
 const EMPTY_DELIVERY_LOCALITIES: DeliveryLocalities = {
@@ -131,14 +140,6 @@ function GithubBrandIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path fillRule="evenodd" d="M12 2C6.477 2 2 6.589 2 12.253c0 4.53 2.865 8.374 6.839 9.731.5.094.682-.222.682-.494 0-.244-.009-.888-.014-1.744-2.782.62-3.369-1.374-3.369-1.374-.455-1.184-1.11-1.499-1.11-1.499-.908-.636.069-.623.069-.623 1.004.073 1.532 1.057 1.532 1.057.892 1.568 2.341 1.115 2.91.853.091-.663.349-1.115.635-1.371-2.221-.259-4.555-1.14-4.555-5.067 0-1.119.389-2.034 1.029-2.751-.103-.26-.446-1.302.098-2.713 0 0 .84-.276 2.75 1.051A9.33 9.33 0 0 1 12 7.992a9.31 9.31 0 0 1 2.504.346c1.909-1.327 2.748-1.051 2.748-1.051.545 1.411.202 2.453.1 2.713.64.717 1.027 1.632 1.027 2.751 0 3.937-2.337 4.805-4.565 5.059.359.317.679.944.679 1.903 0 1.374-.012 2.482-.012 2.819 0 .275.18.593.688.493C19.14 20.625 22 16.783 22 12.253 22 6.589 17.523 2 12 2Z" clipRule="evenodd" />
-    </svg>
-  );
-}
-
-function XBrandIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" />
     </svg>
   );
 }
@@ -171,23 +172,23 @@ function StatusBadge({ availability, pickupDetails }: { availability: Availabili
   const recheckDate = availability.kind === "unknown" && availability.reason === "pickup_pending"
     ? describePickupRecheckDate(pickupDetails?.pickupQuote) : null;
   const badge = (
-    <span className="inline-flex max-w-full flex-col items-center gap-0.5">
+    <span className="inline-flex flex-col items-center gap-0.5">
       <Badge
         variant="outline"
-        className={`min-h-7 max-w-full min-w-20 justify-center gap-1.5 whitespace-normal px-2 py-1 text-center leading-4 font-medium ${TONE_CLASS[tone]}`}
+        className={`h-7 min-w-20 justify-center gap-2 px-2.5 font-medium ${TONE_CLASS[tone]}`}
       >
-        <span className={`size-1.5 shrink-0 rounded-full ${TONE_DOT[tone]}`} aria-hidden="true" />
+        <span className={`size-1.5 rounded-full ${TONE_DOT[tone]}`} aria-hidden="true" />
         {label}
       </Badge>
       {pickupDate ? <span className="text-[10px] leading-3 text-in-stock tabular-nums">{pickupDate} 可取</span> : null}
-      {recheckDate ? <span className="text-[10px] leading-3 text-muted-foreground tabular-nums">{recheckDate}</span> : null}
+      {recheckDate ? <span className="text-[10px] leading-3 text-muted-foreground">{recheckDate}</span> : null}
     </span>
   );
   if (!detail) return badge;
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className="inline-block max-w-full cursor-help">{badge}</span>
+        <span className="cursor-help">{badge}</span>
       </TooltipTrigger>
       <TooltipContent className="max-w-90">{detail}</TooltipContent>
     </Tooltip>
@@ -213,7 +214,7 @@ function DeliveryBadge({ pickupDetails, lastCheckedMs }: { pickupDetails?: Picku
     <Tooltip>
       <TooltipTrigger asChild>
         <span
-          className={`inline-grid min-w-24 max-w-48 cursor-help grid-cols-[auto_minmax(0,1fr)] items-center gap-x-1.5 rounded-lg border px-2 py-1.5 ${DELIVERY_CLASS[delivery.tone]}`}
+          className={`inline-grid min-w-24 max-w-48 cursor-pointer grid-cols-[auto_minmax(0,1fr)] items-center gap-x-1.5 rounded-lg border px-2 py-1.5 ${DELIVERY_CLASS[delivery.tone]}`}
           aria-label={`预计送货：${delivery.detail}；${delivery.timing}`}
         >
           <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
@@ -276,7 +277,7 @@ function ProductBarkRoute({
             {target.productName}。同一型号在不同门店共用此地址；留空则沿用右侧监控设置里的默认 Bark。
           </PopoverDescription>
         </PopoverHeader>
-        <div className="field-group">
+        <div className="field-group min-w-0">
           <Label htmlFor={`product-bark-${targetKey(target)}`} className="control-label">
             专属 Bark 地址
           </Label>
@@ -421,7 +422,7 @@ function WatchBandPicker({
           </PopoverDescription>
         </PopoverHeader>
         <div className="grid gap-3">
-          <div className="field-group">
+          <div className="field-group min-w-0">
             <Label className="control-label">款式与颜色</Label>
             <Select value={choiceValue} onValueChange={(value) => void chooseBand(value)} disabled={loadingChoices || saving}>
               <SelectTrigger className="control-surface w-full">
@@ -439,7 +440,7 @@ function WatchBandPicker({
               </SelectContent>
             </Select>
           </div>
-          <div className="field-group">
+          <div className="field-group min-w-0">
             <Label className="control-label">尺码</Label>
             <Select value={selectedPart} onValueChange={setSelectedPart} disabled={!choiceValue || loadingSizes || saving}>
               <SelectTrigger className="control-surface w-full">
@@ -490,6 +491,9 @@ export default function App() {
   const [storeNumbers, setStoreNumbers] = useState<string[]>([]);
   const [partNumbers, setPartNumbers] = useState<string[]>([]);
   const [isAdding, setIsAdding] = useState(false);
+  const [removingTargetKeys, setRemovingTargetKeys] = useState<Set<string>>(() => new Set());
+  const [removeError, setRemoveError] = useState<string | null>(null);
+  const [isRetrying, setIsRetrying] = useState(false);
   const [barkDraft, setBarkDraft] = useState<string | null>(null);
   const [intervalDraft, setIntervalDraft] = useState<number | null>(null);
   const [deliveryDraft, setDeliveryDraft] = useState<DeliveryRegion>({ state: "", city: "", district: "" });
@@ -499,6 +503,7 @@ export default function App() {
   const [deliveryError, setDeliveryError] = useState<string | null>(null);
   const [deliverySaving, setDeliverySaving] = useState(false);
   const deliveryRequestId = useRef(0);
+  const hasMainlandTargets = ui.settings.targets.some((target) => target.locale === "zh_CN");
 
   useEffect(() => {
     if (!ui.ready || deliveryDirty) return;
@@ -506,18 +511,11 @@ export default function App() {
   }, [ui.ready, ui.settings.deliveryRegion, deliveryDirty]);
 
   useEffect(() => {
-    if (!ui.ready) return;
-    if (ui.settings.locale !== "zh_CN") {
-      setDeliveryOptions(EMPTY_DELIVERY_LOCALITIES);
-      setDeliveryOptionsLoading(false);
-      setDeliveryError("Apple 官网当前仅在中国大陆站提供省、市、区三级选择。");
-      return;
-    }
-
+    if (!ui.ready || !hasMainlandTargets) return;
     const selected = ui.settings.deliveryRegion;
     const requestId = ++deliveryRequestId.current;
     setDeliveryOptionsLoading(true);
-    void loadDeliveryLocalities(ui.settings.locale, selected?.state, selected?.city)
+    void loadDeliveryLocalities(selected?.state, selected?.city)
       .then((options) => {
         if (deliveryRequestId.current !== requestId) return;
         setDeliveryOptions(options);
@@ -541,14 +539,14 @@ export default function App() {
       .finally(() => {
         if (deliveryRequestId.current === requestId) setDeliveryOptionsLoading(false);
       });
-  }, [ui.ready, ui.settings.deliveryRegion, ui.settings.locale]);
+  }, [ui.ready, ui.settings.deliveryRegion, hasMainlandTargets]);
 
   async function refreshDeliveryOptions(stateName: string, cityName = "") {
     const requestId = ++deliveryRequestId.current;
     setDeliveryOptionsLoading(true);
     setDeliveryError(null);
     try {
-      const options = await loadDeliveryLocalities(ui.settings.locale, stateName, cityName);
+      const options = await loadDeliveryLocalities(stateName, cityName);
       if (deliveryRequestId.current === requestId) setDeliveryOptions(options);
     } catch (error) {
       if (deliveryRequestId.current === requestId) {
@@ -577,14 +575,15 @@ export default function App() {
     deliveryOptions.states.some((option) => option.value === deliveryDraft.state)
     && deliveryOptions.cities.some((option) => option.value === deliveryDraft.city)
     && deliveryOptions.districts.some((option) => option.value === deliveryDraft.district);
-  const latestCheckedMs = Math.max(0, ...ui.rows.map((row) => row.lastCheckedMs ?? 0));
-  const secondsUntilNextCheck = latestCheckedMs
-    ? Math.max(0, Math.ceil((latestCheckedMs + ui.settings.intervalSeconds * 1_000 - clockMs) / 1_000))
+  const secondsUntilNextCheck = ui.nextCheckAtMs
+    ? Math.max(0, Math.ceil((ui.nextCheckAtMs - clockMs) / 1_000))
     : null;
   const runningLabel =
     secondsUntilNextCheck === null || secondsUntilNextCheck === 0
-      ? "正在查询"
-      : `约 ${secondsUntilNextCheck} 秒后检查`;
+      ? `查询中 · 完成后倒计时 ${ui.settings.intervalSeconds} 秒`
+      : ui.cooling
+        ? `保护冷却中 · 约 ${secondsUntilNextCheck} 秒后检查`
+        : `约 ${secondsUntilNextCheck} 秒后检查`;
 
   const storeOptions = useMemo(
     () => ui.stores.map((store) => ({ value: store.number, label: store.title })),
@@ -606,6 +605,10 @@ export default function App() {
   );
 
   const sortedRows = useMemo(() => sortMonitorsNewestFirst(ui.rows), [ui.rows]);
+  const browserFailure = describeBrowserFailure(ui.rows);
+  const browserRunningLabel = secondsUntilNextCheck !== null && secondsUntilNextCheck > 0
+    ? `浏览器未连接 · 约 ${secondsUntilNextCheck} 秒后重试`
+    : "浏览器未连接 · 正在重新连接";
 
   const targets = useMemo(() => ui.rows.map((row) => row.target), [ui.rows]);
 
@@ -682,14 +685,39 @@ export default function App() {
   }
 
   async function onRemove(target: Target) {
-    await setTargets(targets.filter((item) => targetKey(item) !== targetKey(target)));
+    const key = targetKey(target);
+    setRemoveError(null);
+    setRemovingTargetKeys((current) => new Set(current).add(key));
+    try {
+      const removed = await removeTarget(target);
+      if (!removed) {
+        setRemoveError(`未能删除“${compactProductName(target.productName)}”，请查看活动日志中的具体原因后重试。`);
+      }
+    } finally {
+      setRemovingTargetKeys((current) => {
+        const next = new Set(current);
+        next.delete(key);
+        return next;
+      });
+    }
+  }
+
+  async function onRetryNow() {
+    setIsRetrying(true);
+    try {
+      if (ui.running) await retryWatchingNow();
+      else await startWatching();
+    } finally {
+      setIsRetrying(false);
+    }
   }
 
   return (
     <TooltipProvider delayDuration={180}>
       <div className="app-canvas min-h-screen text-foreground">
-        <main className="flex min-h-screen w-full max-w-none flex-col gap-4 px-5 py-5 lg:h-screen lg:overflow-hidden">
-          <header className="surface-panel flex shrink-0 items-center justify-between gap-5 px-5 py-4">
+        <main className="flex min-h-screen w-full max-w-none flex-col gap-4 overflow-x-hidden px-5 py-5 min-[980px]:h-screen min-[980px]:overflow-hidden">
+          {/* 宽屏用左右等宽的三栏，中间一栏始终居中，不随右侧状态文字的长短左右移动。 */}
+          <header className="surface-panel grid shrink-0 grid-cols-[1fr_auto] items-center gap-x-4 gap-y-3 px-5 py-4 min-[1180px]:grid-cols-[1fr_auto_1fr]">
             <div className="flex min-w-0 items-center gap-3.5">
               <div className="brand-mark" aria-hidden="true">
                 <Radar className="size-5" strokeWidth={1.8} />
@@ -697,7 +725,7 @@ export default function App() {
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <h1 className="truncate text-lg font-semibold tracking-[-0.02em]">
-                    果到雷达 · 美加版
+                    果到雷达 · 美加阿版
                   </h1>
                   <Badge variant="outline" className="hidden border-primary/20 bg-primary/8 text-primary sm:inline-flex">
                     LIVE
@@ -707,55 +735,44 @@ export default function App() {
                   </span>
                 </div>
                 <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                  美国 / 加拿大 Apple Store · iPhone Duo / 18 Pro / Pro Max
+                  美国 / 加拿大 / 阿联酋 · iPhone 库存监控
                 </p>
               </div>
             </div>
 
-            <div className="hidden min-w-0 flex-1 items-center justify-center gap-2 min-[860px]:flex">
-              <span className="truncate text-sm text-muted-foreground">
-                基于 GPL 开源项目的美加修改版
-              </span>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="rounded-lg"
-                    aria-label="在 GitHub 查看原开源项目"
-                    onClick={() => void openProjectPage()}
-                  >
-                    <GithubBrandIcon />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>查看原项目源码与许可证</TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="rounded-lg px-2 text-sm text-muted-foreground hover:text-foreground"
-                    aria-label="在 X 关注 @suversal，获取更多信息"
-                    onClick={() => void openAuthorPage()}
-                  >
-                    <XBrandIcon />
-                    @suversal
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>关注我获取更多信息</TooltipContent>
-              </Tooltip>
-            </div>
+            <nav aria-label="修改版维护者与开源项目" className="col-span-2 row-start-2 flex flex-wrap items-center gap-2 border-t border-border/60 pt-3 min-[1180px]:col-span-1 min-[1180px]:col-start-2 min-[1180px]:row-start-1 min-[1180px]:justify-center min-[1180px]:border-0 min-[1180px]:pt-0">
+              <Button variant="outline" size="sm" className="h-8 rounded-full px-3 text-xs" onClick={() => void openProjectPage()} aria-label="GitHub：yuanruoyu515 的修改版与下载">
+                <GithubBrandIcon /> yuanruoyu515
+              </Button>
+              <Button variant="outline" size="sm" className="h-8 rounded-full px-3 text-xs" onClick={() => void openAuthorPage()} aria-label="Threads：@realtimyry">
+                Threads · @realtimyry
+              </Button>
+              <Button variant="ghost" size="sm" className="h-8 rounded-full px-2 text-xs text-muted-foreground" onClick={() => void openUpstreamPage()}>
+                上游源码
+              </Button>
+            </nav>
 
-            <div className="flex shrink-0 items-center gap-2.5">
+            <div className="col-start-2 row-start-1 flex shrink-0 items-center gap-2.5 justify-self-end min-[1180px]:col-start-3">
               <div className="status-pill" role="status" aria-live="polite">
                 <span
-                  className={`size-2 rounded-full ${ui.running ? "bg-in-stock shadow-[0_0_12px_var(--in-stock)]" : "bg-muted-foreground/55"}`}
+                  className={`size-2 rounded-full ${ui.running ? browserFailure !== null ? "bg-destructive" : "bg-in-stock shadow-[0_0_12px_var(--in-stock)]" : "bg-muted-foreground/55"}`}
                   aria-hidden="true"
                 />
                 <span className="hidden text-xs text-muted-foreground sm:inline">监控状态</span>
-                <span className="text-sm font-medium">{ui.running ? runningLabel : "已暂停"}</span>
+                <span className="text-sm font-medium tabular-nums">{ui.running ? browserFailure !== null ? browserRunningLabel : runningLabel : "已暂停"}</span>
               </div>
+              {ui.running && ui.cooling && (
+                <Button
+                  variant="outline"
+                  className="h-10 rounded-xl px-4"
+                  onClick={() => void onRetryNow()}
+                  disabled={isRetrying}
+                  aria-busy={isRetrying}
+                >
+                  <RefreshCw className={isRetrying ? "animate-spin" : ""} aria-hidden="true" />
+                  {isRetrying ? "正在重试" : "立即重试"}
+                </Button>
+              )}
               {ui.running ? (
                 <Button
                   variant="secondary"
@@ -776,7 +793,33 @@ export default function App() {
             </div>
           </header>
 
-          {ui.trouble !== null && (
+          {browserFailure !== null && (
+            <Alert variant="destructive" className="shrink-0 rounded-2xl border-destructive/25 bg-destructive/8 px-4 py-3">
+              <AlertTriangle aria-hidden="true" />
+              <AlertTitle>查询浏览器未连接</AlertTitle>
+              <AlertDescription>
+                <span>{browserFailure.split("。")[0]}。</span>
+                <span>当前库存尚未更新，请按以下步骤处理：</span>
+                <ol className="list-decimal space-y-1 pl-5">
+                  {describeBrowserRecovery(browserFailure).map((step) => <li key={step}>{step}</li>)}
+                </ol>
+                <span className="text-xs">仍无法恢复时，请把“查看详情”中的错误信息、果到雷达版本和浏览器版本通过项目的 GitHub Issues 反馈。{ui.running ? "运行中仍会按设置的间隔尝试连接。" : "当前监控已暂停。"}</span>
+                <div className="flex flex-wrap items-center gap-4">
+                  <Button variant="outline" size="sm" onClick={() => void onRetryNow()} disabled={isRetrying} aria-busy={isRetrying}>
+                    <RefreshCw className={isRetrying ? "animate-spin motion-reduce:animate-none" : undefined} aria-hidden="true" />
+                    {isRetrying ? "正在连接…" : ui.running ? "处理后重试" : "开始监控"}
+                  </Button>
+                  <details className="min-w-0 text-xs">
+                    <summary className="cursor-pointer rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2">查看详情</summary>
+                    <p className="mt-2 break-words">{browserFailure}</p>
+                    <p className="mt-1 break-words">启动诊断（如已生成）位于查询浏览器专属目录的 browser-startup.log 中。</p>
+                  </details>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {ui.trouble !== null && browserFailure === null && (
             <Alert variant="destructive" className="shrink-0 rounded-2xl border-destructive/25 bg-destructive/8 px-4 py-3">
               <AlertTriangle aria-hidden="true" />
               <AlertTitle>监控结果暂不可信</AlertTitle>
@@ -821,8 +864,8 @@ export default function App() {
             </Alert>
           )}
 
-          <div className="grid min-h-0 flex-1 gap-4 min-[980px]:grid-cols-[minmax(0,1fr)_22rem]">
-            <div className="flex min-h-0 flex-col gap-4">
+          <div className="grid min-h-0 min-w-0 flex-1 grid-cols-[minmax(0,1fr)] gap-4 min-[980px]:grid-cols-[minmax(0,1fr)_25rem]">
+            <div className="flex min-h-0 min-w-0 flex-col gap-4">
               <section className="surface-panel shrink-0 p-4" aria-labelledby="create-monitor-title">
                 <div className="mb-4 flex items-start justify-between gap-4">
                   <div>
@@ -840,8 +883,8 @@ export default function App() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 lg:grid-cols-[0.9fr_0.9fr_1.3fr_2fr]">
-                  <div className="field-group">
+                <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start gap-3 min-[1600px]:grid-cols-[1.2fr_0.7fr_1.3fr_2fr]">
+                  <div className="field-group min-w-0">
                     <Label className="control-label">
                       <MapPin className="size-3.5" aria-hidden="true" /> 地区
                     </Label>
@@ -861,7 +904,7 @@ export default function App() {
                     />
                   </div>
 
-                  <div className="field-group">
+                  <div className="field-group min-w-0">
                     <Label className="control-label">
                       <Smartphone className="size-3.5" aria-hidden="true" /> 品类
                     </Label>
@@ -880,7 +923,7 @@ export default function App() {
                     />
                   </div>
 
-                  <div className="field-group">
+                  <div className="field-group min-w-0">
                     <Label className="control-label">
                       <MapPin className="size-3.5" aria-hidden="true" /> 门店
                       <span className="font-normal text-muted-foreground">可多选</span>
@@ -899,7 +942,7 @@ export default function App() {
                     />
                   </div>
 
-                  <div className="field-group">
+                  <div className="field-group min-w-0">
                     <Label className="control-label">
                       <PackageCheck className="size-3.5" aria-hidden="true" /> 型号
                       <span className="font-normal text-muted-foreground">可多选</span>
@@ -916,11 +959,12 @@ export default function App() {
                       selectionUnit="个型号"
                       disabled={isAdding || productOptions.length === 0}
                     />
-                    {ui.category === "watch" ? (
-                      <p className="text-[11px] leading-4 text-muted-foreground">
-                        Watch 会先使用目录默认表带查询；也可在监控列表中按官网款式、颜色和尺码选择精确表带。
-                      </p>
-                    ) : null}
+                    <p className="text-[11px] leading-4 text-muted-foreground">
+                      单次查询最多包含 20 个零件号，超过后会自动分批，不会遗漏已选型号。
+                      {ui.category === "watch"
+                        ? " Watch 会先使用目录默认表带查询；也可在监控列表中按官网款式、颜色和尺码选择精确表带。"
+                        : ""}
+                    </p>
                   </div>
                 </div>
 
@@ -937,14 +981,14 @@ export default function App() {
                           variant="outline"
                           size="icon-lg"
                           className="rounded-xl border-border/70 bg-background/40"
-                          aria-label="从 Apple 官网更新当前品类的型号列表"
+                          aria-label="从 Apple 官网更新门店列表和当前品类的型号"
                           disabled={ui.refreshing}
                           onClick={() => void refreshProducts()}
                         >
                           <RefreshCw className={ui.refreshing ? "animate-spin" : undefined} />
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>从 Apple 官网更新当前品类的型号列表</TooltipContent>
+                      <TooltipContent>从 Apple 官网更新门店列表和当前品类的型号</TooltipContent>
                     </Tooltip>
                     <Button
                       className="h-10 min-w-28 rounded-xl px-4"
@@ -964,7 +1008,7 @@ export default function App() {
                 </div>
               </section>
 
-              <section className="surface-panel flex min-h-[280px] flex-1 flex-col overflow-hidden" aria-labelledby="monitor-list-title">
+              <section className="surface-panel flex min-h-[280px] min-w-0 flex-1 flex-col overflow-hidden" aria-labelledby="monitor-list-title">
                 <div className="flex shrink-0 items-center justify-between border-b border-border/60 px-4 py-3.5">
                   <div className="flex items-center gap-3">
                     <div className="section-icon" aria-hidden="true">
@@ -980,13 +1024,29 @@ export default function App() {
                   </span>
                 </div>
 
-                <ScrollArea className="min-h-0 flex-1">
-                  <Table className="min-w-[920px] table-fixed">
+                {removeError ? (
+                  <div role="alert" className="flex shrink-0 items-start gap-2 border-b border-destructive/20 bg-destructive/8 px-4 py-2.5 text-xs leading-5 text-destructive">
+                    <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+                    <span>{removeError}</span>
+                  </div>
+                ) : null}
+
+                <ScrollArea horizontal className="min-h-0 min-w-0 flex-1 [&_[data-slot=table-container]]:min-w-[1104px] [&_[data-slot=table-container]]:overflow-visible">
+                  <Table className="min-w-[1104px] table-fixed">
+                    <colgroup>
+                      <col className="w-36" />
+                      <col className="w-44" />
+                      <col className="w-[22rem]" />
+                      <col className="w-48" />
+                      <col className="w-24" />
+                      <col className="w-24" />
+                      <col className="w-12" />
+                    </colgroup>
                     <TableHeader className="sticky top-0 z-10 bg-card/95">
                       <TableRow className="hover:bg-transparent">
-                        <TableHead className="w-34 px-3 text-xs text-muted-foreground">取货状态</TableHead>
-                        <TableHead className="w-36 px-3 text-xs text-muted-foreground">门店</TableHead>
-                        <TableHead className="px-3 text-xs text-muted-foreground">型号</TableHead>
+                        <TableHead className="w-36 px-4 text-xs text-muted-foreground">取货状态</TableHead>
+                        <TableHead className="w-44 px-4 text-xs text-muted-foreground">门店</TableHead>
+                        <TableHead className="px-4 text-xs text-muted-foreground">型号</TableHead>
                         <TableHead className="w-48 px-3 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1.5"><Truck className="size-3.5" aria-hidden="true" />预计送货</span>
                         </TableHead>
@@ -1013,11 +1073,14 @@ export default function App() {
                           </TableCell>
                         </TableRow>
                       ) : (
-                        sortedRows.map((row) => (
-                          <TableRow key={targetKey(row.target)} className="group hover:bg-muted/22">
-                            <TableCell className="overflow-hidden px-3"><StatusBadge availability={row.availability} pickupDetails={row.pickupDetails} /></TableCell>
-                            <TableCell className="truncate px-3 font-medium" title={row.target.storeTitle}>{row.target.storeTitle}</TableCell>
-                            <TableCell className="min-w-0 px-3 py-2.5 text-muted-foreground" title={row.target.productName}>
+                        sortedRows.map((row) => {
+                          const rowKey = targetKey(row.target);
+                          const removing = removingTargetKeys.has(rowKey);
+                          return (
+                            <TableRow key={rowKey} className="group hover:bg-muted/22">
+                              <TableCell className="px-4"><StatusBadge availability={row.availability} pickupDetails={row.pickupDetails} /></TableCell>
+                              <TableCell className="truncate px-4 font-medium" title={row.target.storeTitle}>{row.target.storeTitle}</TableCell>
+                              <TableCell className="min-w-0 px-4 py-2.5 text-muted-foreground" title={row.target.productName}>
                               <button
                                 className="block max-w-full whitespace-normal text-left leading-5 hover:text-primary hover:underline"
                                 aria-label={`打开商品页：${row.target.productName}`}
@@ -1033,34 +1096,36 @@ export default function App() {
                                   disabled={isAdding}
                                 />
                               ) : null}
-                            </TableCell>
-                            <TableCell className="overflow-hidden px-2">
-                              <DeliveryBadge pickupDetails={row.pickupDetails} lastCheckedMs={row.lastCheckedMs} />
-                            </TableCell>
-                            <TableCell className="px-2 font-mono text-xs tabular-nums text-muted-foreground">
-                              {formatTime(row.lastCheckedMs)}
-                            </TableCell>
-                            <TableCell className="px-1">
-                              <ProductBarkRoute
-                                target={row.target}
-                                customUrl={ui.settings.productBarkUrls[row.target.partNumber]}
-                                disabled={isAdding}
-                              />
-                            </TableCell>
-                            <TableCell className="sticky right-0 z-10 border-l border-border/40 bg-card/95 pr-2 group-hover:bg-muted">
-                              <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                className="text-muted-foreground opacity-80 hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
-                                aria-label="删除这条监控"
-                                disabled={isAdding}
-                                onClick={() => void onRemove(row.target)}
-                              >
-                                <Trash2 />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))
+                              </TableCell>
+                              <TableCell className="overflow-hidden px-2">
+                                <DeliveryBadge pickupDetails={row.pickupDetails} lastCheckedMs={row.lastCheckedMs} />
+                              </TableCell>
+                              <TableCell className="px-2 font-mono text-xs tabular-nums text-muted-foreground">
+                                {formatTime(row.lastCheckedMs)}
+                              </TableCell>
+                              <TableCell className="px-1">
+                                <ProductBarkRoute
+                                  target={row.target}
+                                  customUrl={ui.settings.productBarkUrls[row.target.partNumber]}
+                                  disabled={isAdding}
+                                />
+                              </TableCell>
+                              <TableCell className="sticky right-0 z-10 border-l border-border/40 bg-card/95 pr-2 group-hover:bg-muted">
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  className="text-muted-foreground opacity-80 hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
+                                  aria-label={removing ? "正在删除这条监控" : "删除这条监控"}
+                                  aria-busy={removing}
+                                  disabled={isAdding || removing}
+                                  onClick={() => void onRemove(row.target)}
+                                >
+                                  {removing ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : <Trash2 />}
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })
                       )}
                     </TableBody>
                   </Table>
@@ -1068,7 +1133,10 @@ export default function App() {
               </section>
             </div>
 
-            <aside className="flex min-h-0 flex-col gap-4">
+            <aside
+              className="workspace-sidebar flex min-h-0 flex-col gap-4 min-[980px]:overflow-y-auto min-[980px]:overscroll-contain min-[980px]:pr-2"
+              aria-label="监控概览、设置与活动日志"
+            >
               <section className="grid grid-cols-4 gap-2" aria-label="监控概览">
                 <div className="metric-tile">
                   <Radar className="size-4 text-primary" aria-hidden="true" />
@@ -1092,16 +1160,20 @@ export default function App() {
                 </div>
               </section>
 
-              <section className="surface-panel shrink-0 p-4" aria-labelledby="preferences-title">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="section-icon" aria-hidden="true"><Settings2 className="size-4" /></div>
-                  <div>
-                    <h2 id="preferences-title" className="text-sm font-semibold">监控设置</h2>
-                    <p className="mt-0.5 text-xs text-muted-foreground">查询频率与提醒方式</p>
-                  </div>
-                </div>
+              <CollapsiblePanel
+                id="preferences"
+                icon={<Settings2 className="size-4" />}
+                title="监控设置"
+                subtitle="查询频率与提醒方式"
+                summary={[
+                  `每 ${ui.settings.intervalSeconds} 秒`,
+                  "门店取货",
+                  ui.settings.barkUrl ? "Bark 已设置" : "未设 Bark",
+                  ui.settings.soundEnabled ? "提示音开" : "提示音关",
+                ].join(" · ")}
+              >
 
-                <div className="field-group">
+                <div className="field-group min-w-0">
                   <Label htmlFor="interval" className="control-label">
                     <Clock3 className="size-3.5" aria-hidden="true" /> 查询间隔
                   </Label>
@@ -1109,7 +1181,7 @@ export default function App() {
                     <Input
                       id="interval"
                       type="number"
-                      min={5}
+                      min={1}
                       className="control-surface select-text pr-12 tabular-nums"
                       value={intervalValue}
                       onChange={(event) => setIntervalDraft(event.target.valueAsNumber)}
@@ -1123,10 +1195,11 @@ export default function App() {
                   </div>
                 </div>
 
+                {hasMainlandTargets ? (
                 <div className="mt-3 field-group">
                   <div className="flex items-center justify-between gap-3">
                     <Label className="control-label">
-                      <MapPin className="size-3.5" aria-hidden="true" /> 送货地区
+                      <MapPin className="size-3.5" aria-hidden="true" /> 中国大陆送货地区
                     </Label>
                     <span className="text-[10px] text-muted-foreground" role="status" aria-live="polite">
                       {deliverySaving
@@ -1200,7 +1273,7 @@ export default function App() {
                   </div>
                   <div className="flex items-start justify-between gap-2">
                     <p className="text-[11px] leading-4 text-muted-foreground">
-                      选完“区”后自动保存；{ui.running ? "下轮监控会更新送货日期。" : "启动监控后会查询送货日期。"}
+                      与上方当前地区无关，仅用于中国大陆监控；选完“区”后自动保存。{ui.running ? "下轮会更新送货日期。" : "启动监控后会查询送货日期。"}
                     </p>
                     <Button
                       type="button"
@@ -1228,6 +1301,7 @@ export default function App() {
                     <p role="alert" className="text-[11px] leading-4 text-destructive">{deliveryError}</p>
                   ) : null}
                 </div>
+                ) : null}
 
                 <div className="mt-3 field-group">
                   <Label htmlFor="bark" className="control-label">
@@ -1249,6 +1323,8 @@ export default function App() {
                   </p>
                 </div>
 
+                <BarkPushSettings options={ui.settings.barkOptions} />
+
                 <div className="mt-4 space-y-1 rounded-xl border border-border/55 bg-background/30 p-1">
                   <div className="setting-row">
                     <span className="flex items-center gap-2 text-sm"><Volume2 className="size-4 text-muted-foreground" aria-hidden="true" />提示音</span>
@@ -1259,7 +1335,7 @@ export default function App() {
                       onCheckedChange={(value) => void saveSettings({ soundEnabled: value })}
                     />
                   </div>
-                  <div className="setting-row gap-3">
+                  <div className="setting-row flex-wrap gap-2 py-1.5">
                     <Label htmlFor="open-on-hit" className="flex items-center gap-2 text-sm font-normal">
                       <ShoppingBag className="size-4 text-muted-foreground" aria-hidden="true" />到货后打开
                     </Label>
@@ -1269,33 +1345,54 @@ export default function App() {
                         void saveSettings({ openOnHit: value as OpenOnHit })
                       }
                     >
-                      <SelectTrigger id="open-on-hit" className="h-9 w-[8.5rem] bg-background/45" aria-label="到货后打开">
+                      <SelectTrigger id="open-on-hit" className="h-9 w-[13.5rem] max-w-full bg-background/45" aria-label="到货后打开">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent align="end">
                         <SelectItem value="none">不自动打开</SelectItem>
                         <SelectItem value="bag">购物袋</SelectItem>
+                        <SelectItem value="education_bag">跳转至教育商店购物袋</SelectItem>
                         <SelectItem value="product">商品详情</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="setting-row">
+                    <Label htmlFor="stop-on-hit" className="flex items-center gap-2 text-sm font-normal">
+                      <CirclePause className="size-4 text-muted-foreground" aria-hidden="true" />到货后暂停监控
+                    </Label>
+                    <Switch
+                      id="stop-on-hit"
+                      aria-label="到货后暂停监控"
+                      checked={ui.settings.stopOnHit}
+                      onCheckedChange={(value) => void saveSettings({ stopOnHit: value })}
+                    />
+                  </div>
                 </div>
+                <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                  {ui.settings.stopOnHit
+                    ? "到货后完成本轮提醒并暂停，之后可手动开始监控。"
+                    : "持续有货时，每一轮查询都会重新提醒。"}
+                </p>
 
                 <Button variant="outline" className="mt-3 h-10 w-full rounded-xl border-border/70 bg-background/30" onClick={() => void testNotify()}>
                   <BellRing aria-hidden="true" /> 测试提醒与跳转
                 </Button>
-              </section>
+              </CollapsiblePanel>
 
-              <section className="surface-panel flex min-h-[150px] flex-1 flex-col overflow-hidden" aria-labelledby="activity-log-title">
-                <div className="flex shrink-0 items-center justify-between border-b border-border/60 px-4 py-3">
-                  <div className="flex items-center gap-2.5">
-                    <SquareTerminal className="size-4 text-muted-foreground" aria-hidden="true" />
-                    <h2 id="activity-log-title" className="text-sm font-semibold">活动日志</h2>
+              {hasMainlandTargets ? <CheckoutSettings checkout={ui.settings.checkout} targets={ui.settings.targets} /> : null}
+
+              <NetworkSettings network={ui.settings.network} running={ui.running} route={ui.route} />
+
+              <section className="surface-panel flex min-h-[26rem] flex-1 flex-col overflow-hidden" aria-labelledby="activity-log-title">
+                <div className="flex shrink-0 items-center justify-between border-b border-border/60 px-4 py-3.5">
+                  <div className="flex items-center gap-3">
+                    <SquareTerminal className="size-[18px] text-muted-foreground" aria-hidden="true" />
+                    <h2 id="activity-log-title" className="text-base font-semibold">活动日志</h2>
                   </div>
-                  <span className="text-[11px] tabular-nums text-muted-foreground">{ui.logs.length} 条</span>
+                  <span className="text-xs tabular-nums text-muted-foreground">最新 {ui.logs.length} 条</span>
                 </div>
-                <ScrollArea className="min-h-0 flex-1 p-3.5">
-                  <pre className="font-mono text-[11px] leading-[1.65] whitespace-pre-wrap text-muted-foreground select-text">
+                <ScrollArea className="min-h-0 flex-1 p-4" aria-label="活动日志内容">
+                  <pre className="font-mono text-[13px] leading-6 whitespace-pre-wrap break-words text-foreground/80 select-text">
                     {ui.logs.length === 0 ? "等待监控活动…" : ui.logs.join("\n")}
                   </pre>
                 </ScrollArea>

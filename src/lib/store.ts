@@ -15,11 +15,15 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 
 import type {
+  CatalogRefresh,
   Category,
   CategoryOption,
+  ClashRouteCheck,
+  ClashSettings,
   DeliveryLocalities,
   Product,
   Region,
+  RouteList,
   Settings,
   Store,
   Target,
@@ -30,18 +34,25 @@ import type {
   WatchBandSize,
   WatcherEvent,
 } from "./types";
-import { assertNever } from "./types";
-import { describeCycleRow, describeCycleSummary } from "./monitorLog";
+import { assertNever, targetKey } from "./types";
+import { describeBrowserFailure, describeCycleRows, describeCycleSummary } from "./monitorLog";
 
 import { describeUpdateError, type UpdateProgress } from "./updateStatus";
 
 const EVENT_CHANNEL = "watcher://event";
 const NOTICE_CHANNEL = "watcher://notice";
+const SETTINGS_CHANNEL = "watcher://settings";
 const MAX_LOG_LINES = 300;
 
 export interface UiState {
   rows: TargetState[];
   running: boolean;
+  /** 调度器给出的真实下一轮时间；保护冷却会反映在这里。 */
+  nextCheckAtMs: number | null;
+  /** 当前目标地区中是否仍有 Apple 请求保护冷却。 */
+  cooling: boolean;
+  /** 最近一轮实际使用的出口线路；跟随系统代理或尚未查询时为 null。 */
+  route: string | null;
   /** 非 null 表示「当前的状态不可信」，界面要挂一条持续可见的告警。 */
   trouble: Trouble | null;
   logs: string[];
@@ -74,16 +85,55 @@ const DEFAULT_SETTINGS: Settings = {
   locale: "en_US",
   targets: [],
   deliveryRegion: null,
-  intervalSeconds: 30,
+  intervalSeconds: 60,
   barkUrl: "",
   productBarkUrls: {},
+  barkOptions: {
+    level: "default",
+    sound: "",
+    volume: null,
+    call: false,
+  },
   soundEnabled: true,
   openOnHit: "bag",
+  stopOnHit: false,
+  network: {
+    mode: "system",
+    clash: {
+      controller: "http://127.0.0.1:9097",
+      secret: "",
+      group: "果到雷达",
+      proxyPort: 7899,
+      nodeFilter: "",
+      pinnedNode: "DIRECT",
+    },
+  },
+  checkout: {
+    enabled: false,
+    disableAfterSuccess: true,
+    autoAddToBag: false,
+    addAppleCare: false,
+    nationalIdSuffix: "",
+    payment: "alipay",
+    installmentBank: "招商银行",
+    installmentPeriods: 24,
+    placeOrder: false,
+    acceptNearestStore: false,
+    product: "",
+    fillContact: false,
+    contactLastName: "",
+    contactFirstName: "",
+    contactEmail: "",
+    contactPhone: "",
+  },
 };
 
 let state: UiState = {
   rows: [],
   running: false,
+  nextCheckAtMs: null,
+  cooling: false,
+  route: null,
   trouble: null,
   logs: [],
   regions: [],
@@ -158,6 +208,7 @@ function applyEvent(event: WatcherEvent): void {
       break;
 
     case "cycleStarted":
+      update({ nextCheckAtMs: null, cooling: false });
       pushLog(
         `第 ${event.cycle} 轮开始查询：${event.storeCount} 家门店、${event.targetCount} 项监控。${event.cycle === 1 ? "首次使用时会先建立 Apple 查询会话，通常需要几秒。" : ""}`,
       );
@@ -165,17 +216,27 @@ function applyEvent(event: WatcherEvent): void {
 
     case "cycleComplete": {
       const recovered = event.healthy && state.trouble !== null;
+      const previousBrowserFailure = describeBrowserFailure(state.rows);
       update({
         rows: event.snapshot,
+        nextCheckAtMs: Date.now() + event.nextCheckInSecs * 1_000,
+        cooling: event.cooling,
+        route: event.route ?? null,
         // 只有引擎明说本轮健康，才收起告警。用「所有行都没错误」去反推是
         // 不可靠的：某些故障路径下状态压根没被更新。
         trouble: event.healthy ? null : state.trouble,
       });
-      const lines = event.snapshot.map((row) => describeCycleRow(event.cycle, row));
+      const lines = describeCycleRows(event.cycle, event.snapshot, previousBrowserFailure);
+      if (previousBrowserFailure !== null && event.requestCount > 0 && describeBrowserFailure(event.snapshot) === null) {
+        lines.unshift("浏览器启动故障已解除。");
+      }
       if (recovered) lines.unshift("查询已恢复正常。");
       lines.push(
-        `第 ${event.cycle} 轮完成（${formatElapsed(event.elapsedMs)}）：${describeCycleSummary(event.snapshot)}。` +
-        (event.healthy ? `约 ${state.settings.intervalSeconds} 秒后查询。` : "未取得结果的项目将自动重试；请按逐项原因核对。"),
+        `第 ${event.cycle} 轮完成（${formatElapsed(event.elapsedMs)}，实际请求 ${event.requestCount} 次` +
+        `${event.reusedResponseCount > 0 ? `，批量响应覆盖 ${event.reusedResponseCount} 家门店` : ""}` +
+        `${event.route ? `，线路：${event.route}` : ""}）：` +
+        `${describeCycleSummary(event.snapshot)}。约 ${event.nextCheckInSecs} 秒后查询` +
+        `${event.cooling ? "（当前保护冷却中，可选择立即重试）" : ""}。`,
       );
       pushLogs(lines);
       break;
@@ -188,7 +249,11 @@ function applyEvent(event: WatcherEvent): void {
 
     case "runStateChanged":
       if (state.running !== event.running) {
-        update({ running: event.running });
+        update({
+          running: event.running,
+          nextCheckAtMs: event.running ? state.nextCheckAtMs : null,
+          cooling: event.running ? state.cooling : false,
+        });
         pushLog(event.running ? "已开始监控。" : "已暂停监控。");
       }
       break;
@@ -214,6 +279,9 @@ export function connect(): Promise<void> {
     unlisteners = await Promise.all([
       listen<WatcherEvent>(EVENT_CHANNEL, (e) => applyEvent(e.payload)),
       listen<string>(NOTICE_CHANNEL, (e) => pushLog(e.payload)),
+      // 后端自己改了设置（结账完成后关闭自动结账）时同步过来，否则界面上的开关
+      // 还显示开启，下一次保存会把它重新打开。
+      listen<Settings>(SETTINGS_CHANNEL, (e) => update({ settings: e.payload })),
     ]);
 
     const [regions, categories, settings, rows, running] = await Promise.all([
@@ -225,7 +293,7 @@ export function connect(): Promise<void> {
     ]);
     update({ regions, categories, settings, rows, running, ready: true });
     await loadCatalog(settings.locale);
-    // 美加修改版不能安装上游正式版更新，否则会覆盖本分支的地区支持。
+    // 修改版手动从自己的 Releases 更新，不能安装上游包覆盖地区支持。
   })();
   return starting;
 }
@@ -262,14 +330,17 @@ export async function loadCatalog(locale: string): Promise<void> {
   }
 }
 
-/** 从 Apple 官网读取送货地区的三级联动选项。 */
+/**
+ * 从 Apple 中国大陆官网读取送货地区的三级联动选项。
+ *
+ * 送货地址是中国大陆监控的全局设置，不应跟随“新建监控”里当前浏览的地区切换。
+ */
 export function loadDeliveryLocalities(
-  locale: string,
   selectedState = "",
   selectedCity = "",
 ): Promise<DeliveryLocalities> {
   return invoke<DeliveryLocalities>("list_delivery_localities", {
-    locale,
+    locale: "zh_CN",
     stateName: selectedState,
     cityName: selectedCity,
   });
@@ -327,23 +398,48 @@ export async function changeLocale(locale: string): Promise<void> {
   if (await saveSettings({ locale })) await loadCatalog(state.settings.locale);
 }
 
-export async function setTargets(targets: Target[]): Promise<boolean> {
-  return enqueueSettingsWrite(async () => {
-    try {
-      const rows = await invoke<TargetState[]>("set_targets", { targets });
-      const activeParts = new Set(targets.map((target) => target.partNumber));
-      const productBarkUrls = Object.fromEntries(
-        Object.entries(state.settings.productBarkUrls).filter(([partNumber]) =>
-          activeParts.has(partNumber),
-        ),
-      );
-      update({ rows, settings: { ...state.settings, targets, productBarkUrls } });
-      return true;
-    } catch (err) {
-      pushLog(`更新监控列表失败：${String(err)}`);
-      return false;
-    }
-  });
+/** 用一句话描述一次目录刷新，例如「更新目录：门店 49 家、型号 73 个」。 */
+function describeCatalogRefresh(result: CatalogRefresh): string {
+  const parts = [
+    result.stores === null ? "门店未更新" : `门店 ${result.stores} 家`,
+    `型号 ${result.products} 个`,
+  ];
+  const notes = result.errors.length > 0 ? `（${result.errors.join("；")}）` : "";
+  return `从 Apple 官网更新目录：${parts.join("、")}${notes}。`;
+}
+
+async function writeTargets(targets: Target[]): Promise<boolean> {
+  try {
+    const rows = await invoke<TargetState[]>("set_targets", { targets });
+    const activeParts = new Set(targets.map((target) => target.partNumber));
+    const productBarkUrls = Object.fromEntries(
+      Object.entries(state.settings.productBarkUrls).filter(([partNumber]) =>
+        activeParts.has(partNumber),
+      ),
+    );
+    update({ rows, settings: { ...state.settings, targets, productBarkUrls } });
+    return true;
+  } catch (err) {
+    pushLog(`更新监控列表失败：${String(err)}`);
+    return false;
+  }
+}
+
+export function setTargets(targets: Target[]): Promise<boolean> {
+  return enqueueSettingsWrite(() => writeTargets(targets));
+}
+
+/**
+ * 删除单条监控。
+ *
+ * 必须在设置写队列开始执行时才读取最新列表：用户连续点击两个删除按钮时，
+ * 后一次操作不能带着点击时的旧快照，把前一次已经删掉的项目重新写回去。
+ */
+export function removeTarget(target: Target): Promise<boolean> {
+  const key = targetKey(target);
+  return enqueueSettingsWrite(() =>
+    writeTargets(state.settings.targets.filter((item) => targetKey(item) !== key)),
+  );
 }
 
 /** 为一个型号设置专属 Bark；空地址表示恢复使用默认 Bark。 */
@@ -398,6 +494,21 @@ export async function stopWatching(): Promise<void> {
   }
 }
 
+export async function retryWatchingNow(): Promise<boolean> {
+  try {
+    const accepted = await invoke<boolean>("retry_watching_now");
+    if (accepted) {
+      update({ nextCheckAtMs: null, cooling: false });
+      pushLog("已按你的选择立即重新查询。");
+      return true;
+    }
+    pushLog("监控当前未运行，无法立即重试。");
+  } catch (err) {
+    pushLog(`立即重试失败：${String(err)}`);
+  }
+  return false;
+}
+
 export async function setIntervalSeconds(seconds: number): Promise<void> {
   return enqueueSettingsWrite(async () => {
     try {
@@ -421,13 +532,12 @@ export async function refreshProducts(): Promise<void> {
   const locale = state.settings.locale;
   const category = state.category;
   try {
-    const count = await invoke<number>("refresh_products", { locale, category });
-    // 说「抓到」而不是「更新」：这个数字是本轮成功抓下来的不同零件号数，
-    // 不等于目录里真的多了或改了多少行。
-    pushLog(`已从 Apple 官网抓到 ${count} 个型号。`);
+    const result = await invoke<CatalogRefresh>("refresh_products", { locale, category });
+    // 型号数是本轮成功抓下来的不同零件号数，不等于目录里真的多了或改了多少行。
+    pushLog(`已${describeCatalogRefresh(result)}`);
   } catch (err) {
-    // 抓取失败仍可继续用内嵌的离线目录，只是可能缺最新机型。
-    pushLog(`更新型号列表失败（仍可使用内置目录）：${String(err)}`);
+    // 抓取失败仍可继续用缓存或内置目录，只是可能缺最新机型或门店。
+    pushLog(`更新门店与型号失败（继续使用已有目录）：${String(err)}`);
   } finally {
     // 无论成败都重载一次目录。**失败时也必须重载**：后端是一页一页安装的，
     // 一个品类有八页，其中几页成功、几页失败是常事，成功那几页的新数据此刻
@@ -439,6 +549,69 @@ export async function refreshProducts(): Promise<void> {
   }
 }
 
+/** 检查本机 Clash 控制接口、专用策略组和端口；不向 Apple 发请求。 */
+export async function testClashRoute(clash: ClashSettings): Promise<ClashRouteCheck | string> {
+  try {
+    const result = await invoke<ClashRouteCheck>("test_clash_route", { clash });
+    pushLog(
+      `Clash 线路检查：${result.version}，可用节点 ${result.nodes.length} 个` +
+      `${result.skipped > 0 ? `（已排除 ${result.skipped} 个）` : ""}，测速超时 ${result.timeoutCount} 个，` +
+      `当前 ${result.now ?? "未选择"}；` +
+      `端口 ${clash.proxyPort} ${result.portOpen ? "可连接" : "无法连接"}。`,
+    );
+    return result;
+  } catch (err) {
+    const message = String(err);
+    pushLog(`Clash 线路检查失败：${message}`);
+    return message;
+  }
+}
+
+/** 读取专用策略组的节点和测速结果。 */
+export async function listClashNodes(): Promise<RouteList | string> {
+  try {
+    return await invoke<RouteList>("list_clash_nodes");
+  } catch (err) {
+    return String(err);
+  }
+}
+
+/** 手动指定查询节点；之后被拒或连不通时仍会自动切换。 */
+export async function selectClashNode(node: string): Promise<boolean> {
+  try {
+    const delay = await invoke<number | null>("select_clash_node", { node });
+    pushLog(
+      `已手动切换到节点 ${node}` +
+      `${node === "DIRECT" ? "" : delay === null ? "（测速未通过，仍按指定切换）" : `（测速 ${delay} ms）`}` +
+      "，下一次查询生效。",
+    );
+    return true;
+  } catch (err) {
+    pushLog(`手动切换节点失败：${String(err)}`);
+    return false;
+  }
+}
+
+/** 打开下单浏览器，供用户登录、加购并手动走一次结账。 */
+export async function openCheckoutBrowser(): Promise<void> {
+  try {
+    await invoke("open_checkout_browser");
+    pushLog("已打开下单浏览器。请在里面登录 Apple 账户，把要买的商品加入购物袋，并手动走一次结账。");
+  } catch (err) {
+    pushLog(`打开下单浏览器失败：${String(err)}`);
+  }
+}
+
+/** 试跑自动结账到「查看订单」页，不提交订单。 */
+export async function testCheckout(): Promise<void> {
+  try {
+    await settingsWrite;
+    pushLog(await invoke<string>("test_checkout"));
+  } catch (err) {
+    pushLog(`试跑自动结账没有完成：${String(err)}`);
+  }
+}
+
 export async function testNotify(): Promise<void> {
   try {
     await settingsWrite;
@@ -446,9 +619,11 @@ export async function testNotify(): Promise<void> {
     const jump =
       state.settings.openOnHit === "bag"
         ? "，并打开购物袋"
-        : state.settings.openOnHit === "product" && state.settings.targets.length > 0
-          ? "，并打开第一个监控目标的商品详情"
-          : "";
+        : state.settings.openOnHit === "education_bag"
+          ? "，并打开教育商店购物袋"
+          : state.settings.openOnHit === "product" && state.settings.targets.length > 0
+            ? "，并打开第一个监控目标的商品详情"
+            : "";
     const firstTarget = state.settings.targets[0];
     const bark = firstTarget && state.settings.productBarkUrls[firstTarget.partNumber]
       ? "，并向第一个监控型号的专属 Bark 推送"
@@ -522,7 +697,7 @@ export function dismissUpdate(): void {
 /** 自动更新不可用时，打开本项目的完整安装包下载页。 */
 export async function openReleasePage(): Promise<void> {
   try {
-    await openUrl("https://github.com/suversal/apple-store-inventory-monitor/releases/latest");
+    await openUrl("https://github.com/yuanruoyu515/apple-store-inventory-monitor/releases/latest");
   } catch (err) {
     update({ updateError: `无法打开下载页：${String(err)}` });
   }
@@ -539,12 +714,17 @@ async function openCommunityPage(url: string, label: string): Promise<void> {
 /** 打开上游开源仓库主页，供查看原始源码与许可证。 */
 export function openProjectPage(): Promise<void> {
   return openCommunityPage(
-    "https://github.com/suversal/apple-store-inventory-monitor",
-    "GitHub 项目页",
+    "https://github.com/yuanruoyu515/apple-store-inventory-monitor",
+    "GitHub 修改版项目页",
   );
 }
 
-/** 打开作者的 X 主页。 */
+/** 打开修改版维护者的 Threads 主页。 */
 export function openAuthorPage(): Promise<void> {
-  return openCommunityPage("https://x.com/suversal", "X 主页");
+  return openCommunityPage("https://www.threads.com/@realtimyry", "Threads 主页");
+}
+
+/** Preserve the upstream source and author credit. */
+export function openUpstreamPage(): Promise<void> {
+  return openCommunityPage("https://github.com/suversal/apple-store-inventory-monitor", "上游源码");
 }

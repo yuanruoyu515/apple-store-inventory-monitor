@@ -56,13 +56,13 @@ export function Combobox({
           role="combobox"
           aria-expanded={open}
           disabled={disabled}
-          className={cn("justify-between font-normal", className)}
+          className={cn("min-w-0 justify-between font-normal", className)}
         >
           <span
             // 触发器宽度是固定的，选中项再长也只能截断；挂个原生 title，
             // 想确认自己选的到底是哪一台时鼠标悬停就能看全。
             title={selected?.label}
-            className={cn("truncate", !selected && "text-muted-foreground")}
+            className={cn("min-w-0 truncate", !selected && "text-muted-foreground")}
           >
             {selected ? selected.label : placeholder}
           </span>

@@ -1,3 +1,5 @@
+> 当前版本为 **v1.0.27-us.1**，已基于上游 v1.0.26 更新，支持美国、加拿大和阿联酋。安装与当前查询行为以 [README.md](README.md) 为准。下文保留先前版本的地区数据来源及实现记录；旧的 fulfillment 取货路径已换成 `shop/retail/pickup-message`，请求调度与 541 处理已更新。
+
 # 果到雷达 · 加拿大支持 🇨🇦
 
 从 **v1.0.9-us.1** 开始，同一个 macOS 安装包可监控美国与加拿大。下载请用 [yuanruoyu515 的 Releases](https://github.com/yuanruoyu515/apple-store-inventory-monitor/releases/latest)，不要下载上游原版。保留 `US` 文件名是为了兼容升级，新版窗口标题为「果到雷达 · 美加版」。
@@ -43,7 +45,7 @@
 
 ## 限制
 
-离线快照表示可选择的目录，不代表当前库存。Apple 返回“取货待公布”时不会发有货提醒；查询失败仍是未知，不能当成无货。HTTP 541 风控、网络失败、官网改动与库存瞬时变化仍可能影响结果，应用会限速并在失败后退避。
+离线快照表示可选择的目录，不代表当前库存。Apple 返回“取货待公布”时不会发有货提醒；查询失败仍是未知，不能当成无货。HTTP 541 风控、网络失败、官网改动与库存瞬时变化仍可能影响结果，应用会限速，系统或指定节点模式按设定间隔重试，Clash 轮换模式会对被拒节点冷却并换线。
 
 加拿大的省／市／区送货地址联动目前不支持；该设置原本仅用于中国大陆接口，不应拿来填加拿大地址。加拿大版主要查询门店取货，送货时间仅在 Apple 实际提供时显示，不保证是某个收货邮编的报价。本版没有新增加拿大邮编送货查询。
 
@@ -54,7 +56,7 @@
 源码快照位于 `crates/apw-core/data/ca-source/catalog.json`，记录官方来源、核对时间和页面 SHA-256。构建时只读取已提交的快照，不需要访问 Apple：
 
 ```bash
-pnpm generate:na
+pnpm generate:regions
 pnpm test
 cargo test --workspace
 pnpm tauri build --bundles app

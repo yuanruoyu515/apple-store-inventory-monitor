@@ -31,3 +31,8 @@ checkout-login.json
 
 # 生成快照的脚本留下的字节码缓存
 __pycache__/
+
+# Local universal-DMG packaging intermediates
+/.dmg-venv/
+/build-input/
+/release-assets/

@@ -264,7 +264,7 @@ unchanged for upgrade compatibility. All earlier notices and GPL terms remain.
 United States, Canada and United Arab Emirates edition (2026-10-29)
 ------------------------------------------------------------
 
-Modified by yuanruoyu515. Version 1.0.27 (tag v1.0.27-us.1) incorporates
+Modified by yuanruoyu515. Version 1.0.27 (tag v1.0.27-us.2) incorporates
 suversal/apple-store-inventory-monitor v1.0.26, preserving upstream copyright,
 contributor notices and GPL-3.0-or-later terms. It carries forward the earlier
 US/Canada catalog, pending-pickup, encoded-date and country-switching changes.
@@ -278,3 +278,10 @@ remain unavailable for those regions. Upstream automatic update installation
 is disabled. New installs default to 60-second polling; existing settings stay.
 UAE source URLs, checked time and page hashes are recorded in
 ae-source/catalog.json. Earlier notices remain historical statements.
+
+Universal DMG packaging (2026-10-29)
+------------------------------------------------------------
+The public v1.0.27-us.2 release combines arm64 and x86_64 executables into one
+ad-hoc signed universal app. Its DMG includes an Applications symbolic link,
+saved Finder icon positions and an installation background. Packaging uses
+dmgbuild 1.6.7 (MIT) as a build dependency; it is not embedded in the app.

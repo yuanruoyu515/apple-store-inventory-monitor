@@ -1,6 +1,6 @@
 # 阿联酋支持
 
-从 **v1.0.27-us.1** 起，同一个 macOS 安装包支持 United States、Canada 和 **United Arab Emirates**。下载和安装见 [README](README.md)，维护者为 [yuanruoyu515](https://github.com/yuanruoyu515)，联系 [Threads @realtimyry](https://www.threads.com/@realtimyry)。
+从 **v1.0.27-us.2** 起，同一个 macOS 安装包支持 United States、Canada 和 **United Arab Emirates**。下载和安装见 [README](README.md)，维护者为 [yuanruoyu515](https://github.com/yuanruoyu515)，联系 [Threads @realtimyry](https://www.threads.com/@realtimyry)。
 
 ## 官方目录
 

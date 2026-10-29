@@ -4,7 +4,7 @@
 
 [下载最新修改版](https://github.com/yuanruoyu515/apple-store-inventory-monitor/releases/latest) · [Threads @realtimyry](https://www.threads.com/@realtimyry) · [来源与修改声明](NOTICE)
 
-当前源码和应用版本为 **1.0.27**，发布标签为 **v1.0.27-us.1**。同一个 macOS 安装包支持美国、加拿大和阿联酋。为兼容旧版升级，应用仍叫 `Apple Store Inventory Monitor US.app`，应用标识与原有配置目录不变。请从本仓库下载，不能用上游安装包覆盖修改版。
+当前源码和应用版本为 **1.0.27**，发布标签为 **v1.0.27-us.2**。同一个 macOS 安装包支持美国、加拿大和阿联酋。为兼容旧版升级，应用仍叫 `Apple Store Inventory Monitor US.app`，应用标识与原有配置目录不变。请从本仓库下载，不能用上游安装包覆盖修改版。
 
 ## 这一版更新了什么
 
@@ -20,17 +20,15 @@
 
 ## 下载与安装
 
-| Mac | 下载 v1.0.27 |
-| --- | --- |
-| Apple 芯片（M 系列） | [macOS-arm64 ZIP](https://github.com/yuanruoyu515/apple-store-inventory-monitor/releases/download/v1.0.27-us.1/Apple-Store-Inventory-Monitor-US-macOS-arm64-1.0.27.zip) |
-| Intel | [macOS-Intel ZIP](https://github.com/yuanruoyu515/apple-store-inventory-monitor/releases/download/v1.0.27-us.1/Apple-Store-Inventory-Monitor-US-macOS-Intel-1.0.27.zip) |
+**[下载 macOS 通用 DMG](https://github.com/yuanruoyu515/apple-store-inventory-monitor/releases/download/v1.0.27-us.2/Apple-Store-Inventory-Monitor-US-macOS-universal-1.0.27.dmg)**
 
+同一个 DMG 同时支持 Apple Silicon（M 系列）与 Intel，无需区分芯片。打开后显示 App、安装方向箭头与 Applications（应用程序）快捷图标。
 1. 完全退出旧应用，包括菜单栏里的实例。
-2. 解压 ZIP，把 `Apple Store Inventory Monitor US.app` 拖进“应用程序”，替换同名应用。旧版美国与加拿大监控、Bark 和声音设置会保留。
+2. 打开 DMG，把左侧 `Apple Store Inventory Monitor US.app` 拖到右侧 Applications 快捷图标，替换同名应用。旧版美国与加拿大监控、Bark 和声音设置会保留。
 3. 安装 Google Chrome 或 Microsoft Edge 到 `/Applications`。Mac 需要保持唤醒。
 4. 安装包采用 ad-hoc 签名，没有 Developer ID 签名或 Apple 公证。首次打开被拦截时，在“系统设置 → 隐私与安全性”确认本应用后选择“仍要打开”。
 
-确认 ZIP 来自本仓库且校验一致后，仍提示已损坏或无法打开时，可只移除此应用的下载隔离标记：
+确认 DMG 来自本仓库且校验一致后，仍提示已损坏或无法打开时，可只移除此应用的下载隔离标记：
 
 ```sh
 xattr -dr com.apple.quarantine "/Applications/Apple Store Inventory Monitor US.app"
@@ -74,7 +72,7 @@ cargo test --workspace
 pnpm tauri build --bundles app
 ```
 
-需要 Rust 1.90+、Node.js 24、pnpm 和 Xcode Command Line Tools。应用输出到 `target/release/bundle/macos/Apple Store Inventory Monitor US.app`。发布流水线分别构建 Apple Silicon 与 Intel，校验签名后打包，两个架构均成功才发布。
+需要 Rust 1.90+、Node.js 24、pnpm 和 Xcode Command Line Tools。应用输出到 `target/release/bundle/macos/Apple Store Inventory Monitor US.app`。发布流水线分别构建 Apple Silicon 与 Intel，校验签名后合并为包含两个架构的通用 App，再生成带 Applications 快捷图标的 DMG。两个架构均成功才发布。
 
 ## 来源与反馈
 

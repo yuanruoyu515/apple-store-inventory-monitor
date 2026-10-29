@@ -20,9 +20,13 @@ test("both macOS architectures must pass before a complete release is published"
   assert.match(workflow, /macos-15-intel/);
   assert.match(workflow, /needs: build/);
   assert.match(workflow, /codesign --verify --deep --strict/);
-  assert.match(workflow, /sha256sum/);
+  assert.match(workflow, /shasum -a 256/);
   assert.match(workflow, /--draft=false --latest/);
   const readme = await read("README.md");
   const { version } = JSON.parse(await read("package.json"));
-  for (const arch of ["arm64", "Intel"]) assert(readme.includes(`Apple-Store-Inventory-Monitor-US-macOS-${arch}-${version}.zip`));
+  assert(readme.includes(`Apple-Store-Inventory-Monitor-US-macOS-universal-${version}.dmg`));
+  const packager = await read("scripts/package-universal-dmg.py");
+  assert.match(packager, /"Applications": "\/Applications"/);
+  assert.match(packager, /set\(arches\) != \{"arm64", "x86_64"\}/);
+  assert.match(packager, /icon_locations/);
 });

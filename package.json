@@ -1,7 +1,7 @@
 {
   "name": "apple-store-inventory-monitor",
   "private": true,
-  "version": "1.0.27",
+  "version": "1.0.28",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,6 +9,7 @@
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "preview": "vite preview",
     "tauri": "tauri",
+    "generate:icons": "node scripts/generate-icons.mjs",
     "generate:us": "node scripts/generate-us-data.mjs",
     "generate:ca": "node scripts/generate-ca-data.mjs",
     "generate:ae": "node scripts/generate-ae-data.mjs",

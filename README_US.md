@@ -1,10 +1,10 @@
-> 当前版本为 **v1.0.27-us.2**，已基于上游 v1.0.26 更新，支持美国、加拿大和阿联酋。安装与当前查询行为以 [README.md](README.md) 为准。下文保留先前版本的地区数据来源及实现记录；旧的 fulfillment 取货路径已换成 `shop/retail/pickup-message`，请求调度与 541 处理已更新。
+> 当前版本为 **v1.0.28-us.1**，已基于上游 v1.0.26 更新，支持美国、加拿大和阿联酋。安装与当前查询行为以 [README.md](README.md) 为准。下文保留先前版本的地区数据来源及实现记录；旧的 fulfillment 取货路径已换成 `shop/retail/pickup-message`，请求调度与 541 处理已更新。
 
 # 果到雷达 · 美国版技术说明
 
 完整介绍、界面截图与下载安装入口见 **[美加修改版首页](README.md)**。v1.0.9 起同一应用增加加拿大支持，详见 [加拿大说明](README_CA.md)。本版由 [yuanruoyu515](https://github.com/yuanruoyu515) 维护，联系与反馈：[Threads @realtimyry](https://www.threads.com/@realtimyry)。下文保留美国适配细节、SKU 与构建说明。
 
-当前美加阿版为 **v1.0.27-us.2**，基于上游 `Apple Store Inventory Monitor` v1.0.26，美国部分继续支持 iPhone Duo、iPhone 18 Pro 与 iPhone 18 Pro Max 到店取货库存监控。保留 `US` 文件名、Bundle ID 与配置目录，兼容旧版覆盖升级。
+当前美加阿版为 **v1.0.28-us.1**，基于上游 `Apple Store Inventory Monitor` v1.0.26，美国部分继续支持 iPhone Duo、iPhone 18 Pro 与 iPhone 18 Pro Max 到店取货库存监控。保留 `US` 文件名、Bundle ID 与配置目录，兼容旧版覆盖升级。
 
 从 [GitHub Release](https://github.com/yuanruoyu515/apple-store-inventory-monitor/releases/latest) 下载：Apple 芯片与 Intel Mac 使用同一个 `macOS-universal` DMG，打开通用 DMG 后把 App 拖到 Applications 快捷图标。
 

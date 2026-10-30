@@ -720,7 +720,7 @@ export default function App() {
           <header className="surface-panel grid shrink-0 grid-cols-[1fr_auto] items-center gap-x-4 gap-y-3 px-5 py-4 min-[1180px]:grid-cols-[1fr_auto_1fr]">
             <div className="flex min-w-0 items-center gap-3.5">
               <div className="brand-mark" aria-hidden="true">
-                <Radar className="size-5" strokeWidth={1.8} />
+                <img src="/icon.png" width="40" height="40" alt="" className="size-full object-contain" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">

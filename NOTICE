@@ -285,3 +285,13 @@ The public v1.0.27-us.2 release combines arm64 and x86_64 executables into one
 ad-hoc signed universal app. Its DMG includes an Applications symbolic link,
 saved Finder icon positions and an installation background. Packaging uses
 dmgbuild 1.6.7 (MIT) as a build dependency; it is not embedded in the app.
+
+Maintained-edition icon (2026-10-29, v1.0.28-us.1)
+------------------------------------------------------------
+The edition icon adds a white curved top-left corner with a blue globe to the
+inherited radar-and-apple mark. The corner treatment follows a user-supplied
+visual reference; the Bilibili wordmark and pink background are not included.
+The adapted raster master was produced with OpenAI image_gen and is stored in
+assets/icon.png. Derived app, tray and frontend icons are generated from that
+master with the Tauri icon utility. Earlier icon and project attribution above
+continues to apply. No affiliation with Bilibili or Apple is implied.

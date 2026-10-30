@@ -54,6 +54,7 @@ def package(arm_app: Path, intel_app: Path, output: Path):
             "format": "UDZO", "filesystem": "HFS+", "files": [str(app)],
             "symlinks": {"Applications": "/Applications"},
             "background": str(Path(__file__).resolve().parent / "dmg-background.png"),
+            "icon": str(Path(__file__).resolve().parent.parent / "src-tauri/icons/icon.icns"),
             "icon_locations": {app.name: (190, 210), "Applications": (530, 210)},
             "window_rect": ((200, 160), (720, 440)), "icon_size": 100, "text_size": 12,
             "default_view": "icon-view",

@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/yuanruoyu515/apple-store-inventory-monitor/releases/download/v1.0.27-us.2/Apple-Store-Inventory-Monitor-US-macOS-universal-1.0.27.dmg">
+  <a href="https://github.com/yuanruoyu515/apple-store-inventory-monitor/releases/download/v1.0.28-us.1/Apple-Store-Inventory-Monitor-US-macOS-universal-1.0.28.dmg">
     <img src="docs/readme/download.svg" width="256" height="48" alt="下载 macOS 通用 DMG">
   </a>
 </p>
@@ -25,7 +25,7 @@
   <img src="docs/readme/app-overview.png" width="100%" alt="美加阿版真实界面：同时监控纽约、多伦多和迪拜门店，显示各型号的取货状态、最后检查时间与逐项日志">
 </p>
 
-<p align="center"><sub>v1.0.27 实机截图，拍摄于 2026-10-29。库存仅代表拍摄时 Apple 返回的结果。</sub></p>
+<p align="center"><sub>v1.0.28 实机截图，拍摄于 2026-10-29。库存仅代表拍摄时 Apple 返回的结果。</sub></p>
 
 <details>
 <summary>完整使用目录</summary>
@@ -111,24 +111,24 @@
 
 升级时，先从菜单栏完全退出旧版，再替换同名 App。为兼容旧版，应用文件名仍是 `Apple Store Inventory Monitor US.app`；窗口名称为「果到雷达 · 美加阿版」。
 
-当前应用版本为 **1.0.27**，Release 标签为 **v1.0.27-us.2**。发布页同时提供对应源码、安装说明和 SHA-256 校验文件。请从本仓库下载修改版，上游安装包不包含本版的三国适配。
+当前应用版本为 **1.0.28**，Release 标签为 **v1.0.28-us.1**。发布页同时提供对应源码、安装说明和 SHA-256 校验文件。请从本仓库下载修改版，上游安装包不包含本版的三国适配。
 
 ### 校验安装包
 
-在本版 [Release 的 Assets](https://github.com/yuanruoyu515/apple-store-inventory-monitor/releases/tag/v1.0.27-us.2) 中：
+在本版 [Release 的 Assets](https://github.com/yuanruoyu515/apple-store-inventory-monitor/releases/tag/v1.0.28-us.1) 中：
 
 | 附件 | 用途 |
 | :--- | :--- |
-| `Apple-Store-Inventory-Monitor-US-macOS-universal-1.0.27.dmg` | 普通用户下载的安装镜像 |
+| `Apple-Store-Inventory-Monitor-US-macOS-universal-1.0.28.dmg` | 普通用户下载的安装镜像 |
 | `SHA256SUMS.txt` | 安装包、源码与说明的 SHA-256 校验值 |
 | `RELEASE-NOTES.md` | 本次更新和升级说明 |
-| `Source-v1.0.27-us.2.zip` | 与本次发布对应的源码归档 |
+| `Source-v1.0.28-us.1.zip` | 与本次发布对应的源码归档 |
 
 需要校验时，把 DMG 和 `SHA256SUMS.txt` 下载到同一个目录。在终端进入该目录，例如：
 
 ```sh
 cd ~/Downloads
-shasum -a 256 Apple-Store-Inventory-Monitor-US-macOS-universal-1.0.27.dmg
+shasum -a 256 Apple-Store-Inventory-Monitor-US-macOS-universal-1.0.28.dmg
 ```
 
 将输出的完整校验值与 `SHA256SUMS.txt` 中 **DMG 对应的那一行**比较，两者应完全一致。GitHub 自动生成的 `Source code` 压缩包是源码，不是可直接打开的 App。
@@ -575,7 +575,7 @@ Bark 地址和 Clash 控制接口密钥会以明文保存在本机设置中。�
 <details>
 <summary>找不到安装包，或下载后只有源代码</summary>
 
-打开本仓库 [Releases](https://github.com/yuanruoyu515/apple-store-inventory-monitor/releases)，进入 `v1.0.27-us.2` 并展开 Assets，下载文件名含 `macOS-universal` 的 DMG。GitHub 的 `Code → Download ZIP` 和 `Source code` 都是源码。
+打开本仓库 [Releases](https://github.com/yuanruoyu515/apple-store-inventory-monitor/releases)，进入 `v1.0.28-us.1` 并展开 Assets，下载文件名含 `macOS-universal` 的 DMG。GitHub 的 `Code → Download ZIP` 和 `Source code` 都是源码。
 
 不要下载上游的安装包覆盖本版。上游并不包含本版的美国、加拿大、阿联酋目录和独立配置适配。
 
@@ -699,6 +699,21 @@ Bark 地址和 Clash 控制接口密钥会以明文保存在本机设置中。�
 使用 **Rust、Tauri 2、React 与 TypeScript** 构建。查询使用应用专属的 Chrome / Edge 资料目录，不读取日常浏览器的登录状态或浏览记录。修改版保留独立应用标识和配置目录，并通过自己的 GitHub Releases 手动更新。
 
 <details>
+<summary>维护版图标与资源生成</summary>
+
+v1.0.28 起，应用使用左上角白色弧形角标与蓝色地球标识，方便与原版区分。App、菜单栏、界面、DMG 和项目首页采用同一套图标。
+
+图标母版位于 `assets/icon.png`。修改母版后运行：
+
+```sh
+pnpm generate:icons
+```
+
+脚本通过 Tauri 图标工具生成桌面 PNG、ICNS、ICO，并同步 `public/icon.png`，供界面与网页图标使用。DMG 卷图标使用同一份 ICNS；安装背景的可编辑源文件为 `scripts/dmg-background.svg`，配套 PNG 为 `720 × 440`。
+
+</details>
+
+<details>
 <summary>从源码构建</summary>
 
 <a id="从源码构建"></a>
@@ -793,6 +808,8 @@ pnpm tauri build --bundles app --target x86_64-apple-darwin
 
 <details>
 <summary>版本验证与数据维护</summary>
+
+v1.0.28 的 Apple Silicon 与 Intel 构建各通过 342 项 Rust 测试，74 项前端测试与 Clippy 检查通过；真实 App 查询已验证美国、加拿大、阿联酋。通用 DMG 的双架构、应用签名、App / 卷图标和 Applications 链接均已核对。
 
 v1.0.27 发布前，342 项 Rust 测试分别在 Apple Silicon 和 Intel（Rosetta）运行通过，74 项前端测试通过。真实 Chromium 查询已验证美国、加拿大、阿联酋，以及跨地区会话切换。通用 App 包含 `arm64` 与 `x86_64`，DMG 挂载后的签名和 Applications 链接也经过检查。
 

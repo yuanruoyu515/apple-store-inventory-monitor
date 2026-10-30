@@ -186,8 +186,7 @@
   }
 
   .brand-mark {
-    @apply flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary;
-    box-shadow: inset 0 1px 0 color-mix(in oklch, var(--foreground) 8%, transparent), 0 10px 24px -16px var(--primary);
+    @apply block size-10 shrink-0;
   }
 
   .status-pill {
